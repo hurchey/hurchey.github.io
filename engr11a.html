@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Eric Hurchey</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon">
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/typewriter.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Intro -->
+					<section id="welcome" class="wrapper style1 fullscreen fade-up">
+						<div class="inner" style="margin: 1% 0 0 0;">
+							<h1>Engineering Projects</h1>
+							<div class="typewriter">
+								<h3>Scroll Down...</h3>
+							</div>
+						</div>
+					</section>
+
+				<!-- Projects -->
+				<section id="projects" class="wrapper style2 spotlights" style="background-color: #000000;">
+					<section>
+						<div class="content">
+							<div class="inner">
+								<h2>Engineering Projects</h2>
+								<p style="margin-top: -15px; margin-bottom: 15px;"><i>(a class that is based on 3D modeling and design)</i></p>
+								<h3>SEPT 2024 - DEC 2024</h3>
+								<h4>3D Modeling and Desgining</h4>
+								<p>Technologies: Github (Devops), PrusaSlicer</p>
+								<ul>
+									<li>
+										Different Engineering projects that I model and desgin and learn from through the failers that I create through the models.
+									</li>
+								</ul>
+							</div>
+						</div>
+						<a href="engr11a.html" rel="noopener noreferrer" target="_blank" class="image">
+							<img src="images/computer-virus.png" alt="Quant Club Logo" data-position="center center" style="display: none;">
+						</a>
+					</section>
+				</section>
+			<div>
+
+				<!-- Three : contact info-->
+					<section id="contact" class="wrapper style1 fade-up">
+						<div class="inner" style="padding-bottom: 0px;">
+								<div id="contact">
+									<div class="container">
+										<div class="row">
+											<div class="contact-left">
+												<h1 class="sub-title">Contact Me</h1>
+												<ul class="contact">
+													<li>
+														<h3>Address</h3>
+														<span>415 South Street<br />
+														Waltham, MA 02453</span>
+													</li>
+													<li>
+														<h3>Email</h3>
+														<a href="mailto:eric.hurchey@gmail.com">eric.hurchey@gmail.com</a>
+													</li>
+													<li>
+														<h3>Phone</h3>
+														<span>(718) 825-5226</span>
+													</li>
+													<li>
+														<h3>Socials</h3>
+														<ul class="icons">
+															<li><a target="_blank" href="https://github.com/hurchey" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+															<li><a target="_blank" href="https://www.linkedin.com/in/eric-hurchey/" class="icon brands fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+															<li><a target="_blank" href="https://www.instagram.com/hvrchey/" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+															<li><a target="_blank" href="https://www.facebook.com/bob.bobberson.79274" class="icon brands fa-facebook"><span class="label">Facebook</span></a></li>
+														</ul>
+													</li>
+												</ul>
+												<br>
+											</div>
+											<div class="contact-right" style="margin-top: 7.7%;">
+												<form name="submit-to-google-sheet">
+													<input type="text" name="Name" placeholder="Your Name" required>
+													<input type="email" name="Email" placeholder="Your Email" required>
+													<textarea name="Message" style="resize: none;"rows="6" placeholder="Your Message"></textarea>
+													<button type="submit" class="btn btn2">Submit</button> 
+												</form>
+												<span id="msg"></span>
+											</div>
+										</div>
+									</div>
+								</div>
+						</div>
+					<!-- Footer -->
+						<footer id="footer" class="wrapper style1-alt">
+							<div class="inner" style="padding-bottom: 0">
+								<ul class="menu">
+									<li>&copy; Eric Hurchey All Rights Reserved.</li>
+								</ul>
+							</div>
+						</footer>
+					</section>	
+			</div>
+
+		<!-- Scripts -->
+			<!-- Contact Scripts -->
+				<script>
+					var tablinks = document.getElementsByClassName("tab-links");
+					var tabcontents = document.getElementsByClassName("tab-contents");
+					function opentab(tabname){
+						for(tablink of tablinks){
+							tablink.classList.remove("active-link");
+						}
+						for(tabcontent of tabcontents){
+							tabcontent.classList.remove("active-tab");
+						}
+						event.currentTarget.classList.add("active-link");
+						document.getElementById(tabname).classList.add("active-tab");
+					}
+				</script>				
+				<script>
+					var sidemenu = document.getElementById("sidemenu");
+					function openmenu(){
+						sidemenu.style.right = "0";
+					}
+					function closemenu(){
+						sidemenu.style.right = "-200px";
+					}
+				</script>				
+				<script>
+					const scriptURL = 'https://script.google.com/macros/s/AKfycbyyd3vavFIBHqkoey3zaTdK2WmG6t_fz6lQ9lcu8mMYGFArObOzHz-CX6m8jkGeAAmDkg/exec'
+					const form = document.forms['submit-to-google-sheet']
+					const msg = document.getElementById("msg")
+					form.addEventListener('submit', e => {
+					e.preventDefault()
+					fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+						.then(response => {
+							msg.innerHTML = "Message Sent Successfully"
+							setTimeout(function(){
+								msg.innerHTML = ""
+							},5000)
+				
+							form.reset()
+						})
+						.catch(error => console.error('Error!', error.message))
+					})
+				</script>
+			<!-- Script for profile image -->
+				<script>
+					document.addEventListener('DOMContentLoaded', function () {
+					var maxWidth = window.screen.width * 0.847;
+					var style = document.createElement('style');
+					style.innerHTML = `
+						@media only screen and (max-width: ${maxWidth}px) {
+							.profile-picture img {
+								display: none;
+							}
+						}
+					`;
+					document.head.appendChild(style);
+				});
+				</script>
+			<!-- Script for download btns -->
+				<script>
+					document.addEventListener('DOMContentLoaded', function () {
+					var maxWidth = window.screen.width * 0.376;
+					var style = document.createElement('style');
+					style.innerHTML = `
+						@media only screen and (max-width: ${maxWidth}px) {
+							.fa-download {
+								font-size: 1.5vw;
+							}
+						}
+					`;
+					document.head.appendChild(style);
+				});
+				</script>
+
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			<script>
+			</script>
+	</body>
+</html>
