@@ -1,0 +1,3055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eric Hurchey | Portfolio</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&family=Inter:wght@100;200;300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --terminal-black: #0c0c0c;
+            --terminal-green: #00ff00;
+            --terminal-cyan: #00ffff;
+            --terminal-yellow: #ffff00;
+            --terminal-red: #ff0040;
+            --terminal-magenta: #ff00ff;
+            --terminal-white: #f0f0f0;
+            --terminal-gray: #808080;
+            --terminal-bg: #000000;
+            
+            /* GUI Mode Colors */
+            --gui-bg: #000000;
+            --gui-dark: #ffffff;
+            --gui-accent: #ffffff;
+            --gui-gray: #111111;
+            --gui-text: #ffffff;
+            --gui-text-light: #cccccc;
+        }
+
+        ::selection {
+            background: var(--terminal-green);
+            color: var(--terminal-black);
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: var(--terminal-bg);
+            color: var(--terminal-green);
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+            transition: all 0.5s ease;
+        }
+
+        body.gui-mode {
+            font-family: 'Inter', sans-serif;
+            background: var(--gui-bg);
+            color: var(--gui-text);
+            overflow-y: auto;
+        }
+
+        /* CRT Effect (Terminal Mode Only) */
+        .crt-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .crt-effect::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+        }
+
+        .crt-effect::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+        }
+
+        body.gui-mode .crt-effect {
+            opacity: 0;
+        }
+
+        /* Terminal Container with Fixed Layout */
+        .terminal-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            animation: terminalGlow 2s ease-in-out infinite alternate;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+            overflow: hidden;
+        }
+
+        body.gui-mode .terminal-container {
+            display: none;
+        }
+
+        @keyframes terminalGlow {
+            from { filter: brightness(0.95); }
+            to { filter: brightness(1.05); }
+        }
+
+        /* Fixed Terminal Header */
+        .terminal-header-section {
+            flex-shrink: 0;
+            background: var(--terminal-bg);
+            z-index: 100;
+            padding: 20px 20px 0 20px;
+        }
+
+        /* Terminal Header Bar */
+        .terminal-header {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--terminal-green);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            font-size: 14px;
+            color: var(--terminal-green);
+            text-shadow: 0 0 5px var(--terminal-green);
+        }
+
+        .terminal-status {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: var(--terminal-gray);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--terminal-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .help-text {
+            color: var(--terminal-gray);
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        /* Scrollable Terminal Body */
+        .terminal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px;
+            min-height: 0;
+        }
+
+        /* Terminal Output Area */
+        .terminal-output {
+            padding: 10px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .terminal-body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .terminal-body::-webkit-scrollbar-track {
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .terminal-body::-webkit-scrollbar-thumb {
+            background: var(--terminal-green);
+            border-radius: 5px;
+        }
+
+        /* Fixed Terminal Input */
+        .terminal-input-wrapper {
+            flex-shrink: 0;
+            background: var(--terminal-bg);
+            padding: 0 20px 20px 20px;
+            z-index: 100;
+        }
+
+        /* Terminal Input Area */
+        .terminal-input-section {
+            padding: 10px 0;
+            border-top: 1px solid var(--terminal-green);
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .terminal-prompt {
+            color: var(--terminal-green);
+            margin-right: 10px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .terminal-input-container {
+            flex: 1;
+            position: relative;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+        }
+
+        .terminal-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--terminal-white);
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            caret-color: transparent;
+        }
+
+        /* Custom Cursor that follows selection */
+        .terminal-cursor {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 16px;
+            background: var(--terminal-green);
+            animation: blink 1s infinite;
+            pointer-events: none;
+            transition: left 0.1s ease;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        /* Output Line Types */
+        .output-line {
+            margin-bottom: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .output-command {
+            color: var(--terminal-white);
+        }
+
+        .output-error {
+            color: var(--terminal-red);
+        }
+
+        .output-success {
+            color: var(--terminal-green);
+        }
+
+        .output-info {
+            color: var(--terminal-cyan);
+        }
+
+        .output-warning {
+            color: var(--terminal-yellow);
+        }
+
+        .output-section {
+            color: var(--terminal-magenta);
+            font-weight: 500;
+            margin: 10px 0;
+        }
+
+        /* ASCII Art Container - Centered */
+        .ascii-art-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* ASCII Art */
+        .ascii-art {
+            color: var(--terminal-green);
+            line-height: 1;
+            margin: 10px auto;
+            font-size: 12px;
+            text-align: center;
+            display: inline-block;
+            font-family: monospace;
+        }
+
+        /* Quick Commands Bar */
+        .quick-commands-bar {
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 1px solid var(--terminal-green);
+            padding: 15px 20px;
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 101;
+            animation: slideUp 0.3s ease;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .quick-commands-bar.visible {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .quick-commands-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .quick-cmd-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .quick-cmd-label {
+            font-size: 10px;
+            color: var(--terminal-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-right: 10px;
+        }
+
+        .quick-cmd-btn {
+            padding: 6px 14px;
+            background: transparent;
+            border: 1px solid var(--terminal-green);
+            color: var(--terminal-green);
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .quick-cmd-btn:hover {
+            background: var(--terminal-green);
+            color: var(--terminal-black);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .quick-cmd-close {
+            margin-left: auto;
+            padding: 6px 10px;
+            background: transparent;
+            border: 1px solid var(--terminal-gray);
+            color: var(--terminal-gray);
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+            line-height: 1;
+        }
+
+        .quick-cmd-close:hover {
+            border-color: var(--terminal-red);
+            color: var(--terminal-red);
+        }
+
+        /* Clickable Directory Listing */
+        .clickable-item {
+            color: var(--terminal-cyan);
+            cursor: pointer;
+            text-decoration: underline;
+            display: inline-block;
+            margin-right: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .clickable-item:hover {
+            color: var(--terminal-green);
+            text-shadow: 0 0 10px var(--terminal-green);
+        }
+
+        .clickable-item.directory {
+            font-weight: bold;
+        }
+
+        /* GUI Container - Minimalistic Design */
+        .gui-container {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        body.gui-mode .gui-container {
+            display: block;
+            opacity: 1;
+        }
+
+        /* 3D Canvas Background */
+        #canvas3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* GUI Navigation - Minimal */
+        .gui-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            z-index: 1000;
+            display: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.gui-mode .gui-nav {
+            display: block;
+        }
+
+        .gui-nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gui-nav-logo {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+        }
+
+        .gui-nav-menu {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .gui-nav-link {
+            color: var(--gui-text);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .gui-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gui-dark);
+            transition: width 0.3s ease;
+        }
+
+        .gui-nav-link:hover::after {
+            width: 100%;
+        }
+
+        .gui-back-btn {
+            padding: 8px 20px;
+            background: black;
+            color: white;
+            border: 1px solid white;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gui-back-btn:hover {
+            background: white;
+            color: black;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        /* GUI Content */
+        .gui-content {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        .gui-section {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .gui-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* GUI Hero - Minimal */
+        .gui-hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .gui-hero-content {
+            max-width: 600px;
+            z-index: 10;
+        }
+
+        .gui-hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 100;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .gui-hero-subtitle {
+            font-size: 16px;
+            color: var(--gui-text-light);
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .gui-hero-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        /* New GUI Styles for Enhanced Home Page */
+        .gui-hero-tagline {
+            font-size: 1rem;
+            color: var(--gui-text-light);
+            margin-bottom: 40px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+        
+        .gui-stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin: 40px 0;
+            padding: 30px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .gui-stat-item {
+            text-align: center;
+        }
+        
+        .gui-stat-number {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 200;
+            color: var(--gui-text);
+            margin-bottom: 5px;
+        }
+        
+        .gui-stat-label {
+            font-size: 0.9rem;
+            color: var(--gui-text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .gui-highlights {
+            margin: 60px auto;
+            max-width: 900px;
+        }
+        
+        .gui-highlights h3 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            color: var(--gui-text);
+            text-align: center;
+        }
+        
+        .gui-highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .gui-highlight-item {
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .gui-highlight-item:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .highlight-icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .gui-highlight-item h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 400;
+            color: var(--gui-text);
+        }
+        
+        .gui-highlight-item p {
+            font-size: 0.9rem;
+            color: var(--gui-text-light);
+            line-height: 1.6;
+        }
+        
+        .gui-terminal-hint {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .gui-link-button {
+            background: none;
+            border: none;
+            color: var(--gui-text);
+            text-decoration: underline;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0;
+            margin-left: 5px;
+            transition: opacity 0.3s ease;
+        }
+        
+        .gui-link-button:hover {
+            opacity: 0.7;
+        }
+
+        .gui-button {
+            padding: 14px 32px;
+            background: black;
+            border: 1px solid white;
+            color: white;
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .gui-button:hover {
+            background: white;
+            color: black;
+            transform: translateX(5px);
+        }
+
+        .gui-button.primary {
+            background: white;
+            color: black;
+        }
+
+        .gui-button.primary:hover {
+            background: black;
+            color: white;
+            border-color: white;
+        }
+
+        /* GUI Sections - Minimal Grid */
+        .gui-grid-section {
+            padding: 100px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gui-section-title {
+            font-size: 2.5rem;
+            font-weight: 100;
+            margin-bottom: 60px;
+            letter-spacing: -1px;
+        }
+        
+        .gui-nav-back {
+            background: black;
+            border: 1px solid white;
+            color: white;
+            padding: 10px 20px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .gui-nav-back:hover {
+            background: white;
+            color: black;
+            transform: translateX(-5px);
+        }
+
+        .gui-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .gui-card {
+            background: black;
+            padding: 40px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gui-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Enhanced Project Cards */
+        .gui-projects-intro {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+            color: var(--gui-text-light);
+        }
+        
+        .gui-project-card {
+            background: black;
+            padding: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .gui-project-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.1);
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .project-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border: 1px solid var(--gui-text);
+            color: var(--gui-text);
+            border-radius: 3px;
+        }
+        
+        .project-tech {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .tech-tag {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--gui-text-light);
+            border-radius: 3px;
+        }
+        
+        .project-stats {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            color: var(--gui-text-light);
+        }
+        
+        .project-link {
+            margin-top: auto;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid var(--gui-text);
+            color: var(--gui-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .project-link:hover {
+            background: white;
+            color: black;
+        }
+        
+        .gui-cta-section {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .gui-cta-section p {
+            margin-bottom: 20px;
+            color: var(--gui-text-light);
+        }
+
+        .gui-card h3 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 15px;
+        }
+
+        .gui-card p {
+            color: var(--gui-text-light);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .gui-nav-menu {
+                display: none;
+            }
+
+            .gui-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .terminal-header-section {
+                padding: 10px 10px 0 10px;
+            }
+
+            .terminal-input-wrapper {
+                padding: 0 10px 10px 10px;
+            }
+
+            .terminal-body {
+                padding: 0 10px;
+            }
+
+            .quick-commands-container {
+                flex-direction: column;
+            }
+
+            .help-text {
+                display: none;
+            }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--terminal-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10003;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-text {
+            color: var(--terminal-green);
+            font-size: 14px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: loadingDots 1.5s infinite;
+        }
+
+        @keyframes loadingDots {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
+        
+        /* Hacking Terminal Overlay */
+        .hacking-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            z-index: 10001;
+            animation: glitchIn 0.5s ease;
+        }
+        
+        .hacking-overlay.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @keyframes glitchIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+                filter: hue-rotate(90deg);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.05);
+                filter: hue-rotate(-90deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                filter: hue-rotate(0deg);
+            }
+        }
+        
+        .hacking-terminal {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: #000;
+            border: 2px solid var(--terminal-red);
+            box-shadow: 0 0 50px rgba(255, 0, 64, 0.5);
+            display: flex;
+            flex-direction: column;
+            font-family: 'Fira Code', monospace;
+            animation: terminalFlicker 0.1s infinite;
+        }
+        
+        @keyframes terminalFlicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 0.95; }
+        }
+        
+        .hacking-header {
+            padding: 15px;
+            background: var(--terminal-red);
+            color: black;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .hacking-close {
+            cursor: pointer;
+            padding: 5px 10px;
+            background: black;
+            color: var(--terminal-red);
+            border: none;
+            font-family: inherit;
+        }
+        
+        .hacking-close:hover {
+            background: var(--terminal-red);
+            color: black;
+        }
+        
+        .hacking-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            color: var(--terminal-red);
+        }
+        
+        .hacking-input-section {
+            padding: 15px;
+            border-top: 1px solid var(--terminal-red);
+            display: flex;
+            align-items: center;
+        }
+        
+        .hacking-prompt {
+            color: var(--terminal-red);
+            margin-right: 10px;
+        }
+        
+        .hacking-input-container {
+            flex: 1;
+            position: relative;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+        }
+        
+        .hacking-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--terminal-red);
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            caret-color: transparent;
+        }
+        
+        .hacking-cursor {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 16px;
+            background: var(--terminal-red);
+            animation: blink 1s infinite;
+            pointer-events: none;
+            transition: left 0.1s ease;
+        }
+        
+        .hack-line {
+            margin-bottom: 5px;
+            white-space: pre-wrap;
+            opacity: 0;
+            animation: fadeInLine 0.5s forwards;
+        }
+        
+        @keyframes fadeInLine {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .typing-effect {
+            overflow: hidden;
+            border-right: 2px solid var(--terminal-red);
+            white-space: pre;
+            animation: typing 2s steps(40, end), blinkCaret .75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blinkCaret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--terminal-red) }
+        }
+    </style>
+</head>
+<body>
+    <!-- CRT Effect -->
+    <div class="crt-effect"></div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-text">
+            <span>Initializing Portfolio System</span>
+            <span class="loading-dots"></span>
+        </div>
+    </div>
+
+    <!-- Quick Commands Bar -->
+    <div class="quick-commands-bar" id="quickCommandsBar">
+        <div class="quick-commands-container">
+            <div class="quick-cmd-section">
+                <span class="quick-cmd-label">Navigation</span>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cd ~')">Home</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cd about')">About</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cd skills')">Skills</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cd projects')">Projects</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cd experience')">Experience</button>
+            </div>
+            <div class="quick-cmd-section">
+                <span class="quick-cmd-label">Navigation</span>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('ls')">List Files</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cd projects')">Projects</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cd about')">About</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cd skills')">Skills</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cd experience')">Experience</button>
+            </div>
+            <div class="quick-cmd-section">
+                <span class="quick-cmd-label">View Files</span>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat about/bio.txt')">Bio</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat skills/languages.txt')">Languages</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat experience/current.txt')">Current Job</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat contact.txt')">Contact Info</button>
+            </div>
+            <div class="quick-cmd-section">
+                <span class="quick-cmd-label">Actions</span>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('download resume')">Download Resume</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('gui')">Visual Mode</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('hack')">Hacking Game</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('help')">Help</button>
+            </div>
+            <button class="quick-cmd-close" onclick="hideQuickCommands()">×</button>
+        </div>
+    </div>
+
+    <!-- Terminal Mode Container -->
+    <div class="terminal-container" id="terminalContainer">
+        <!-- Fixed Header Section -->
+        <div class="terminal-header-section">
+            <div class="terminal-header">
+                <div class="terminal-title">
+                    <span>TERMINAL://PORTFOLIO_SYSTEM_V1.0</span>
+                </div>
+                <div class="terminal-status">
+                    <span class="help-text">Press Tab for quick commands or type ? for help</span>
+                    <div class="status-item">
+                        <div class="status-dot"></div>
+                        <span>CONNECTED</span>
+                    </div>
+                    <div class="status-item">
+                        <span id="time">00:00:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Terminal Body -->
+        <div class="terminal-body">
+            <div class="terminal-output" id="terminalOutput"></div>
+        </div>
+
+        <!-- Fixed Input Section -->
+        <div class="terminal-input-wrapper">
+            <div class="terminal-input-section">
+                <span class="terminal-prompt" id="prompt">visitor@home:~$</span>
+                <div class="terminal-input-container">
+                    <input type="text" class="terminal-input" id="terminalInput" autofocus>
+                    <span class="terminal-cursor" id="cursor"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GUI Mode Container -->
+    <div class="gui-container" id="guiContainer">
+        <!-- 3D Canvas Background -->
+        <canvas id="canvas3d"></canvas>
+        
+        <!-- GUI Navigation -->
+        <nav class="gui-nav">
+            <div class="gui-nav-content">
+                <div class="gui-nav-logo">Eric Hurchey</div>
+                <ul class="gui-nav-menu">
+                    <li><a class="gui-nav-link" onclick="showGuiSection('home')">Home</a></li>
+                    <li><a class="gui-nav-link" onclick="showGuiSection('about')">About</a></li>
+                    <li><a class="gui-nav-link" onclick="showGuiSection('skills')">Skills</a></li>
+                    <li><a class="gui-nav-link" onclick="showGuiSection('projects')">Projects</a></li>
+                    <li><a class="gui-nav-link" onclick="showGuiSection('experience')">Experience</a></li>
+                    <li><a class="gui-nav-link" onclick="showGuiSection('contact')">Contact</a></li>
+                </ul>
+                <button class="gui-back-btn" onclick="setMode('terminal')">Terminal</button>
+            </div>
+        </nav>
+
+        <div class="gui-content">
+            <!-- GUI Home Section -->
+            <div class="gui-section active" id="gui-home">
+                <div class="gui-hero">
+                    <div class="gui-hero-content">
+                        <h1>Eric Hurchey</h1>
+                        <p class="gui-hero-subtitle">Full Stack Developer & Product Innovator</p>
+                        <p class="gui-hero-tagline">Building the future, one line of code at a time</p>
+                        
+                        <div class="gui-stats-row">
+                            <div class="gui-stat-item">
+                                <span class="gui-stat-number">5+</span>
+                                <span class="gui-stat-label">Years Experience</span>
+                            </div>
+                            <div class="gui-stat-item">
+                                <span class="gui-stat-number">20+</span>
+                                <span class="gui-stat-label">Projects Built</span>
+                            </div>
+                            <div class="gui-stat-item">
+                                <span class="gui-stat-number">10K+</span>
+                                <span class="gui-stat-label">Users Impacted</span>
+                            </div>
+                        </div>
+                        
+                        <div class="gui-hero-buttons">
+                            <button class="gui-button primary" onclick="showGuiSection('projects')">View Projects</button>
+                            <button class="gui-button" onclick="showGuiSection('about')">About Me</button>
+                            <button class="gui-button" onclick="showGuiSection('skills')">Skills</button>
+                            <button class="gui-button" onclick="showGuiSection('experience')">Experience</button>
+                            <button class="gui-button" onclick="showGuiSection('contact')">Contact</button>
+                        </div>
+                        
+                        <div class="gui-highlights">
+                            <h3>What I Do</h3>
+                            <div class="gui-highlight-grid">
+                                <div class="gui-highlight-item">
+                                    <span class="highlight-icon">⚡</span>
+                                    <h4>Fast & Scalable</h4>
+                                    <p>Building performant applications that scale</p>
+                                </div>
+                                <div class="gui-highlight-item">
+                                    <span class="highlight-icon">🎨</span>
+                                    <h4>Beautiful UX</h4>
+                                    <p>Creating intuitive user experiences</p>
+                                </div>
+                                <div class="gui-highlight-item">
+                                    <span class="highlight-icon">🔒</span>
+                                    <h4>Secure Code</h4>
+                                    <p>Following best security practices</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="gui-terminal-hint">
+                            <p>💻 Prefer command-line? <button class="gui-link-button" onclick="setMode('terminal')">Switch to Terminal</button></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other GUI Sections -->
+            <div class="gui-section" id="gui-about">
+                <div class="gui-grid-section">
+                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
+                    <h2 class="gui-section-title">About</h2>
+                    <div class="gui-grid">
+                        <div class="gui-card">
+                            <h3>Background</h3>
+                            <p>Passionate about building innovative digital experiences with modern web technologies. I combine technical expertise with product thinking to create meaningful solutions.</p>
+                        </div>
+                        <div class="gui-card">
+                            <h3>Education</h3>
+                            <p>Computer Science student focused on software engineering and product management. Constantly learning and adapting to new technologies.</p>
+                        </div>
+                        <div class="gui-card">
+                            <h3>Interests</h3>
+                            <p>Full-stack development, UI/UX design, machine learning, and creating impactful user experiences. Also a huge NBA fan and classical musician!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gui-section" id="gui-skills">
+                <div class="gui-grid-section">
+                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
+                    <h2 class="gui-section-title">Skills</h2>
+                    <div class="gui-grid">
+                        <div class="gui-card">
+                            <h3>Frontend</h3>
+                            <p>React, TypeScript, Next.js, Three.js, TailwindCSS, WebGL</p>
+                        </div>
+                        <div class="gui-card">
+                            <h3>Backend</h3>
+                            <p>Node.js, Python, Django, Express, PostgreSQL, MongoDB</p>
+                        </div>
+                        <div class="gui-card">
+                            <h3>Tools & Cloud</h3>
+                            <p>Git, Docker, AWS, Kubernetes, CI/CD, Agile methodologies</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gui-section" id="gui-projects">
+                <div class="gui-grid-section">
+                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
+                    <h2 class="gui-section-title">Projects</h2>
+                    
+                    <div class="gui-projects-intro">
+                        <p>A showcase of my technical expertise and problem-solving abilities through real-world applications.</p>
+                    </div>
+                    
+                    <div class="gui-grid">
+                        <div class="gui-project-card">
+                            <div class="project-header">
+                                <h3>Neural Interface</h3>
+                                <span class="project-badge">Machine Learning</span>
+                            </div>
+                            <p>ML-powered adaptive UI that learns from user behavior to personalize the experience.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">React</span>
+                                <span class="tech-tag">TensorFlow.js</span>
+                                <span class="tech-tag">WebGL</span>
+                            </div>
+                            <div class="project-stats">
+                                <span>📊 40% better engagement</span>
+                                <span>👥 10K+ users</span>
+                            </div>
+                            <button class="project-link" onclick="alert('GitHub: github.com/erichurchey/neural-interface')">View Code →</button>
+                        </div>
+                        
+                        <div class="gui-project-card">
+                            <div class="project-header">
+                                <h3>Quantum Visualizer</h3>
+                                <span class="project-badge">3D Graphics</span>
+                            </div>
+                            <p>3D visualization tool for quantum states, used by universities for quantum computing education.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">Three.js</span>
+                                <span class="tech-tag">TypeScript</span>
+                                <span class="tech-tag">Python</span>
+                            </div>
+                            <div class="project-stats">
+                                <span>🎓 3 universities</span>
+                                <span>⭐ 500+ stars</span>
+                            </div>
+                            <button class="project-link" onclick="alert('GitHub: github.com/erichurchey/quantum-visualizer')">View Code →</button>
+                        </div>
+                        
+                        <div class="gui-project-card">
+                            <div class="project-header">
+                                <h3>Decentralized Portfolio</h3>
+                                <span class="project-badge">Blockchain</span>
+                            </div>
+                            <p>Blockchain-based portfolio platform ensuring data ownership and authenticity.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">Ethereum</span>
+                                <span class="tech-tag">Solidity</span>
+                                <span class="tech-tag">IPFS</span>
+                            </div>
+                            <div class="project-stats">
+                                <span>💼 500+ portfolios</span>
+                                <span>💰 $50K+ processed</span>
+                            </div>
+                            <button class="project-link" onclick="alert('GitHub: github.com/erichurchey/decentralized-portfolio')">View Code →</button>
+                        </div>
+                    </div>
+                    
+                    <div class="gui-cta-section">
+                        <p>Want to see more?</p>
+                        <button class="gui-button" onclick="window.open('https://github.com/erichurchey', '_blank')">Visit My GitHub</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gui-section" id="gui-experience">
+                <div class="gui-grid-section">
+                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
+                    <h2 class="gui-section-title">Experience</h2>
+                    <div class="gui-grid">
+                        <div class="gui-card">
+                            <h3>Senior Full Stack Developer</h3>
+                            <p><strong>TechCorp</strong> • 2024 - Present<br/>Leading microservices development, mentoring team members, and architecting scalable solutions.</p>
+                        </div>
+                        <div class="gui-card">
+                            <h3>Full Stack Developer</h3>
+                            <p><strong>StartupXYZ</strong> • 2022 - 2023<br/>Built React-based SaaS platform and RESTful APIs serving 10,000+ daily users.</p>
+                        </div>
+                        <div class="gui-card">
+                            <h3>Junior Developer</h3>
+                            <p><strong>WebAgency</strong> • 2020 - 2022<br/>Delivered 20+ client projects and improved site performance by 50% average.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gui-section" id="gui-contact">
+                <div class="gui-grid-section">
+                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
+                    <h2 class="gui-section-title">Contact</h2>
+                    <div class="gui-grid">
+                        <div class="gui-card">
+                            <h3>Email</h3>
+                            <p>eric.hurchey@example.com</p>
+                        </div>
+                        <div class="gui-card">
+                            <h3>LinkedIn</h3>
+                            <p>linkedin.com/in/erichurchey</p>
+                        </div>
+                        <div class="gui-card">
+                            <h3>GitHub</h3>
+                            <p>github.com/erichurchey</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js for 3D Background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Initialize
+        let currentMode = 'terminal';
+        let terminalSystem = null;
+        let firstVisit = !localStorage.getItem('portfolioVisited');
+        let quickCommandsVisible = false;
+        let scene3d, camera3d, renderer3d, shapes3d = [];
+
+        // Show loading screen
+        setTimeout(() => {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            if (firstVisit) {
+                localStorage.setItem('portfolioVisited', 'true');
+            }
+        }, 1500);
+
+        // Mode Switching
+        function setMode(mode) {
+            currentMode = mode;
+            const body = document.body;
+            
+            if (mode === 'gui') {
+                body.classList.add('gui-mode');
+                hideQuickCommands();
+                init3DBackground();
+            } else {
+                body.classList.remove('gui-mode');
+                document.getElementById('terminalInput').focus();
+                if (renderer3d) {
+                    cancelAnimationFrame(animationId3d);
+                }
+            }
+        }
+
+        // 3D Background for GUI Mode
+        let animationId3d;
+        function init3DBackground() {
+            const canvas = document.getElementById('canvas3d');
+            if (!canvas) return;
+
+            scene3d = new THREE.Scene();
+            camera3d = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer3d = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            renderer3d.setSize(window.innerWidth, window.innerHeight);
+            renderer3d.setClearColor(0xffffff, 0);
+
+            // Create geometric shapes
+            const geometries = [
+                new THREE.TetrahedronGeometry(1),
+                new THREE.OctahedronGeometry(1),
+                new THREE.IcosahedronGeometry(1)
+            ];
+
+            const material = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.2
+            });
+
+            for (let i = 0; i < 5; i++) {
+                const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.x = (Math.random() - 0.5) * 10;
+                mesh.position.y = (Math.random() - 0.5) * 10;
+                mesh.position.z = (Math.random() - 0.5) * 10;
+                mesh.rotation.x = Math.random() * Math.PI;
+                mesh.rotation.y = Math.random() * Math.PI;
+                shapes3d.push(mesh);
+                scene3d.add(mesh);
+            }
+
+            camera3d.position.z = 5;
+
+            function animate3D() {
+                animationId3d = requestAnimationFrame(animate3D);
+                shapes3d.forEach((shape, i) => {
+                    shape.rotation.x += 0.001 * (i + 1);
+                    shape.rotation.y += 0.001 * (i + 1);
+                });
+                renderer3d.render(scene3d, camera3d);
+            }
+            animate3D();
+        }
+
+        // Quick Commands Functions
+        function showQuickCommands() {
+            quickCommandsVisible = true;
+            document.getElementById('quickCommandsBar').classList.add('visible');
+            const terminalBody = document.querySelector('.terminal-body');
+            if (terminalBody) {
+                terminalBody.style.paddingBottom = '220px';
+            }
+        }
+
+        function hideQuickCommands() {
+            quickCommandsVisible = false;
+            document.getElementById('quickCommandsBar').classList.remove('visible');
+            const terminalBody = document.querySelector('.terminal-body');
+            if (terminalBody) {
+                terminalBody.style.paddingBottom = '0';
+            }
+            document.getElementById('terminalInput').focus();
+        }
+
+        function executeQuickCommand(command) {
+            if (terminalSystem) {
+                hideQuickCommands();
+                terminalSystem.input.value = command;
+                terminalSystem.executeCommand();
+            }
+        }
+        
+        // Close Hacking Terminal
+        function closeHackingTerminal() {
+            if (terminalSystem) {
+                terminalSystem.closeHackingTerminal();
+            }
+        }
+
+        // GUI Section Navigation
+        function showGuiSection(sectionId) {
+            document.querySelectorAll('.gui-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            const section = document.getElementById(`gui-${sectionId}`);
+            if (section) {
+                section.classList.add('active');
+            }
+        }
+
+        // Terminal System Class
+        class TerminalPortfolio {
+            constructor() {
+                this.commandHistory = [];
+                this.historyIndex = -1;
+                this.username = 'visitor';
+                this.currentPath = '~';
+                
+                // File system structure
+                this.fileSystem = {
+                    '~': {
+                        type: 'directory',
+                        contents: {
+                            'about': { type: 'directory', contents: {
+                                'bio.txt': { type: 'file', content: `ERIC HURCHEY - Aspiring Software Engineer & Product Manager
+========================================================
+
+I'm a passionate technologist with a deep love for building innovative digital experiences.
+My journey in tech started with a curiosity about how things work and has evolved into
+a career focused on creating meaningful solutions that impact users positively.
+
+I believe in the power of technology to transform ideas into reality and am constantly
+learning new frameworks, languages, and methodologies to stay at the forefront of innovation.
+
+My approach combines technical expertise with product thinking, ensuring that everything
+I build not only works well but also delivers real value to users.` },
+                                'interests.txt': { type: 'file', content: `PERSONAL INTERESTS
+==================
+
+Technology & Innovation:
+- Full-stack web development
+- Machine learning and AI applications  
+- Cloud architecture and distributed systems
+- Open source contribution
+
+Product Development:
+- User experience design
+- Agile methodologies
+- Data-driven decision making
+- Market analysis and strategy
+
+Beyond Tech:
+- Basketball (huge NBA fan!)
+- Classical music (14+ years of violin)
+- Reading sci-fi and tech blogs
+- Building side projects` },
+                                '.basketball': { type: 'hidden', content: 'EASTER EGG: Huge NBA fan! Favorite teams: New York Knicks & Golden State Warriors\nFavorite players of all time: Jeremy Lin & Stephen Curry\nLinsanity was an incredible moment that inspired me!' },
+                                '.music': { type: 'hidden', content: 'EASTER EGG: Played violin for 14+ years!\nWas concert master in High School and Middle School\nPerformed multiple solo parts during concerts\nMusic taught me discipline and teamwork.' }
+                            }},
+                            'skills': { type: 'directory', contents: {
+                                'languages.txt': { type: 'file', content: `PROGRAMMING LANGUAGES
+=====================
+
+Primary Languages:
+- JavaScript/TypeScript (5+ years)
+  * ES6+, async/await, functional programming
+  * Type-safe development with TypeScript
+  
+- Python (4+ years)
+  * Data structures and algorithms
+  * Web development with Django/Flask
+  * Data analysis with pandas/numpy
+  
+- Java (3+ years)
+  * Object-oriented design patterns
+  * Spring Boot applications
+  * Android development
+  
+Also Proficient In:
+- C++ (systems programming)
+- SQL (database management)
+- Bash (automation and scripting)` },
+                                'frontend.txt': { type: 'file', content: `FRONTEND TECHNOLOGIES
+=====================
+
+Frameworks & Libraries:
+- React.js (Advanced)
+  * Hooks, Context API, Redux
+  * Performance optimization
+  * Custom component libraries
+  
+- Next.js (Production experience)
+  * SSR/SSG implementation
+  * API routes
+  * Performance optimization
+  
+- Three.js/WebGL
+  * 3D graphics and animations
+  * Interactive visualizations
+  * Performance optimization for web
+  
+Styling & Design:
+- Tailwind CSS
+- Styled Components
+- SASS/SCSS
+- Responsive Design
+- CSS Grid & Flexbox` },
+                                'backend.txt': { type: 'file', content: `BACKEND TECHNOLOGIES
+====================
+
+Server Technologies:
+- Node.js & Express
+  * RESTful API design
+  * Authentication/Authorization (JWT, OAuth)
+  * WebSocket implementations
+  
+- Django & Django REST Framework
+  * MVC architecture
+  * ORM and database migrations
+  * API development
+  
+Databases:
+- PostgreSQL (relational)
+- MongoDB (NoSQL)
+- Redis (caching)
+- Elasticsearch (search)
+
+Cloud & DevOps:
+- AWS (EC2, S3, Lambda, RDS)
+- Docker containerization
+- Kubernetes orchestration
+- CI/CD pipelines` },
+                                'tools.txt': { type: 'file', content: `DEVELOPMENT TOOLS & PRACTICES
+=============================
+
+Version Control:
+- Git & GitHub
+  * Feature branching strategies
+  * Code review practices
+  * Open source collaboration
+  
+Development Environment:
+- VS Code (primary IDE)
+- Terminal/CLI proficiency
+- Postman/Insomnia (API testing)
+- Chrome DevTools
+
+DevOps & Deployment:
+- Docker & Docker Compose
+- GitHub Actions
+- Vercel/Netlify
+- AWS deployment
+
+Project Management:
+- Agile/Scrum methodologies
+- JIRA/Linear
+- Notion/Confluence
+- Figma (design collaboration)` }
+                            }},
+                            'projects': { type: 'directory', contents: {
+                                'project1.md': { type: 'file', content: `# Neural Interface - ML-Powered Adaptive UI
+
+## Overview
+An innovative web application that uses machine learning to adapt its user interface
+based on user behavior patterns and preferences.
+
+## Technical Stack
+- **Frontend**: React.js, TypeScript, TailwindCSS
+- **ML Framework**: TensorFlow.js
+- **Visualization**: WebGL, D3.js
+- **Backend**: Node.js, Express
+- **Database**: PostgreSQL, Redis
+
+## Key Features
+- Real-time UI adaptation based on user interactions
+- Predictive component loading for improved performance
+- Personalized color schemes and layouts
+- A/B testing framework built-in
+- Analytics dashboard for behavior insights
+
+## Challenges Overcome
+- Implementing ML models that run efficiently in the browser
+- Balancing personalization with consistent UX
+- Managing state complexity with adaptive components
+- Privacy-first approach to user data collection
+
+## Results
+- 40% improvement in user engagement
+- 25% reduction in bounce rate
+- Successfully deployed to 10,000+ users
+
+GitHub: github.com/erichurchey/neural-interface` },
+                                'project2.md': { type: 'file', content: `# Quantum Visualizer - 3D Quantum State Visualization
+
+## Overview
+A web-based tool for visualizing quantum mechanical states and operations in 3D,
+designed for educational purposes and quantum computing research.
+
+## Technical Stack
+- **3D Graphics**: Three.js, WebGL
+- **Frontend**: TypeScript, React
+- **Quantum Simulation**: Custom Python backend
+- **API**: FastAPI
+- **Deployment**: Docker, AWS ECS
+
+## Key Features
+- Real-time 3D visualization of quantum states
+- Interactive Bloch sphere representations
+- Quantum gate operations visualization
+- Multi-qubit system support
+- Export animations and images
+- Educational mode with tutorials
+
+## Technical Achievements
+- Custom shaders for quantum state representation
+- Optimized rendering for complex multi-qubit systems
+- Real-time synchronization between backend calculations and frontend
+- Mobile-responsive 3D graphics
+
+## Impact
+- Used by 3 universities for quantum computing courses
+- Featured in quantum computing conference
+- Open source with 500+ GitHub stars
+
+GitHub: github.com/erichurchey/quantum-visualizer` },
+                                'project3.md': { type: 'file', content: `# Decentralized Portfolio - Blockchain-Based Portfolio Platform
+
+## Overview
+A decentralized application (DApp) that allows users to create and manage
+their professional portfolios on the blockchain, ensuring data ownership and authenticity.
+
+## Technical Stack
+- **Blockchain**: Ethereum, Solidity
+- **Frontend**: React.js, ethers.js
+- **Storage**: IPFS for media files
+- **Testing**: Hardhat, Chai
+- **UI**: Material-UI
+
+## Smart Contract Features
+- NFT-based portfolio ownership
+- Verified credential system
+- Decentralized review and endorsement system
+- Gas-optimized contract design
+
+## Key Innovations
+- Zero-knowledge proof for private credentials
+- Cross-chain compatibility (Ethereum, Polygon)
+- Gasless transactions for better UX
+- Integration with ENS for readable addresses
+
+## Security Measures
+- Comprehensive smart contract auditing
+- Multi-sig wallet implementation
+- Rate limiting and anti-spam mechanisms
+- Regular security updates
+
+## Metrics
+- 500+ portfolios created
+- $50K+ in transactions processed
+- 99.9% uptime
+- Gas costs reduced by 60% through optimization
+
+GitHub: github.com/erichurchey/decentralized-portfolio` },
+                                'README.md': { type: 'file', content: `# Eric Hurchey's Project Portfolio
+
+Welcome to my project showcase! Each project demonstrates different aspects of my 
+technical skills and problem-solving abilities.
+
+## Featured Projects
+
+1. **Neural Interface** - ML-powered adaptive UI system
+2. **Quantum Visualizer** - 3D quantum state visualization tool  
+3. **Decentralized Portfolio** - Blockchain-based portfolio platform
+
+## Technologies Used
+- Frontend: React, TypeScript, Three.js
+- Backend: Node.js, Python, Solidity
+- Databases: PostgreSQL, MongoDB, Redis
+- Cloud: AWS, Docker, Kubernetes
+- Blockchain: Ethereum, IPFS
+
+## Contact
+Feel free to reach out if you'd like to discuss any of these projects!
+- Email: eric.hurchey@example.com
+- GitHub: github.com/erichurchey
+- LinkedIn: linkedin.com/in/erichurchey` }
+                            }},
+                            'experience': { type: 'directory', contents: {
+                                'current.txt': { type: 'file', content: `CURRENT POSITION
+================
+
+Senior Full Stack Developer @ TechCorp
+January 2024 - Present
+San Francisco, CA (Hybrid)
+
+Responsibilities:
+- Lead development of microservices architecture serving 1M+ users
+- Mentor junior developers and conduct code reviews
+- Architect scalable solutions using AWS and Kubernetes
+- Collaborate with product team on technical specifications
+- Implement CI/CD pipelines reducing deployment time by 70%
+
+Key Achievements:
+- Reduced API response time by 45% through optimization
+- Led migration from monolith to microservices
+- Implemented real-time features using WebSocket
+- Built automated testing suite with 95% code coverage
+
+Technologies:
+React, Node.js, TypeScript, PostgreSQL, Redis, AWS, Docker, Kubernetes` },
+                                'previous.txt': { type: 'file', content: `PREVIOUS EXPERIENCE
+===================
+
+Full Stack Developer @ StartupXYZ
+June 2022 - December 2023
+Remote
+
+Responsibilities:
+- Developed and maintained React-based SaaS platform
+- Built RESTful APIs using Node.js and Express
+- Implemented authentication and authorization systems
+- Optimized database queries and indexing strategies
+
+Achievements:
+- Increased platform performance by 60%
+- Built feature used by 10,000+ daily active users
+- Reduced bug rate by 40% through testing practices
+- Contributed to successful $5M Series A funding
+
+---
+
+Junior Developer @ WebAgency
+January 2020 - May 2022
+New York, NY
+
+Responsibilities:
+- Built responsive websites for clients
+- Developed custom WordPress plugins
+- Collaborated with design team on UI/UX
+- Maintained and updated client websites
+
+Achievements:
+- Delivered 20+ client projects on time
+- Improved site load times by average of 50%
+- Learned full-stack development practices
+- Received "Rising Star" award in 2021` }
+                            }},
+                            'contact.txt': { type: 'file', content: `CONTACT INFORMATION
+===================
+
+Email: eric.hurchey@example.com
+Phone: +1 (555) 123-4567
+Location: San Francisco, CA
+
+Professional Links:
+- LinkedIn: linkedin.com/in/erichurchey
+- GitHub: github.com/erichurchey
+- Portfolio: erichurchey.dev
+
+Availability:
+- Open to new opportunities
+- Interested in full-stack and product roles
+- Remote or San Francisco Bay Area preferred
+
+Feel free to reach out for:
+- Job opportunities
+- Collaboration on projects
+- Technical discussions
+- Mentorship (giving or receiving)` },
+                            'resume.pdf': { type: 'file', content: '[Resume file - use "download resume" to get PDF]' }
+                        }
+                    }
+                };
+
+                this.commands = {
+                    help: () => this.showHelp(),
+                    '?': () => this.showHelp(),
+                    clear: () => this.clearTerminal(),
+                    ls: (args) => this.listDirectory(args),
+                    cd: (args) => this.changeDirectory(args),
+                    pwd: () => this.printWorkingDirectory(),
+                    cat: (args) => this.readFile(args),
+                    whoami: () => this.whoami(),
+                    date: () => this.showDate(),
+                    echo: (args) => this.echo(args),
+                    download: (args) => this.downloadFile(args),
+                    gui: () => this.switchToGui(),
+                    find: (args) => this.findFiles(args),
+                    grep: (args) => this.grepFiles(args),
+                    history: () => this.showHistory(),
+                    exit: () => this.exitTerminal(),
+                    hack: () => this.startHackingGame(),
+                    matrix: () => this.matrixEffect(),
+                    knicks: () => this.easterEggKnicks(),
+                    violin: () => this.easterEggViolin(),
+                    linsanity: () => this.easterEggLinsanity()
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.output = document.getElementById('terminalOutput');
+                this.input = document.getElementById('terminalInput');
+                this.prompt = document.getElementById('prompt');
+                this.cursor = document.getElementById('cursor');
+                this.body = document.querySelector('.terminal-body');
+                
+                this.setupEventListeners();
+                this.showWelcomeMessage();
+                this.startClock();
+                this.updateCursorPosition();
+            }
+
+            setupEventListeners() {
+                this.input.addEventListener('keydown', (e) => this.handleKeyPress(e));
+                this.input.addEventListener('input', () => this.updateCursorPosition());
+                this.input.addEventListener('click', () => this.updateCursorPosition());
+                this.input.addEventListener('keyup', () => this.updateCursorPosition());
+                
+                // Update cursor on selection change
+                document.addEventListener('selectionchange', () => {
+                    if (document.activeElement === this.input) {
+                        this.updateCursorPosition();
+                    }
+                });
+                
+                document.addEventListener('click', () => {
+                    if (currentMode === 'terminal') {
+                        this.input.focus();
+                    }
+                });
+            }
+
+            updateCursorPosition() {
+                // Get the current cursor position in the input
+                const cursorPos = this.input.selectionStart || 0;
+                const textBeforeCursor = this.input.value.substring(0, cursorPos);
+                
+                // Create a hidden span to measure text width
+                const measurer = document.createElement('span');
+                measurer.style.position = 'absolute';
+                measurer.style.visibility = 'hidden';
+                measurer.style.font = getComputedStyle(this.input).font;
+                measurer.style.whiteSpace = 'pre';
+                measurer.textContent = textBeforeCursor || '';
+                document.body.appendChild(measurer);
+                
+                const width = measurer.getBoundingClientRect().width;
+                document.body.removeChild(measurer);
+                
+                // Position the cursor using left property
+                this.cursor.style.left = `${width}px`;
+            }
+
+            handleKeyPress(e) {
+                if (e.key === 'Enter') {
+                    this.executeCommand();
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                    if (quickCommandsVisible) {
+                        hideQuickCommands();
+                    } else {
+                        showQuickCommands();
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    this.navigateHistory(-1);
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    this.navigateHistory(1);
+                } else if (e.ctrlKey && e.key === 'l') {
+                    e.preventDefault();
+                    this.clearTerminal();
+                } else if (e.key === 'Escape') {
+                    if (quickCommandsVisible) {
+                        hideQuickCommands();
+                    }
+                }
+                
+                // Update cursor position after any key press
+                setTimeout(() => this.updateCursorPosition(), 0);
+            }
+
+            updatePrompt() {
+                // Show home for root directory, otherwise show directory name
+                let promptPath = '~';
+                let location = 'home';
+                
+                if (this.currentPath !== '~') {
+                    const parts = this.currentPath.split('/');
+                    location = parts[parts.length - 1] || 'home';
+                    promptPath = '~';
+                }
+                
+                this.prompt.textContent = `${this.username}@${location}:${promptPath}$`;
+            }
+
+            executeCommand() {
+                const fullCommand = this.input.value.trim();
+                if (!fullCommand) return;
+
+                this.commandHistory.push(fullCommand);
+                this.historyIndex = this.commandHistory.length;
+
+                this.addOutput(`${this.prompt.textContent} ${fullCommand}`, 'command');
+
+                const parts = fullCommand.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+                const command = parts[0];
+                const args = parts.slice(1).map(arg => arg.replace(/^"(.*)"$/, '$1'));
+
+                if (this.commands[command]) {
+                    this.commands[command](args);
+                } else {
+                    this.addOutput(`bash: ${command}: command not found`, 'error');
+                }
+
+                this.input.value = '';
+                this.updateCursorPosition();
+                this.scrollToBottom();
+            }
+
+            getCurrentDirectory() {
+                const parts = this.currentPath.split('/');
+                let current = this.fileSystem['~'];
+                
+                for (let i = 1; i < parts.length; i++) {
+                    if (parts[i] && current.contents && current.contents[parts[i]]) {
+                        current = current.contents[parts[i]];
+                    }
+                }
+                
+                return current;
+            }
+
+            changeDirectory(args) {
+                if (!args || args.length === 0 || args[0] === '~') {
+                    this.currentPath = '~';
+                } else if (args[0] === '..') {
+                    const parts = this.currentPath.split('/');
+                    if (parts.length > 1) {
+                        parts.pop();
+                        this.currentPath = parts.join('/') || '~';
+                    }
+                } else if (args[0].startsWith('/')) {
+                    // Absolute path
+                    this.currentPath = '~';
+                    const path = args[0].substring(1);
+                    if (path) {
+                        this.changeDirectory([path]);
+                        return;
+                    }
+                } else {
+                    // Relative path
+                    const targetPath = this.currentPath === '~' ? `~/${args[0]}` : `${this.currentPath}/${args[0]}`;
+                    const parts = targetPath.split('/');
+                    let current = this.fileSystem['~'];
+                    let valid = true;
+                    
+                    for (let i = 1; i < parts.length; i++) {
+                        if (parts[i] && current.contents && current.contents[parts[i]] && current.contents[parts[i]].type === 'directory') {
+                            current = current.contents[parts[i]];
+                        } else {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    
+                    if (valid) {
+                        this.currentPath = targetPath;
+                    } else {
+                        this.addOutput(`bash: cd: ${args[0]}: No such file or directory`, 'error');
+                        return;
+                    }
+                }
+                
+                this.updatePrompt();
+            }
+
+            listDirectory(args) {
+                const showHidden = args && args.includes('-a');
+                const longFormat = args && args.includes('-l');
+                const dir = this.getCurrentDirectory();
+                
+                if (!dir || dir.type !== 'directory') {
+                    this.addOutput('Not a directory', 'error');
+                    return;
+                }
+                
+                const items = [];
+                for (const [name, item] of Object.entries(dir.contents || {})) {
+                    if (!showHidden && name.startsWith('.')) continue;
+                    
+                    if (longFormat) {
+                        const type = item.type === 'directory' ? 'd' : '-';
+                        const perms = item.type === 'directory' ? 'rwxr-xr-x' : 'rw-r--r--';
+                        const size = item.content ? item.content.length : '4096';
+                        items.push(`${type}${perms} 1 eric eric ${size.toString().padStart(5)} Dec 1 12:00 ${name}`);
+                    } else {
+                        const displayName = item.type === 'directory' ? `${name}/` : name;
+                        items.push(displayName);
+                    }
+                }
+                
+                if (longFormat) {
+                    items.forEach(item => this.addOutput(item, 'info'));
+                } else {
+                    const line = document.createElement('div');
+                    line.className = 'output-line output-info';
+                    line.innerHTML = items.map(item => {
+                        const isDir = item.endsWith('/');
+                        const name = isDir ? item.slice(0, -1) : item;
+                        const className = isDir ? 'clickable-item directory' : 'clickable-item';
+                        return `<span class="${className}" onclick="terminalSystem.handleItemClick('${name}')">${item}</span>`;
+                    }).join('');
+                    this.output.appendChild(line);
+                }
+                
+                this.addOutput('', '');
+            }
+
+            handleItemClick(name) {
+                const dir = this.getCurrentDirectory();
+                if (dir.contents && dir.contents[name]) {
+                    if (dir.contents[name].type === 'directory') {
+                        this.input.value = `cd ${name}`;
+                        this.executeCommand();
+                    } else {
+                        this.input.value = `cat ${name}`;
+                        this.executeCommand();
+                    }
+                }
+            }
+
+            readFile(args) {
+                if (!args || args.length === 0) {
+                    this.addOutput('Usage: cat <filename>', 'error');
+                    return;
+                }
+                
+                const filename = args[0];
+                const dir = this.getCurrentDirectory();
+                
+                if (!dir.contents || !dir.contents[filename]) {
+                    this.addOutput(`cat: ${filename}: No such file or directory`, 'error');
+                    return;
+                }
+                
+                const file = dir.contents[filename];
+                if (file.type === 'directory') {
+                    this.addOutput(`cat: ${filename}: Is a directory`, 'error');
+                    return;
+                }
+                
+                this.addOutput(file.content, 'info');
+            }
+
+            addOutput(text, className = '') {
+                const line = document.createElement('div');
+                line.className = `output-line ${className ? 'output-' + className : ''}`;
+                line.textContent = text;
+                this.output.appendChild(line);
+            }
+
+            addHTML(html, className = '') {
+                const line = document.createElement('div');
+                line.className = `output-line ${className ? 'output-' + className : ''}`;
+                line.innerHTML = html;
+                this.output.appendChild(line);
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.body.scrollTop = this.body.scrollHeight;
+                }, 10);
+            }
+
+            showWelcomeMessage() {
+                const welcome = `
+╔════════════════════════════════════════════════════════════════════╗
+║                                                                    ║
+║  ███████╗██████╗ ██╗ ██████╗                                      ║
+║  ██╔════╝██╔══██╗██║██╔════╝                                      ║
+║  █████╗  ██████╔╝██║██║                                           ║
+║  ██╔══╝  ██╔══██╗██║██║                                           ║
+║  ███████╗██║  ██║██║╚██████╗                                      ║
+║  ╚══════╝╚═╝  ╚═╝╚═╝ ╚═════╝                                      ║
+║                                                                    ║
+║  ██╗  ██╗██╗   ██╗██████╗  ██████╗██╗  ██╗███████╗██╗   ██╗      ║
+║  ██║  ██║██║   ██║██╔══██╗██╔════╝██║  ██║██╔════╝╚██╗ ██╔╝      ║
+║  ███████║██║   ██║██████╔╝██║     ███████║█████╗   ╚████╔╝       ║
+║  ██╔══██║██║   ██║██╔══██╗██║     ██╔══██║██╔══╝    ╚██╔╝        ║
+║  ██║  ██║╚██████╔╝██║  ██║╚██████╗██║  ██║███████╗   ██║         ║
+║  ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝         ║
+║                                                                    ║
+║           Aspiring Software Engineer & Product Manager            ║
+║                  WELCOME TO MY PERSONAL WEBSITE                   ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝`;
+                
+                const container = document.createElement('div');
+                container.className = 'ascii-art-container';
+                const pre = document.createElement('pre');
+                pre.className = 'ascii-art';
+                pre.textContent = welcome;
+                container.appendChild(pre);
+                this.output.appendChild(container);
+                
+                this.addOutput('', '');
+                this.addOutput('Welcome! Navigate using standard Unix commands.', 'success');
+                this.addOutput('Type "help" or "?" for commands, or press Tab for quick navigation!', 'info');
+                this.addOutput('Try "ls" to list files, "cd <directory>" to navigate.', 'info');
+                this.addOutput('', '');
+                this.addOutput('🎮 NEW: Try "hack" for an interactive hacking game!', 'success');
+                this.addOutput('Hidden easter eggs: Try "knicks", "violin", or "linsanity" ;)', 'warning');
+                this.addOutput('', '');
+                this.scrollToBottom();
+            }
+
+            showHelp() {
+                this.addOutput('', '');
+                this.addOutput('AVAILABLE COMMANDS:', 'section');
+                this.addOutput('', '');
+                this.addOutput('  Navigation:', 'section');
+                this.addOutput('  ls [-a] [-l]    List directory contents', 'info');
+                this.addOutput('  cd <dir>        Change directory', 'info');
+                this.addOutput('  pwd             Print working directory', 'info');
+                this.addOutput('  cat <file>      Display file contents', 'info');
+                this.addOutput('', '');
+                this.addOutput('  Search:', 'section');
+                this.addOutput('  find <pattern>  Find files by name', 'info');
+                this.addOutput('  grep <pattern>  Search text in files', 'info');
+                this.addOutput('', '');
+                this.addOutput('  System:', 'section');
+                this.addOutput('  help / ?        Show this help', 'info');
+                this.addOutput('  clear           Clear terminal', 'info');
+                this.addOutput('  history         Command history', 'info');
+                this.addOutput('  whoami          Current user', 'info');
+                this.addOutput('  date            Current date', 'info');
+                this.addOutput('  echo <text>     Display text', 'info');
+                this.addOutput('', '');
+                this.addOutput('  Actions:', 'section');
+                this.addOutput('  download resume Download my resume', 'info');
+                this.addOutput('  gui             Switch to visual mode', 'info');
+                this.addOutput('  exit            Exit terminal', 'info');
+                this.addOutput('', '');
+                this.addOutput('  Games & Fun:', 'section');
+                this.addOutput('  hack            Start hacking game', 'success');
+                this.addOutput('  matrix          Matrix rain effect', 'success');
+                this.addOutput('', '');
+                this.addOutput('  Easter Eggs:', 'section');
+                this.addOutput('  knicks          🏀', 'warning');
+                this.addOutput('  violin          🎻', 'warning');
+                this.addOutput('  linsanity       🔥', 'warning');
+                this.addOutput('', '');
+                this.scrollToBottom();
+            }
+
+            clearTerminal() {
+                this.output.innerHTML = '';
+                this.showWelcomeMessage();
+            }
+
+            printWorkingDirectory() {
+                this.addOutput(this.currentPath === '~' ? '/home/eric' : this.currentPath.replace('~', '/home/eric'), 'info');
+            }
+
+            whoami() {
+                this.addOutput('Eric Hurchey', 'info');
+            }
+
+            showDate() {
+                this.addOutput(new Date().toString(), 'info');
+            }
+
+            echo(args) {
+                if (args && args.length > 0) {
+                    this.addOutput(args.join(' '), 'info');
+                }
+            }
+
+            downloadFile(args) {
+                if (args && args[0] === 'resume') {
+                    this.addOutput('Initializing download manager...', 'warning');
+                    this.scrollToBottom();
+                    
+                    setTimeout(() => {
+                        this.addOutput('Connecting to server...', 'info');
+                        this.scrollToBottom();
+                    }, 800);
+                    
+                    setTimeout(() => {
+                        this.addOutput('Fetching eric_hurchey_resume.pdf...', 'info');
+                        this.scrollToBottom();
+                    }, 1600);
+                    
+                    setTimeout(() => {
+                        this.addOutput('Verifying file integrity...', 'info');
+                        this.scrollToBottom();
+                    }, 2400);
+                    
+                    setTimeout(() => {
+                        this.addOutput('Resume downloaded successfully!', 'success');
+                        
+                        // Add download button
+                        const downloadLine = document.createElement('div');
+                        downloadLine.className = 'output-line';
+                        downloadLine.innerHTML = `
+                            <span class="output-info">File ready: eric_hurchey_resume.pdf</span>
+                            <button onclick="window.open('https://example.com/eric_hurchey_resume.pdf', '_blank')" style="
+                                margin-left: 15px;
+                                padding: 5px 15px;
+                                background: transparent;
+                                border: 1px solid var(--terminal-green);
+                                color: var(--terminal-green);
+                                font-family: 'Fira Code', monospace;
+                                font-size: 12px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            " onmouseover="this.style.background='var(--terminal-green)'; this.style.color='black';" 
+                               onmouseout="this.style.background='transparent'; this.style.color='var(--terminal-green)';">
+                                📥 Download PDF
+                            </button>
+                        `;
+                        this.output.appendChild(downloadLine);
+                        this.scrollToBottom();
+                    }, 3200);
+                } else {
+                    this.addOutput('Usage: download resume', 'error');
+                    this.scrollToBottom();
+                }
+            }
+
+            switchToGui() {
+                this.addOutput('Switching to Visual mode...', 'info');
+                setTimeout(() => {
+                    setMode('gui');
+                }, 500);
+            }
+
+            findFiles(args) {
+                if (!args || args.length === 0) {
+                    this.addOutput('Usage: find <pattern>', 'error');
+                    return;
+                }
+                
+                const pattern = args[0].toLowerCase();
+                const results = [];
+                
+                // Search through file system
+                const searchDir = (dir, path) => {
+                    for (const [name, item] of Object.entries(dir.contents || {})) {
+                        const fullPath = path ? `${path}/${name}` : name;
+                        if (name.toLowerCase().includes(pattern)) {
+                            results.push(fullPath);
+                        }
+                        if (item.type === 'directory') {
+                            searchDir(item, fullPath);
+                        }
+                    }
+                };
+                
+                searchDir(this.fileSystem['~'], '.');
+                
+                if (results.length > 0) {
+                    results.forEach(result => this.addOutput(`./${result}`, 'info'));
+                } else {
+                    this.addOutput(`find: no files matching '${pattern}'`, 'warning');
+                }
+            }
+
+            grepFiles(args) {
+                if (!args || args.length === 0) {
+                    this.addOutput('Usage: grep <pattern> [file]', 'error');
+                    return;
+                }
+                
+                const pattern = args[0].toLowerCase();
+                const targetFile = args[1];
+                let found = false;
+                
+                // Search in current directory files
+                const dir = this.getCurrentDirectory();
+                
+                if (targetFile) {
+                    // Search in specific file
+                    if (dir.contents && dir.contents[targetFile]) {
+                        const content = dir.contents[targetFile].content || '';
+                        const lines = content.split('\n');
+                        lines.forEach((line, i) => {
+                            if (line.toLowerCase().includes(pattern)) {
+                                this.addOutput(`${targetFile}:${i+1}: ${line}`, 'info');
+                                found = true;
+                            }
+                        });
+                    } else {
+                        this.addOutput(`grep: ${targetFile}: No such file`, 'error');
+                        return;
+                    }
+                } else {
+                    // Search in all files in current directory
+                    for (const [name, item] of Object.entries(dir.contents || {})) {
+                        if (item.type === 'file') {
+                            const content = item.content || '';
+                            const lines = content.split('\n');
+                            lines.forEach((line, i) => {
+                                if (line.toLowerCase().includes(pattern)) {
+                                    this.addOutput(`${name}:${i+1}: ${line.substring(0, 80)}...`, 'info');
+                                    found = true;
+                                }
+                            });
+                        }
+                    }
+                }
+                
+                if (!found) {
+                    this.addOutput(`grep: no matches found for '${pattern}'`, 'warning');
+                }
+            }
+
+            showHistory() {
+                this.commandHistory.forEach((cmd, i) => {
+                    this.addOutput(`  ${i + 1}  ${cmd}`, 'info');
+                });
+            }
+
+            exitTerminal() {
+                this.addOutput('Goodbye! Thanks for visiting my portfolio.', 'success');
+                setTimeout(() => {
+                    this.clearTerminal();
+                    this.addOutput('Terminal session ended. Refresh to start new session.', 'info');
+                    this.input.disabled = true;
+                }, 1000);
+            }
+
+            // Easter Eggs
+            easterEggKnicks() {
+                this.addOutput('', '');
+                this.addOutput('🏀 NEW YORK KNICKS & GOLDEN STATE WARRIORS FAN! 🏀', 'success');
+                this.addOutput('', '');
+                this.addOutput('Favorite teams: Knicks & Warriors', 'info');
+                this.addOutput('Favorite players: Jeremy Lin & Stephen Curry', 'info');
+                this.addOutput('', '');
+                this.addOutput('Fun fact: Linsanity was one of the most exciting moments in basketball!', 'warning');
+                this.addOutput('Jeremy Lin\'s story of perseverance really inspires me.', 'warning');
+                this.addOutput('', '');
+            }
+
+            easterEggViolin() {
+                this.addOutput('', '');
+                this.addOutput('🎻 CLASSICAL MUSICIAN 🎻', 'success');
+                this.addOutput('', '');
+                this.addOutput('14+ years of violin experience!', 'info');
+                this.addOutput('Concert Master in High School & Middle School', 'info');
+                this.addOutput('Performed multiple solo parts during concerts', 'info');
+                this.addOutput('', '');
+                this.addOutput('Music taught me discipline, teamwork, and attention to detail.', 'warning');
+                this.addOutput('These skills translate perfectly to software engineering!', 'warning');
+                this.addOutput('', '');
+            }
+
+            easterEggLinsanity() {
+                this.addOutput('', '');
+                this.addOutput('🔥 LINSANITY FOREVER! 🔥', 'success');
+                this.addOutput('', '');
+                const linsanity = `
+    ╔═══════════════════════════════╗
+    ║  February 2012 - Never Forget ║
+    ║  7 games, 7 wins              ║
+    ║  An underdog story that       ║
+    ║  inspired millions!           ║
+    ╚═══════════════════════════════╝`;
+                this.addHTML(`<pre style="color: var(--terminal-yellow)">${linsanity}</pre>`);
+                this.addOutput('', '');
+                this.addOutput('Jeremy Lin showed that with hard work and opportunity,', 'info');
+                this.addOutput('anything is possible. This mindset drives my approach', 'info');
+                this.addOutput('to software engineering and product management!', 'info');
+                this.addOutput('', '');
+            }
+
+            // Hacking Game
+            startHackingGame() {
+                this.addOutput('', '');
+                this.addOutput('Initializing hack sequence...', 'warning');
+                this.scrollToBottom();
+                
+                setTimeout(() => {
+                    this.addOutput('Connecting to remote system...', 'info');
+                    this.scrollToBottom();
+                }, 500);
+                
+                setTimeout(() => {
+                    this.addOutput('Bypassing firewall...', 'info');
+                    this.scrollToBottom();
+                }, 1000);
+                
+                setTimeout(() => {
+                    this.addOutput('ACCESS GRANTED - Redirecting to secure terminal...', 'success');
+                    this.scrollToBottom();
+                    setTimeout(() => {
+                        window.location.href = 'eric-hacking-game.html';
+                    }, 500);
+                }, 1500);
+            }
+            
+            openHackingTerminal() {
+                const overlay = document.getElementById('hackingOverlay');
+                const hackOutput = document.getElementById('hackingOutput');
+                const hackInput = document.getElementById('hackingInput');
+                const hackCursor = document.getElementById('hackingCursor');
+                
+                overlay.classList.add('active');
+                hackOutput.innerHTML = '';
+                hackInput.value = '';
+                
+                this.hackingGameLevel = 1;
+                this.hackingGameActive = true;
+                this.hackFailures = 0;
+                
+                // Prevent focus from returning to main terminal
+                document.getElementById('terminalInput').blur();
+                
+                // Type out initial messages with slower speed
+                this.typeHackMessage('SYSTEM BREACH PROTOCOL INITIATED...', 'error', 80, () => {
+                    setTimeout(() => {
+                        this.typeHackMessage('Establishing secure connection...', 'warning', 60, () => {
+                            setTimeout(() => {
+                                this.typeHackMessage('Welcome to ERIC_SEC_CHALLENGE_2024', 'success', 50, () => {
+                                    setTimeout(() => {
+                                        this.typeHackMessage('Can you prove your worth as a developer?', 'info', 40, () => {
+                                            setTimeout(() => {
+                                                this.startHackLevel1();
+                                            }, 1000);
+                                        });
+                                    }, 800);
+                                });
+                            }, 800);
+                        });
+                    }, 1000);
+                });
+                
+                // Update cursor position on input
+                const updateHackCursor = () => {
+                    const cursorPos = hackInput.selectionStart || 0;
+                    const textBeforeCursor = hackInput.value.substring(0, cursorPos);
+                    
+                    const measurer = document.createElement('span');
+                    measurer.style.position = 'absolute';
+                    measurer.style.visibility = 'hidden';
+                    measurer.style.font = getComputedStyle(hackInput).font;
+                    measurer.style.whiteSpace = 'pre';
+                    measurer.textContent = textBeforeCursor || '';
+                    document.body.appendChild(measurer);
+                    
+                    const width = measurer.getBoundingClientRect().width;
+                    document.body.removeChild(measurer);
+                    
+                    hackCursor.style.left = `${width}px`;
+                };
+                
+                // Setup hack input handlers
+                hackInput.addEventListener('input', updateHackCursor);
+                hackInput.addEventListener('click', updateHackCursor);
+                hackInput.addEventListener('keyup', updateHackCursor);
+                
+                hackInput.onkeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        const input = hackInput.value.trim();
+                        this.addHackOutput(`root@system:~# ${input}`, 'command');
+                        this.checkHackAnswer(input);
+                        hackInput.value = '';
+                        updateHackCursor();
+                    } else if (e.key === 'Escape') {
+                        this.closeHackingTerminal();
+                    }
+                    setTimeout(updateHackCursor, 0);
+                };
+                
+                // Prevent clicking outside from losing focus
+                overlay.onclick = (e) => {
+                    if (e.target === overlay || e.target.classList.contains('hacking-terminal')) {
+                        hackInput.focus();
+                    }
+                };
+                
+                // Focus on hack input
+                setTimeout(() => {
+                    hackInput.focus();
+                    updateHackCursor();
+                }, 100);
+            }
+            
+            typeHackMessage(message, type = 'info', speed = 50, callback = null) {
+                const hackOutput = document.getElementById('hackingOutput');
+                const line = document.createElement('div');
+                line.className = `hack-line output-${type}`;
+                hackOutput.appendChild(line);
+                
+                let i = 0;
+                const typeChar = () => {
+                    if (i < message.length) {
+                        line.textContent += message.charAt(i);
+                        i++;
+                        setTimeout(typeChar, speed);
+                    } else if (callback) {
+                        callback();
+                    }
+                    hackOutput.scrollTop = hackOutput.scrollHeight;
+                };
+                
+                typeChar();
+            }
+            
+            addHackOutput(text, className = '') {
+                const hackOutput = document.getElementById('hackingOutput');
+                const line = document.createElement('div');
+                line.className = `hack-line output-${className}`;
+                line.textContent = text;
+                line.style.animationDelay = '0s';
+                hackOutput.appendChild(line);
+                hackOutput.scrollTop = hackOutput.scrollHeight;
+            }
+
+            startHackLevel1() {
+                this.typeHackMessage('', '', 0);
+                this.typeHackMessage('==[ LEVEL 1: AUTHENTICATION BYPASS ]==', 'section', 60, () => {
+                    setTimeout(() => {
+                        this.typeHackMessage('Target: Portfolio Security System', 'info', 40, () => {
+                            setTimeout(() => {
+                                this.typeHackMessage('Vulnerability: Weak password hashing', 'warning', 40, () => {
+                                    setTimeout(() => {
+                                        this.typeHackMessage('', '', 0);
+                                        this.typeHackMessage('Found encrypted password hash:', 'info', 40, () => {
+                                            setTimeout(() => {
+                                                this.typeHackMessage('SHA256: 8b4066b178c92812b8a2c3fe...', 'success', 30, () => {
+                                                    setTimeout(() => {
+                                                        this.typeHackMessage('Hint: Year of the legendary underdog NBA story', 'warning', 40, () => {
+                                                            setTimeout(() => {
+                                                                this.typeHackMessage('', '', 0);
+                                                                this.typeHackMessage('Enter 4-digit password:', 'success', 40);
+                                                            }, 500);
+                                                        });
+                                                    }, 800);
+                                                });
+                                            }, 500);
+                                        });
+                                    }, 1000);
+                                });
+                            }, 800);
+                        });
+                    }, 800);
+                });
+                
+                this.hackAnswer = '2012';
+                this.hackMode = 'password';
+            }
+
+            checkHackAnswer(input) {
+                const hackInput = document.getElementById('hackingInput');
+                
+                if (input === 'quit' || input === 'exit') {
+                    this.typeHackMessage('TERMINATING CONNECTION...', 'error', 50, () => {
+                        setTimeout(() => this.closeHackingTerminal(), 1500);
+                    });
+                    return;
+                }
+                
+                if (input === 'help') {
+                    this.typeHackMessage('Available commands: help, hint, quit', 'info', 30);
+                    return;
+                }
+                
+                if (input === 'hint') {
+                    if (this.hackMode === 'password') {
+                        this.typeHackMessage('Think about Jeremy Lin...', 'warning', 40);
+                    } else if (this.hackMode === 'binary') {
+                        this.typeHackMessage('Convert binary to decimal: 00101010 = ?', 'warning', 40);
+                    } else if (this.hackMode === 'sql') {
+                        this.typeHackMessage('SQL command to view all data from a table...', 'warning', 40);
+                    } else if (this.hackMode === 'algorithm') {
+                        this.typeHackMessage('Famous sequence: each number is sum of previous two', 'warning', 40);
+                    }
+                    return;
+                }
+
+                if (this.hackMode === 'password') {
+                    this.typeHackMessage('Verifying password...', 'warning', 60, () => {
+                        setTimeout(() => {
+                            if (input === this.hackAnswer) {
+                                this.typeHackMessage('[SUCCESS] Authentication bypassed!', 'success', 50, () => {
+                                    setTimeout(() => {
+                                        this.typeHackMessage('Access level elevated to USER', 'info', 40, () => {
+                                            this.hackingGameLevel = 2;
+                                            setTimeout(() => this.startHackLevel2(), 2000);
+                                        });
+                                    }, 800);
+                                });
+                            } else {
+                                this.hackFailures++;
+                                this.typeHackMessage('[FAILED] Invalid password', 'error', 40, () => {
+                                    if (this.hackFailures >= 3) {
+                                        setTimeout(() => {
+                                            this.typeHackMessage('Too many failures. System lockout!', 'error', 50, () => {
+                                                setTimeout(() => this.closeHackingTerminal(), 2000);
+                                            });
+                                        }, 500);
+                                    } else {
+                                        setTimeout(() => {
+                                            this.typeHackMessage(`Attempts remaining: ${3 - this.hackFailures}`, 'warning', 30);
+                                        }, 500);
+                                    }
+                                });
+                            }
+                        }, 1500);
+                    });
+                } else if (this.hackMode === 'binary') {
+                    this.typeHackMessage('Processing binary conversion...', 'warning', 60, () => {
+                        setTimeout(() => {
+                            if (input === '42') {
+                                this.typeHackMessage('[SUCCESS] Binary decoded!', 'success', 50, () => {
+                                    setTimeout(() => {
+                                        this.typeHackMessage('Unlocked memory address: 0x2A', 'info', 40, () => {
+                                            this.hackingGameLevel = 3;
+                                            setTimeout(() => this.startHackLevel3(), 2000);
+                                        });
+                                    }, 800);
+                                });
+                            } else {
+                                this.hackFailures++;
+                                this.typeHackMessage('[FAILED] Incorrect conversion', 'error', 40, () => {
+                                    if (this.hackFailures >= 5) {
+                                        setTimeout(() => {
+                                            this.typeHackMessage('Security alert triggered!', 'error', 50, () => {
+                                                setTimeout(() => this.closeHackingTerminal(), 2000);
+                                            });
+                                        }, 500);
+                                    }
+                                });
+                            }
+                        }, 1500);
+                    });
+                } else if (this.hackMode === 'sql') {
+                    this.typeHackMessage('Executing SQL query...', 'warning', 60, () => {
+                        setTimeout(() => {
+                            if (input.toLowerCase().includes('select * from') || input.toLowerCase() === 'select * from users') {
+                                this.typeHackMessage('[SUCCESS] Database dumped!', 'success', 50, () => {
+                                    setTimeout(() => {
+                                        this.typeHackMessage('Found admin credentials...', 'info', 40, () => {
+                                            this.hackingGameLevel = 4;
+                                            setTimeout(() => this.startHackLevel4(), 2000);
+                                        });
+                                    }, 800);
+                                });
+                            } else {
+                                this.typeHackMessage('[FAILED] SQL syntax error', 'error', 40);
+                            }
+                        }, 1500);
+                    });
+                } else if (this.hackMode === 'algorithm') {
+                    this.typeHackMessage('Analyzing sequence...', 'warning', 60, () => {
+                        setTimeout(() => {
+                            if (input.toLowerCase() === 'fibonacci') {
+                                this.typeHackMessage('[SUCCESS] ROOT ACCESS GRANTED!', 'success', 80, () => {
+                                    setTimeout(() => {
+                                        this.typeHackMessage('', '', 0);
+                                        this.typeHackMessage('=================================', 'success', 20, () => {
+                                            setTimeout(() => {
+                                                this.typeHackMessage('🎉 SYSTEM FULLY COMPROMISED 🎉', 'success', 60, () => {
+                                                    setTimeout(() => {
+                                                        this.typeHackMessage('=================================', 'success', 20, () => {
+                                                            setTimeout(() => {
+                                                                this.typeHackMessage('', '', 0);
+                                                                this.typeHackMessage('SECRET MESSAGE DECRYPTED:', 'warning', 50, () => {
+                                                                    setTimeout(() => {
+                                                                        this.typeHackMessage('"Great developers solve puzzles others cannot see"', 'info', 60, () => {
+                                                                            setTimeout(() => {
+                                                                                this.typeHackMessage('', '', 0);
+                                                                                this.typeHackMessage('You have proven your skills!', 'success', 40, () => {
+                                                                                    setTimeout(() => {
+                                                                                        this.typeHackMessage('Contact: eric.hurchey@example.com', 'info', 40, () => {
+                                                                                            setTimeout(() => {
+                                                                                                this.typeHackMessage('', '', 0);
+                                                                                                this.typeHackMessage('Connection terminating in 10 seconds...', 'warning', 40);
+                                                                                                setTimeout(() => this.closeHackingTerminal(), 10000);
+                                                                                            }, 1000);
+                                                                                        });
+                                                                                    }, 1000);
+                                                                                });
+                                                                            }, 1500);
+                                                                        });
+                                                                    }, 1000);
+                                                                });
+                                                            }, 800);
+                                                        });
+                                                    }, 800);
+                                                });
+                                            }, 800);
+                                        });
+                                    }, 1000);
+                                });
+                            } else {
+                                this.typeHackMessage('[FAILED] Unknown sequence', 'error', 40);
+                            }
+                        }, 1500);
+                    });
+                }
+                
+                // Keep focus on hack input
+                setTimeout(() => hackInput.focus(), 100);
+            }
+
+            startHackLevel2() {
+                this.hackFailures = 0;
+                this.typeHackMessage('', '', 0);
+                this.typeHackMessage('==[ LEVEL 2: MEMORY EXPLOITATION ]==', 'section', 60, () => {
+                    setTimeout(() => {
+                        this.typeHackMessage('Target: System memory buffer', 'info', 40, () => {
+                            setTimeout(() => {
+                                this.typeHackMessage('Found overflow at address 0x00101010', 'warning', 40, () => {
+                                    setTimeout(() => {
+                                        this.typeHackMessage('', '', 0);
+                                        this.typeHackMessage('Binary data found:', 'info', 40, () => {
+                                            setTimeout(() => {
+                                                this.typeHackMessage('00101010', 'success', 80, () => {
+                                                    setTimeout(() => {
+                                                        this.typeHackMessage('', '', 0);
+                                                        this.typeHackMessage('Convert to decimal to proceed:', 'warning', 40);
+                                                    }, 800);
+                                                });
+                                            }, 500);
+                                        });
+                                    }, 1000);
+                                });
+                            }, 800);
+                        });
+                    }, 800);
+                });
+                
+                this.hackMode = 'binary';
+            }
+
+            startHackLevel3() {
+                this.hackFailures = 0;
+                this.typeHackMessage('', '', 0);
+                this.typeHackMessage('==[ LEVEL 3: DATABASE INJECTION ]==', 'section', 60, () => {
+                    setTimeout(() => {
+                        this.typeHackMessage('Target: User credentials database', 'info', 40, () => {
+                            setTimeout(() => {
+                                this.typeHackMessage('Database: PostgreSQL v14.2', 'info', 40, () => {
+                                    setTimeout(() => {
+                                        this.typeHackMessage('Table found: users', 'warning', 40, () => {
+                                            setTimeout(() => {
+                                                this.typeHackMessage('', '', 0);
+                                                this.typeHackMessage('Enter SQL query to dump all user data:', 'success', 40);
+                                                this.typeHackMessage('(Hint: SELECT statement)', 'warning', 30);
+                                            }, 800);
+                                        });
+                                    }, 800);
+                                });
+                            }, 800);
+                        });
+                    }, 800);
+                });
+                
+                this.hackMode = 'sql';
+            }
+
+            startHackLevel4() {
+                this.hackFailures = 0;
+                this.typeHackMessage('', '', 0);
+                this.typeHackMessage('==[ FINAL: ALGORITHM ANALYSIS ]==', 'section', 60, () => {
+                    setTimeout(() => {
+                        this.typeHackMessage('Admin password uses sequence encryption', 'info', 40, () => {
+                            setTimeout(() => {
+                                this.typeHackMessage('Analyzing pattern...', 'warning', 60, () => {
+                                    setTimeout(() => {
+                                        this.typeHackMessage('', '', 0);
+                                        this.typeHackMessage('0, 1, 1, 2, 3, 5, 8, 13, 21, ...', 'success', 80, () => {
+                                            setTimeout(() => {
+                                                this.typeHackMessage('', '', 0);
+                                                this.typeHackMessage('Name this sequence to gain root:', 'warning', 40);
+                                            }, 1500);
+                                        });
+                                    }, 1000);
+                                });
+                            }, 800);
+                        });
+                    }, 800);
+                });
+                
+                this.hackMode = 'algorithm';
+            }
+            
+            closeHackingTerminal() {
+                const overlay = document.getElementById('hackingOverlay');
+                const hackInput = document.getElementById('hackingInput');
+                
+                // Remove event listeners
+                hackInput.onkeydown = null;
+                hackInput.removeEventListener('input', null);
+                hackInput.removeEventListener('click', null);
+                hackInput.removeEventListener('keyup', null);
+                
+                overlay.classList.remove('active');
+                this.hackingGameActive = false;
+                this.hackMode = null;
+                
+                // Return focus to main terminal
+                setTimeout(() => {
+                    document.getElementById('terminalInput').focus();
+                }, 100);
+            }
+
+            // Matrix Effect
+            matrixEffect() {
+                this.addOutput('', '');
+                this.addOutput('Loading Matrix module...', 'warning');
+                
+                setTimeout(() => {
+                    this.addOutput('Initializing digital rain...', 'info');
+                }, 500);
+                
+                setTimeout(() => {
+                    this.addOutput('ENTERING THE MATRIX...', 'success');
+                    this.addOutput('', '');
+                    
+                    const matrixChars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789';
+                    let matrixRain = '';
+                    
+                    // Create matrix rain effect
+                    for (let i = 0; i < 10; i++) {
+                        let line = '';
+                        for (let j = 0; j < 60; j++) {
+                            if (Math.random() > 0.3) {
+                                line += matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                            } else {
+                                line += ' ';
+                            }
+                        }
+                        matrixRain += line + '\n';
+                    }
+                    
+                    this.addHTML(`<pre style="color: var(--terminal-green); font-family: monospace; line-height: 1;">${matrixRain}</pre>`);
+                    
+                    this.addOutput('', '');
+                    this.addOutput('Welcome to the Matrix, Neo...', 'warning');
+                    this.addOutput('The Matrix has you...', 'warning');
+                    this.addOutput('Follow the white rabbit 🐰', 'info');
+                    this.addOutput('', '');
+                    this.addOutput('Type "clear" to exit the Matrix', 'info');
+                    this.scrollToBottom();
+                }, 1000);
+            }
+
+            navigateHistory(direction) {
+                if (this.commandHistory.length === 0) return;
+                
+                if (direction === -1 && this.historyIndex > 0) {
+                    this.historyIndex--;
+                } else if (direction === 1 && this.historyIndex < this.commandHistory.length - 1) {
+                    this.historyIndex++;
+                } else if (direction === 1 && this.historyIndex === this.commandHistory.length - 1) {
+                    this.historyIndex = this.commandHistory.length;
+                    this.input.value = '';
+                    this.updateCursorPosition();
+                    return;
+                }
+                
+                if (this.historyIndex >= 0 && this.historyIndex < this.commandHistory.length) {
+                    this.input.value = this.commandHistory[this.historyIndex];
+                    this.updateCursorPosition();
+                }
+            }
+
+            startClock() {
+                const updateClock = () => {
+                    const now = new Date();
+                    const time = now.toTimeString().split(' ')[0];
+                    document.getElementById('time').textContent = time;
+                };
+                
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+        }
+
+        // Initialize Terminal
+        terminalSystem = new TerminalPortfolio();
+    </script>
+</body>
+</html>

@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM BREACH - Eric Hurchey Security Challenge</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --terminal-red: #ff0040;
+            --terminal-green: #00ff00;
+            --terminal-yellow: #ffff00;
+            --terminal-white: #f0f0f0;
+            --terminal-bg: #000000;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background: var(--terminal-bg);
+            color: var(--terminal-red);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Matrix background effect */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.05;
+            overflow: hidden;
+        }
+
+        .matrix-column {
+            position: absolute;
+            top: -100%;
+            font-size: 10px;
+            line-height: 10px;
+            color: var(--terminal-red);
+            animation: matrix-fall linear infinite;
+        }
+
+        @keyframes matrix-fall {
+            to {
+                top: 100%;
+            }
+        }
+
+        /* Terminal Container */
+        .hack-terminal {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            animation: terminal-flicker 0.15s infinite;
+        }
+
+        @keyframes terminal-flicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 0.98; }
+        }
+
+        /* Header */
+        .hack-header {
+            padding: 20px;
+            background: linear-gradient(90deg, var(--terminal-red), transparent);
+            border-bottom: 2px solid var(--terminal-red);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(255, 0, 64, 0.5);
+        }
+
+        .hack-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--terminal-red);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .hack-stats {
+            display: flex;
+            gap: 30px;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-label {
+            color: rgba(255, 0, 64, 0.7);
+        }
+
+        .stat-value {
+            color: var(--terminal-red);
+            font-weight: bold;
+        }
+
+        /* Output Area */
+        .hack-output {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 0, 64, 0.1);
+            margin: 10px;
+            position: relative;
+        }
+
+        .hack-output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .hack-output::-webkit-scrollbar-track {
+            background: rgba(255, 0, 64, 0.1);
+        }
+
+        .hack-output::-webkit-scrollbar-thumb {
+            background: var(--terminal-red);
+            border-radius: 4px;
+        }
+
+        /* Input Section */
+        .hack-input-section {
+            padding: 20px;
+            border-top: 2px solid var(--terminal-red);
+            background: rgba(255, 0, 64, 0.02);
+            display: flex;
+            align-items: center;
+        }
+
+        .hack-prompt {
+            color: var(--terminal-red);
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .hack-input-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .hack-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--terminal-red);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            caret-color: transparent;
+        }
+
+        .hack-cursor {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 16px;
+            background: var(--terminal-red);
+            animation: blink 1s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        /* Output Lines */
+        .hack-line {
+            margin-bottom: 5px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .output-command {
+            color: var(--terminal-white);
+        }
+
+        .output-success {
+            color: var(--terminal-green);
+            text-shadow: 0 0 5px var(--terminal-green);
+        }
+
+        .output-error {
+            color: var(--terminal-red);
+            text-shadow: 0 0 5px var(--terminal-red);
+        }
+
+        .output-warning {
+            color: var(--terminal-yellow);
+        }
+
+        .output-info {
+            color: var(--terminal-white);
+        }
+
+        .output-section {
+            color: var(--terminal-red);
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--terminal-red);
+        }
+
+        /* Exit Button */
+        .exit-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--terminal-red);
+            color: var(--terminal-red);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .exit-btn:hover {
+            background: var(--terminal-red);
+            color: black;
+            box-shadow: 0 0 20px var(--terminal-red);
+        }
+
+        /* ASCII Art */
+        .ascii-art {
+            color: var(--terminal-red);
+            font-size: 10px;
+            line-height: 1;
+            text-align: center;
+            margin: 20px 0;
+            opacity: 0.8;
+        }
+
+        /* Glitch effect */
+        @keyframes glitch {
+            0% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                            -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+                            0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            15% {
+                text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                            -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+                            0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            16% {
+                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+                            0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+                            -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            49% {
+                text-shadow: -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+                            0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+                            -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            50% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+                            0.05em 0 0 rgba(0, 255, 0, 0.75),
+                            0 -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            99% {
+                text-shadow: 0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+                            0.05em 0 0 rgba(0, 255, 0, 0.75),
+                            0 -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+            100% {
+                text-shadow: -0.025em 0 0 rgba(255, 0, 0, 0.75),
+                            -0.025em -0.025em 0 rgba(0, 255, 0, 0.75),
+                            -0.025em -0.05em 0 rgba(0, 0, 255, 0.75);
+            }
+        }
+
+        .glitch {
+            animation: glitch 0.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background -->
+    <div class="matrix-bg" id="matrixBg"></div>
+
+    <!-- Main Terminal -->
+    <div class="hack-terminal">
+        <div class="hack-header">
+            <div class="hack-title glitch">SYSTEM_BREACH_PROTOCOL_v2.0</div>
+            <div class="hack-stats">
+                <div class="stat-item">
+                    <span class="stat-label">LEVEL:</span>
+                    <span class="stat-value" id="levelDisplay">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">ATTEMPTS:</span>
+                    <span class="stat-value" id="attemptsDisplay">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">TIME:</span>
+                    <span class="stat-value" id="timeDisplay">00:00</span>
+                </div>
+            </div>
+            <button class="exit-btn" onclick="exitGame()">EXIT [ESC]</button>
+        </div>
+
+        <div class="hack-output" id="hackOutput"></div>
+
+        <div class="hack-input-section">
+            <span class="hack-prompt" id="hackPrompt">root@breach:~#</span>
+            <div class="hack-input-container">
+                <input type="text" class="hack-input" id="hackInput" autofocus>
+                <span class="hack-cursor" id="hackCursor"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class HackingGame {
+            constructor() {
+                this.output = document.getElementById('hackOutput');
+                this.input = document.getElementById('hackInput');
+                this.cursor = document.getElementById('hackCursor');
+                this.levelDisplay = document.getElementById('levelDisplay');
+                this.attemptsDisplay = document.getElementById('attemptsDisplay');
+                this.timeDisplay = document.getElementById('timeDisplay');
+                
+                this.level = 1;
+                this.attempts = 0;
+                this.startTime = Date.now();
+                this.hackMode = null;
+                this.hackAnswer = null;
+                this.failures = 0;
+                
+                this.init();
+            }
+
+            init() {
+                // Create matrix background
+                this.createMatrixRain();
+                
+                // Update cursor position
+                this.input.addEventListener('input', () => this.updateCursor());
+                this.input.addEventListener('click', () => this.updateCursor());
+                this.input.addEventListener('keyup', () => this.updateCursor());
+                
+                // Handle input
+                this.input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        this.handleCommand(this.input.value.trim());
+                        this.input.value = '';
+                        this.updateCursor();
+                    } else if (e.key === 'Escape') {
+                        this.exitGame();
+                    }
+                });
+                
+                // Update timer
+                setInterval(() => this.updateTimer(), 1000);
+                
+                // Start the game
+                this.startGame();
+                
+                // Keep focus
+                this.input.focus();
+                document.addEventListener('click', () => this.input.focus());
+            }
+
+            createMatrixRain() {
+                const matrixBg = document.getElementById('matrixBg');
+                const chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789';
+                
+                for (let i = 0; i < 30; i++) {
+                    const column = document.createElement('div');
+                    column.className = 'matrix-column';
+                    column.style.left = `${i * 30}px`;
+                    column.style.animationDuration = `${10 + Math.random() * 20}s`;
+                    column.style.animationDelay = `${Math.random() * 10}s`;
+                    
+                    let text = '';
+                    for (let j = 0; j < 100; j++) {
+                        text += chars[Math.floor(Math.random() * chars.length)] + '\n';
+                    }
+                    column.textContent = text;
+                    
+                    matrixBg.appendChild(column);
+                }
+            }
+
+            updateCursor() {
+                const pos = this.input.selectionStart || 0;
+                const text = this.input.value.substring(0, pos);
+                
+                const measurer = document.createElement('span');
+                measurer.style.position = 'absolute';
+                measurer.style.visibility = 'hidden';
+                measurer.style.font = getComputedStyle(this.input).font;
+                measurer.style.whiteSpace = 'pre';
+                measurer.textContent = text || '';
+                document.body.appendChild(measurer);
+                
+                const width = measurer.getBoundingClientRect().width;
+                document.body.removeChild(measurer);
+                
+                this.cursor.style.left = `${width}px`;
+            }
+
+            updateTimer() {
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                this.timeDisplay.textContent = `${minutes}:${seconds}`;
+            }
+
+            typeMessage(message, className = '', speed = 50, callback = null) {
+                const line = document.createElement('div');
+                line.className = `hack-line ${className}`;
+                this.output.appendChild(line);
+                
+                let i = 0;
+                const type = () => {
+                    if (i < message.length) {
+                        line.textContent += message[i];
+                        i++;
+                        setTimeout(type, speed);
+                    } else if (callback) {
+                        setTimeout(callback, 500);
+                    }
+                    this.output.scrollTop = this.output.scrollHeight;
+                };
+                
+                type();
+            }
+
+            addLine(text, className = '') {
+                const line = document.createElement('div');
+                line.className = `hack-line ${className}`;
+                line.textContent = text;
+                this.output.appendChild(line);
+                this.output.scrollTop = this.output.scrollHeight;
+            }
+
+            startGame() {
+                const asciiArt = `
+    ██╗  ██╗ █████╗  ██████╗██╗  ██╗    ████████╗██╗  ██╗███████╗
+    ██║  ██║██╔══██╗██╔════╝██║ ██╔╝    ╚══██╔══╝██║  ██║██╔════╝
+    ███████║███████║██║     █████╔╝        ██║   ███████║█████╗  
+    ██╔══██║██╔══██║██║     ██╔═██╗        ██║   ██╔══██║██╔══╝  
+    ██║  ██║██║  ██║╚██████╗██║  ██╗       ██║   ██║  ██║███████╗
+    ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝       ╚═╝   ╚═╝  ╚═╝╚══════╝
+                                                                  
+     ███████╗██╗   ██╗███████╗████████╗███████╗███╗   ███╗      
+     ██╔════╝╚██╗ ██╔╝██╔════╝╚══██╔══╝██╔════╝████╗ ████║      
+     ███████╗ ╚████╔╝ ███████╗   ██║   █████╗  ██╔████╔██║      
+     ╚════██║  ╚██╔╝  ╚════██║   ██║   ██╔══╝  ██║╚██╔╝██║      
+     ███████║   ██║   ███████║   ██║   ███████╗██║ ╚═╝ ██║      
+     ╚══════╝   ╚═╝   ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝`;
+                
+                this.addLine(asciiArt, 'ascii-art output-error');
+                
+                setTimeout(() => {
+                    this.typeMessage('[SYSTEM] Initializing breach protocol...', 'output-warning', 40, () => {
+                        this.typeMessage('[SYSTEM] Loading security modules...', 'output-info', 30, () => {
+                            this.typeMessage('[SYSTEM] Welcome to Eric Hurchey Security Challenge', 'output-success', 40, () => {
+                                this.typeMessage('[SYSTEM] Can you prove your skills and breach the system?', 'output-warning', 30, () => {
+                                    this.addLine('', '');
+                                    this.typeMessage('Type "help" for available commands', 'output-info', 30, () => {
+                                        this.startLevel1();
+                                    });
+                                });
+                            });
+                        });
+                    });
+                }, 1000);
+            }
+
+            startLevel1() {
+                this.level = 1;
+                this.failures = 0;
+                this.levelDisplay.textContent = '1';
+                
+                setTimeout(() => {
+                    this.addLine('', '');
+                    this.typeMessage('==[ LEVEL 1: AUTHENTICATION BYPASS ]==', 'output-section', 50, () => {
+                        this.typeMessage('Target: Portfolio Authentication System', 'output-info', 30, () => {
+                            this.typeMessage('Vulnerability: Weak password implementation', 'output-warning', 30, () => {
+                                this.addLine('', '');
+                                this.typeMessage('Found password hash: SHA256(2***)', 'output-success', 40, () => {
+                                    this.typeMessage('Hint: Year when an underdog story shook the NBA', 'output-warning', 30, () => {
+                                        this.addLine('', '');
+                                        this.typeMessage('Enter 4-digit password:', 'output-info', 30);
+                                    });
+                                });
+                            });
+                        });
+                    });
+                }, 500);
+                
+                this.hackMode = 'password';
+                this.hackAnswer = '2012';
+            }
+
+            startLevel2() {
+                this.level = 2;
+                this.failures = 0;
+                this.levelDisplay.textContent = '2';
+                
+                this.addLine('', '');
+                this.typeMessage('==[ LEVEL 2: MEMORY BUFFER OVERFLOW ]==', 'output-section', 50, () => {
+                    this.typeMessage('Target: System memory allocation', 'output-info', 30, () => {
+                        this.typeMessage('Found vulnerable buffer at 0x00101010', 'output-warning', 30, () => {
+                            this.addLine('', '');
+                            this.typeMessage('Binary dump: 00101010', 'output-success', 60, () => {
+                                this.typeMessage('Convert to decimal to exploit:', 'output-info', 30);
+                            });
+                        });
+                    });
+                });
+                
+                this.hackMode = 'binary';
+                this.hackAnswer = '42';
+            }
+
+            startLevel3() {
+                this.level = 3;
+                this.failures = 0;
+                this.levelDisplay.textContent = '3';
+                
+                this.addLine('', '');
+                this.typeMessage('==[ LEVEL 3: SQL INJECTION ]==', 'output-section', 50, () => {
+                    this.typeMessage('Target: User database', 'output-info', 30, () => {
+                        this.typeMessage('Database: PostgreSQL v14.2', 'output-info', 30, () => {
+                            this.typeMessage('Table discovered: users', 'output-warning', 30, () => {
+                                this.addLine('', '');
+                                this.typeMessage('Execute SQL to dump all records:', 'output-info', 30, () => {
+                                    this.typeMessage('(Hint: SELECT * FROM ...)', 'output-warning', 30);
+                                });
+                            });
+                        });
+                    });
+                });
+                
+                this.hackMode = 'sql';
+                this.hackAnswer = 'select * from users';
+            }
+
+            startLevel4() {
+                this.level = 4;
+                this.failures = 0;
+                this.levelDisplay.textContent = '4';
+                
+                this.addLine('', '');
+                this.typeMessage('==[ FINAL LEVEL: ALGORITHM DECRYPTION ]==', 'output-section', 50, () => {
+                    this.typeMessage('Admin password uses sequence encryption', 'output-info', 30, () => {
+                        this.typeMessage('Analyzing pattern...', 'output-warning', 60, () => {
+                            this.addLine('', '');
+                            this.typeMessage('0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...', 'output-success', 80, () => {
+                                this.addLine('', '');
+                                this.typeMessage('Name this sequence for root access:', 'output-info', 30);
+                            });
+                        });
+                    });
+                });
+                
+                this.hackMode = 'algorithm';
+                this.hackAnswer = 'fibonacci';
+            }
+
+            handleCommand(cmd) {
+                this.attempts++;
+                this.attemptsDisplay.textContent = this.attempts;
+                
+                this.addLine(`root@breach:~# ${cmd}`, 'output-command');
+                
+                if (cmd === 'help') {
+                    this.addLine('Available commands:', 'output-info');
+                    this.addLine('  help     - Show this help', 'output-info');
+                    this.addLine('  hint     - Get a hint for current level', 'output-info');
+                    this.addLine('  restart  - Restart the game', 'output-info');
+                    this.addLine('  exit     - Exit the game', 'output-info');
+                    return;
+                }
+                
+                if (cmd === 'hint') {
+                    this.giveHint();
+                    return;
+                }
+                
+                if (cmd === 'restart') {
+                    location.reload();
+                    return;
+                }
+                
+                if (cmd === 'exit' || cmd === 'quit') {
+                    this.exitGame();
+                    return;
+                }
+                
+                this.checkAnswer(cmd);
+            }
+
+            giveHint() {
+                if (this.hackMode === 'password') {
+                    this.typeMessage('Think about Jeremy Lin and February 2012...', 'output-warning', 30);
+                } else if (this.hackMode === 'binary') {
+                    this.typeMessage('Binary 00101010 = 0×2^5 + 0×2^4 + 1×2^3 + 0×2^2 + 1×2^1 + 0×2^0', 'output-warning', 30);
+                } else if (this.hackMode === 'sql') {
+                    this.typeMessage('Standard SQL: SELECT * FROM table_name', 'output-warning', 30);
+                } else if (this.hackMode === 'algorithm') {
+                    this.typeMessage('Italian mathematician, golden ratio, nature\'s pattern...', 'output-warning', 30);
+                }
+            }
+
+            checkAnswer(answer) {
+                this.typeMessage('[SYSTEM] Verifying...', 'output-warning', 60, () => {
+                    if (this.hackMode === 'password' && answer === this.hackAnswer) {
+                        this.typeMessage('[SUCCESS] Authentication bypassed!', 'output-success', 50, () => {
+                            this.startLevel2();
+                        });
+                    } else if (this.hackMode === 'binary' && answer === this.hackAnswer) {
+                        this.typeMessage('[SUCCESS] Memory exploited!', 'output-success', 50, () => {
+                            this.startLevel3();
+                        });
+                    } else if (this.hackMode === 'sql' && answer.toLowerCase().includes('select * from')) {
+                        this.typeMessage('[SUCCESS] Database dumped!', 'output-success', 50, () => {
+                            this.startLevel4();
+                        });
+                    } else if (this.hackMode === 'algorithm' && answer.toLowerCase() === this.hackAnswer) {
+                        this.victory();
+                    } else {
+                        this.failures++;
+                        this.typeMessage('[FAILED] Access denied', 'output-error', 40, () => {
+                            if (this.failures >= 5) {
+                                this.typeMessage('[ALERT] Security lockout!', 'output-error', 50, () => {
+                                    setTimeout(() => this.exitGame(), 3000);
+                                });
+                            } else {
+                                this.typeMessage(`Attempts remaining: ${5 - this.failures}`, 'output-warning', 30);
+                            }
+                        });
+                    }
+                });
+            }
+
+            victory() {
+                this.typeMessage('[SUCCESS] ROOT ACCESS GRANTED!', 'output-success', 80, () => {
+                    this.addLine('', '');
+                    this.typeMessage('================================', 'output-success', 20, () => {
+                        this.typeMessage('🎉 SYSTEM FULLY COMPROMISED 🎉', 'output-success glitch', 60, () => {
+                            this.typeMessage('================================', 'output-success', 20, () => {
+                                this.addLine('', '');
+                                this.typeMessage('SECRET MESSAGE:', 'output-warning', 50, () => {
+                                    this.typeMessage('"Great developers are problem solvers at heart"', 'output-info', 60, () => {
+                                        this.addLine('', '');
+                                        this.typeMessage('Congratulations! You\'ve proven your skills!', 'output-success', 40, () => {
+                                            this.typeMessage('Contact: eric.hurchey@example.com', 'output-info', 40, () => {
+                                                this.addLine('', '');
+                                                this.typeMessage('Returning to portfolio in 10 seconds...', 'output-warning', 40);
+                                                setTimeout(() => this.exitGame(), 10000);
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            }
+
+            exitGame() {
+                this.typeMessage('[SYSTEM] Terminating connection...', 'output-error', 50, () => {
+                    setTimeout(() => {
+                        window.location.href = 'eric-portfolio-final-complete.html';
+                    }, 1000);
+                });
+            }
+        }
+
+        // Exit function for button
+        function exitGame() {
+            window.location.href = 'eric-portfolio-final-complete.html';
+        }
+
+        // Initialize game when page loads
+        window.addEventListener('load', () => {
+            new HackingGame();
+        });
+    </script>
+</body>
+</html>
