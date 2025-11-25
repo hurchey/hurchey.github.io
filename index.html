@@ -22,8 +22,11 @@
     <div class="hacking-container" id="hackingContainer">
         <div class="hacking-terminal">
             <div class="hacking-header">
-                <span class="hacking-title">SECURITY_CHALLENGE_v1.0 [HACK MODE]</span>
-                <button class="hacking-exit-btn" onclick="exitHackMode()">EXIT [ESC]</button>
+                <span class="hacking-title">SECURITY_CHALLENGE_v1.0 [HACK MODE] <span id="hackTypingIndicator" class="hack-typing-indicator">█</span></span>
+                <div class="hack-header-actions">
+                    <button class="hacking-close-btn" onclick="exitHackMode()" aria-label="Close hack terminal">✕</button>
+                    <button class="hacking-exit-btn" onclick="exitHackMode()">EXIT [ESC]</button>
+                </div>
             </div>
             <div class="hacking-output" id="hackingOutput"></div>
             <div class="hacking-input-section">
@@ -64,6 +67,7 @@
                 <button class="quick-cmd-btn" onclick="executeQuickCommand('matrix')">🌐 Matrix</button>
                 <button class="quick-cmd-btn" onclick="executeQuickCommand('knicks')">🏀 Easter Egg</button>
                 <button class="quick-cmd-btn" onclick="executeQuickCommand('violin')">🎻 Easter Egg</button>
+                <button class="quick-cmd-btn" onclick="executeQuickCommand('linsanity')">🔥 Linsanity</button>
                 <button class="quick-cmd-btn" onclick="executeQuickCommand('clear')">🧹 Clear</button>
             </div>
         </div>

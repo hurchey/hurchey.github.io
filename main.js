@@ -318,6 +318,8 @@ class HackGame {
     this.output = document.getElementById('hackingOutput');
     this.input = document.getElementById('hackingInput');
     this.exitButton = document.querySelector('.hacking-exit-btn');
+    this.closeButton = document.querySelector('.hacking-close-btn');
+    this.typingIndicator = document.getElementById('hackTypingIndicator');
     this.level = 1;
     this.active = false;
     this.isTyping = false;
@@ -357,19 +359,20 @@ class HackGame {
 
   open() {
     this.active = true;
-    this.isTyping = false;
+    this.setTyping(false);
     this.level = 1;
     this.output.innerHTML = '';
     this.input.value = '';
     this.container.classList.add('active');
     this.bindEvents();
+    this.focus();
     this.runIntro();
   }
 
   bindEvents() {
     this.input.onkeydown = (e) => {
       if (!this.active) return;
-      if (e.key === 'Enter' && !this.isTyping) {
+      if (e.key === 'Enter' && (!this.isTyping || ['exit', 'quit'].includes(this.input.value.trim().split(' ')[0]))) {
         const command = this.input.value.trim();
         if (command) {
           this.addLine(`hacker@breach:~$ ${command}`, 'hack-command');
@@ -382,12 +385,13 @@ class HackGame {
     };
 
     this.container.onclick = (e) => {
-      if (!e.target.closest('.hacking-exit-btn')) {
+      if (!e.target.closest('.hacking-exit-btn') && !e.target.closest('.hacking-close-btn')) {
         this.focus();
       }
     };
 
     if (this.exitButton) this.exitButton.onclick = () => this.exit();
+    if (this.closeButton) this.closeButton.onclick = () => this.exit();
   }
 
   focus() {
@@ -415,12 +419,12 @@ class HackGame {
   }
 
   async typeLines(lines, speed = 20) {
-    this.isTyping = true;
+    this.setTyping(true);
     for (const line of lines) {
       await this.typeLine(line.text, line.className, speed);
       await this.wait(120);
     }
-    this.isTyping = false;
+    this.setTyping(false);
   }
 
   typeLine(text, className = '', speed = 20) {
@@ -452,6 +456,13 @@ class HackGame {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  setTyping(active) {
+    this.isTyping = active;
+    if (this.typingIndicator) {
+      this.typingIndicator.style.opacity = active ? '1' : '0';
+    }
+  }
+
   startLevel(level) {
     const data = this.levels[level];
     if (!data) return this.victory();
@@ -470,7 +481,6 @@ class HackGame {
     const [cmd, ...rest] = raw.split(' ');
     const arg = rest.join(' ').trim();
     if (cmd === 'exit' || cmd === 'quit') return this.exit();
-    if (this.isTyping) return;
 
     if (cmd === 'hint') {
       const level = this.levels[this.level];
@@ -507,11 +517,15 @@ class HackGame {
 
   exit() {
     this.active = false;
+    this.setTyping(false);
     this.container.classList.remove('active');
     this.output.innerHTML = '';
     this.input.value = '';
-    if (terminalSystem) terminalSystem.addOutput('Exited hack mode.', 'info');
-    if (terminalSystem) terminalSystem.focusInput();
+    if (terminalSystem) {
+      terminalSystem.addOutput('Exited hack mode.', 'info');
+      terminalSystem.scrollToBottom();
+      terminalSystem.focusInput();
+    }
   }
 
   scroll() {
@@ -532,6 +546,7 @@ class TerminalPortfolio {
     this.commandHistory = [];
     this.historyIndex = -1;
     this.matrixMode = false;
+    this.matrixUnlocked = false;
     this.hackGame = new HackGame();
     this.fileSystem = this.buildFileSystem();
     this.commands = this.buildCommands();
@@ -573,7 +588,7 @@ class TerminalPortfolio {
             contents: {
               'bio.txt': {
                 type: 'file',
-                content: `ERIC HURCHEY - Software Engineer & Product Manager\n==============================================\n\nBuilding AI-driven products and full-stack experiences with a product mindset. Brandeis CS student (Math minor) graduating May 2025. Passionate about fast iteration, clean UX, and systems that actually help people.\n\nCurrently exploring LLM-powered tooling, mobile experiences, and scalable web systems.`
+                content: `ERIC HURCHEY - Software Engineer & Product Manager\n==============================================\n\nI blend engineering with product thinking to ship AI-powered experiences, polished interfaces, and resilient systems. I'm a Brandeis CS student (Math minor), graduating May 2025, focused on turning ideas into usable products fast.\n\nRecent Highlights:\n- Building an AI testing platform (myGenius) that converts PDFs into adaptive practice tests with NLP/ML.\n- Shipping an LLM-driven Website Cloner that rebuilds public sites into clean components in minutes.\n- Creating a React Native food suggestion app that recognizes ingredients from photos and recommends recipes.\n\nStrengths:\n- Full-stack web & mobile (React/Next.js/React Native, Node/FastAPI)\n- Data & cloud (PostgreSQL/MySQL/MongoDB, AWS S3, Docker, CI/CD)\n- Collaboration & mentoring (TA for 100+ students; document, teach, iterate)\n\nWhat drives me: shipping useful tools, exploring generative AI, and designing delightful user experiences.`
               },
               'interests.txt': {
                 type: 'file',
@@ -645,6 +660,11 @@ class TerminalPortfolio {
       const hackActive = document.getElementById('hackingContainer').classList.contains('active');
       if (currentMode === 'terminal' && !hackActive && !e.target.closest('.quick-commands-bar')) this.focusInput();
     });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && quickCommandsVisible) {
+        hideQuickCommands();
+      }
+    });
   }
 
   focusInput() {
@@ -681,6 +701,9 @@ class TerminalPortfolio {
     } else if (e.ctrlKey && e.key.toLowerCase() === 'l') {
       e.preventDefault();
       this.clearTerminal();
+    } else if (e.key === 'Escape' && quickCommandsVisible) {
+      e.preventDefault();
+      hideQuickCommands();
     }
     setTimeout(() => this.updateCursorPosition(), 0);
   }
@@ -831,15 +854,9 @@ class TerminalPortfolio {
     const ascii = `
 ╔════════════════════════════════════════════════════════════════════╗
 ║                                                                    ║
-║  ███████╗██████╗ ██╗ ██████╗                                      ║
-║  ██╔════╝██╔══██╗██║██╔════╝                                      ║
-║  █████╗  ██████╔╝██║██║                                           ║
-║  ██╔══╝  ██╔══██╗██║██║                                           ║
-║  ███████╗██║  ██║██║╚██████╗                                      ║
-║  ╚══════╝╚═╝  ╚═╝╚═╝ ╚═════╝                                      ║
-║                                                                    ║
-║           Aspiring Software Engineer & Product Manager            ║
-║                  WELCOME TO MY PERSONAL WEBSITE                   ║
+║                        ERIC HURCHEY                                ║
+║               SOFTWARE ENGINEER & PRODUCT MANAGER                  ║
+║                     WELCOME TO MY PORTFOLIO                       ║
 ║                                                                    ║
 ╚════════════════════════════════════════════════════════════════════╝`;
     const container = document.createElement('div');
@@ -862,6 +879,7 @@ class TerminalPortfolio {
     this.addOutput('  ls [-a]            List directory contents', 'info');
     this.addOutput('  cd <dir>           Change directory', 'info');
     this.addOutput('  cat <file>         Show file contents', 'info');
+    this.addOutput('  echo <text>        Print text', 'info');
     this.addOutput('  find <pattern>     Find files by name', 'info');
     this.addOutput('  grep <pattern>     Search inside files (current dir)', 'info');
     this.addOutput('  clear              Clear terminal', 'info');
@@ -869,13 +887,17 @@ class TerminalPortfolio {
     this.addOutput('  gui                Switch to visual mode', 'info');
     this.addOutput('  hack               Launch hacking mini-game', 'success');
     this.addOutput('  matrix             Matrix rain effect', 'success');
-    this.addOutput('  red pill | blue pill | knicks | violin | linsanity', 'warning');
+    this.addOutput('  red pill | blue pill (after matrix)', 'warning');
+    this.addOutput('  knicks | violin | linsanity', 'warning');
     this.addOutput('', '');
     this.scrollToBottom();
   }
 
   clearTerminal() {
     this.output.innerHTML = '';
+    this.currentPath = '~';
+    this.matrixUnlocked = false;
+    this.updatePrompt();
     this.showWelcomeMessage();
   }
 
@@ -885,15 +907,37 @@ class TerminalPortfolio {
 
   downloadFile(args) {
     if (args && args[0] === 'resume') {
-      this.addOutput('Initializing download...', 'warning');
-      setTimeout(() => this.addOutput('Fetching eric_hurchey_resume.pdf...', 'info'), 300);
+      this.addOutput('Initializing download manager...', 'warning');
+      this.scrollToBottom();
+
       setTimeout(() => {
+        this.addOutput('Connecting to server...', 'info');
+        this.scrollToBottom();
+      }, 600);
+
+      setTimeout(() => {
+        this.addOutput('Fetching eric_hurchey_resume.pdf...', 'info');
+        this.scrollToBottom();
+      }, 1200);
+
+      setTimeout(() => {
+        this.addOutput('Verifying file integrity...', 'info');
+        this.scrollToBottom();
+      }, 1800);
+
+      setTimeout(() => {
+        this.addOutput('Resume downloaded successfully!', 'success');
         const line = document.createElement('div');
-        line.className = 'output-line output-success';
-        line.innerHTML = 'Resume ready: <button class="inline-btn" onclick="window.open(\'https://example.com/eric_hurchey_resume.pdf\', \'_blank\')">Download PDF</button>';
+        line.className = 'output-line';
+        line.innerHTML = `
+          <span class="output-info">File ready: eric_hurchey_resume.pdf</span>
+          <button class="inline-btn" style="margin-left: 12px;" onclick="window.open('https://example.com/eric_hurchey_resume.pdf', '_blank')">
+            📥 Download PDF
+          </button>
+        `;
         this.output.appendChild(line);
         this.scrollToBottom();
-      }, 900);
+      }, 2400);
     } else {
       this.addOutput('Usage: download resume', 'error');
     }
@@ -956,6 +1000,7 @@ class TerminalPortfolio {
   matrixEffect() {
     this.addOutput('', '');
     this.addOutput('ENTERING THE MATRIX...', 'success');
+    this.matrixUnlocked = true;
     const matrixChars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789';
     for (let i = 0; i < 2; i++) {
       let rain = '';
@@ -971,6 +1016,11 @@ class TerminalPortfolio {
   }
 
   redPill() {
+    if (!this.matrixUnlocked) {
+      this.addOutput('Take the matrix command first to unlock this choice.', 'warning');
+      this.scrollToBottom();
+      return;
+    }
     this.addOutput('', '');
     this.addOutput('You take the red pill...', 'error');
     this.scrollToBottom();
@@ -982,6 +1032,11 @@ class TerminalPortfolio {
   }
 
   bluePill() {
+    if (!this.matrixUnlocked) {
+      this.addOutput('Take the matrix command first to unlock this choice.', 'warning');
+      this.scrollToBottom();
+      return;
+    }
     this.addOutput('', '');
     this.addOutput('You take the blue pill...', 'info');
     this.scrollToBottom();
@@ -992,16 +1047,47 @@ class TerminalPortfolio {
   }
 
   easterEggKnicks() {
-    this.addOutput('🏀 Knicks & Warriors fan. Jeremy Lin & Steph forever.', 'success');
+    this.addOutput('', '');
+    this.addOutput('🏀 NEW YORK KNICKS & GOLDEN STATE WARRIORS FAN! 🏀', 'success');
+    this.addOutput('', '');
+    this.addOutput('Favorite teams: Knicks & Warriors', 'info');
+    this.addOutput('Favorite players: Jeremy Lin & Stephen Curry', 'info');
+    this.addOutput('', '');
+    this.addOutput('Fun fact: Linsanity was one of the most exciting moments in basketball!', 'warning');
+    this.addOutput("Jeremy Lin's story of perseverance really inspires me.", 'warning');
+    this.addOutput('', '');
   }
 
   easterEggViolin() {
-    this.addOutput('🎻 14+ years of classical violin. Discipline meets code.', 'success');
+    this.addOutput('', '');
+    this.addOutput('🎻 CLASSICAL MUSICIAN 🎻', 'success');
+    this.addOutput('', '');
+    this.addOutput('14+ years of violin experience!', 'info');
+    this.addOutput('Concert Master in High School & Middle School', 'info');
+    this.addOutput('Performed multiple solo parts during concerts', 'info');
+    this.addOutput('', '');
+    this.addOutput('Music taught me discipline, teamwork, and attention to detail.', 'warning');
+    this.addOutput('These skills translate perfectly to software engineering!', 'warning');
+    this.addOutput('', '');
   }
 
   easterEggLinsanity() {
+    this.addOutput('', '');
     this.addOutput('🔥 LINSANITY FOREVER! 🔥', 'success');
-    this.addOutput('An underdog story that fuels my approach to engineering.', 'info');
+    this.addOutput('', '');
+    const linsanity = `
+╔═══════════════════════════════╗
+║  February 2012 - Never Forget ║
+║  7 games, 7 wins              ║
+║  An underdog story that       ║
+║  inspired millions!           ║
+╚═══════════════════════════════╝`;
+    this.addHTML(`<pre style="color: var(--terminal-yellow)">${linsanity}</pre>`);
+    this.addOutput('', '');
+    this.addOutput('Jeremy Lin showed that with hard work and opportunity,', 'info');
+    this.addOutput('anything is possible. This mindset drives my approach', 'info');
+    this.addOutput('to software engineering and product management!', 'info');
+    this.addOutput('', '');
   }
 
   navigateHistory(direction) {

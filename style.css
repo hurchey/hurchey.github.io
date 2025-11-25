@@ -1067,6 +1067,7 @@
             color: var(--gui-text-light);
             font-weight: 500;
             padding-right: 10px;
+            white-space: nowrap;
         }
         
         .timeline-content {
@@ -1286,6 +1287,38 @@
             color: var(--terminal-red);
             font-weight: bold;
             text-shadow: 0 0 10px var(--terminal-red);
+        }
+
+        .hack-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hacking-close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--terminal-red);
+            color: var(--terminal-red);
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .hacking-close-btn:hover {
+            background: var(--terminal-red);
+            color: black;
+        }
+
+        .hack-typing-indicator {
+            margin-left: 8px;
+            color: var(--terminal-red);
+            animation: hackBlink 1s infinite;
+            font-weight: bold;
+            opacity: 0;
         }
         
         .hacking-exit-btn {
