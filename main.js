@@ -613,7 +613,7 @@ class TerminalPortfolio {
           },
           'contact.txt': {
             type: 'file',
-            content: `CONTACT\n=======\nEmail: eric.hurchey@example.com\nLinkedIn: linkedin.com/in/erichurchey\nGitHub: github.com/erichurchey`
+            content: `CONTACT\n=======\nEmail: eric.hurchey@gmail.com\nLinkedIn: linkedin.com/in/eric-hurchey/\nGitHub: github.com/hurchey`
           },
           'resume.pdf': { type: 'file', content: '[Use "download resume" to fetch the PDF]' }
         }

@@ -1323,7 +1323,7 @@
         
         .hacking-exit-btn {
             padding: 8px 16px;
-            background: transparent;
+            background: black;
             border: 1px solid var(--terminal-red);
             color: var(--terminal-red);
             cursor: pointer;
