@@ -36,13 +36,14 @@ const PROJECTS = [
     ]
   },
   {
-    title: 'Neural Interface',
-    badge: 'Machine Learning',
-    tech: ['React', 'TypeScript', 'TensorFlow.js', 'WebGL'],
-    summary: 'Adaptive UI that personalizes layout and components based on user behavior.',
+    title: 'Warehouse Robot',
+    badge: 'Robotics & Automation',
+    tech: ['Python', 'ROS', 'OpenCV', 'MQTT', 'React'],
+    summary: 'Simulation and control stack replicating warehouse robot navigation, picking, and inventory updates.',
     bullets: [
-      'Built ML-powered UI adaptations with TensorFlow.js and WebGL visualizations.',
-      'Designed personalization experiments that improved engagement and reduced bounce rate.'
+      'Built a ROS-driven navigation loop with OpenCV-based perception to identify shelves, slots, and pick targets.',
+      'Implemented path planning, obstacle avoidance, and task queues to mirror real warehouse pick/put-away flows.',
+      'Synced robot events to a lightweight inventory service and React dashboard to track stock levels and task status in real time.'
     ]
   }
 ];
