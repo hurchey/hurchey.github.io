@@ -569,9 +569,10 @@ class TerminalPortfolio {
       const content = [`# ${project.title}`, '', `Focus: ${project.badge}`, '', 'Tech:', project.tech.map((t) => `- ${t}`).join('\n'), '', 'Highlights:', project.bullets.map((b) => `- ${b}`).join('\n')].join('\n');
       projectFiles[filename] = { type: 'file', content };
     });
+    const projectIndex = ['PROJECTS:', ...PROJECTS.map((p) => `- ${p.title} — ${p.summary} (Tech: ${p.tech.join(', ')})`)].join('\n');
     projectFiles['README.md'] = {
       type: 'file',
-      content: PROJECTS.map((p) => `- ${p.title}`).join('\n')
+      content: projectIndex
     };
 
     const skillsContent = SKILL_GROUPS.map((group) => `${group.title}:\n- ${group.items.join(' | ')}`).join('\n\n');
