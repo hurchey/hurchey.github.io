@@ -16,7 +16,8 @@ const PROJECTS = [
     badge: 'AI + Mobile',
     tech: ['Python', 'JavaScript', 'TypeScript', 'React Native', 'React.js', 'Hugging Face', 'MySQL'],
     summary:
-      'Cross-platform mobile app that identifies food items from photos and suggests recipes around user goals.',
+      'Cross-platform mobile app (still under construction) that identifies food items from photos and suggests recipes around user goals.',
+    link: 'https://github.com/hurchey/Food-Snap-App',
     bullets: [
       'Developed a cross-platform React Native app that recognizes food from user photos and suggests new recipes tuned to calorie goals or budget constraints.',
       'Integrated Hugging Face datasets for accurate ingredient recognition directly from photographs.',
@@ -29,6 +30,7 @@ const PROJECTS = [
     tech: ['Python', 'TypeScript', 'Next.js', 'FastAPI', 'Gemini LLM', 'Hyperbrowser'],
     summary:
       'AI-driven website cloner that turns any public URL into a componentized, clean HTML/CSS codebase.',
+    link: 'https://github.com/hurchey/Website-Cloner',
     bullets: [
       'Built an AI “Website Cloner” that scrapes DOM, CSS, and assets to produce 80% pixel-fidelity HTML/CSS, cutting rebuild time from hours to minutes.',
       'Created a Python/FastAPI service that uses Hyperbrowser to capture page structure and assets in under 3 seconds before piping data to Gemini.',
@@ -40,6 +42,7 @@ const PROJECTS = [
     badge: 'Robotics & Automation',
     tech: ['Python', 'ROS', 'OpenCV', 'MQTT', 'React'],
     summary: 'Simulation and control stack replicating warehouse robot navigation, picking, and inventory updates.',
+    link: 'https://github.com/hurchey/Warehouse-Robot',
     bullets: [
       'Built a ROS-driven navigation loop with OpenCV-based perception to identify shelves, slots, and pick targets.',
       'Implemented path planning, obstacle avoidance, and task queues to mirror real warehouse pick/put-away flows.',
@@ -566,10 +569,21 @@ class TerminalPortfolio {
     const projectFiles = {};
     PROJECTS.forEach((project) => {
       const filename = `${slugify(project.title)}.md`;
-      const content = [`# ${project.title}`, '', `Focus: ${project.badge}`, '', 'Tech:', project.tech.map((t) => `- ${t}`).join('\n'), '', 'Highlights:', project.bullets.map((b) => `- ${b}`).join('\n')].join('\n');
+      const content = [
+        `# ${project.title}`,
+        '',
+        `Focus: ${project.badge}`,
+        '',
+        'Tech:',
+        project.tech.map((t) => `- ${t}`).join('\n'),
+        '',
+        'Highlights:',
+        project.bullets.map((b) => `- ${b}`).join('\n'),
+        project.link ? `\nRepo: ${project.link}` : ''
+      ].join('\n');
       projectFiles[filename] = { type: 'file', content };
     });
-    const projectIndex = ['PROJECTS:', ...PROJECTS.map((p) => `- ${p.title} — ${p.summary} (Tech: ${p.tech.join(', ')})`)].join('\n');
+    const projectIndex = ['PROJECTS:', ...PROJECTS.map((p) => `- ${p.title} — ${p.summary} (Tech: ${p.tech.join(', ')})${p.link ? ` [${p.link}]` : ''}`)].join('\n');
     projectFiles['README.md'] = {
       type: 'file',
       content: projectIndex
@@ -855,14 +869,14 @@ class TerminalPortfolio {
   showWelcomeMessage() {
     const ascii = `
 ╔════════════════════════════════════════════════════════════════════╗
-║                                                                    ║
-║   ███████╗██████╗ ██╗ ██████╗                                        ║
-║   ██╔════╝██╔══██╗██║██╔════╝                                        ║
-║   █████╗  ██████╔╝██║██║                                             ║
-║   ██╔══╝  ██╔══██╗██║██║                                             ║
-║   ███████╗██║  ██║██║╚██████╗                                        ║
-║   ╚══════╝╚═╝  ╚═╝╚═╝ ╚═════╝                                        ║
-║                                                                    ║
+║                                                                   ║
+║   ███████╗██████╗ ██╗ ██████╗                                       ║
+║   ██╔════╝██╔══██╗██║██╔════╝                                       ║
+║   █████╗  ██████╔╝██║██║                                            ║
+║   ██╔══╝  ██╔══██╗██║██║                                            ║
+║   ███████╗██║  ██║██║╚██████╗                                       ║
+║   ╚══════╝╚═╝  ╚═╝╚═╝ ╚═════╝                                       ║
+║                                                                   ║
 ║  ██╗  ██╗██╗   ██╗██████╗  ██████╗██╗  ██╗███████╗██╗   ██╗        ║
 ║  ██║  ██║██║   ██║██╔══██╗██╔════╝██║  ██║██╔════╝╚██╗ ██╔╝        ║
 ║  ███████║██║   ██║██████╔╝██║     ███████║█████╗   ╚████╔╝         ║
@@ -945,7 +959,7 @@ class TerminalPortfolio {
         line.className = 'output-line';
         line.innerHTML = `
           <span class="output-info">File ready: eric_hurchey_resume.pdf</span>
-          <button class="inline-btn" style="margin-left: 12px;" onclick="window.open('https://example.com/eric_hurchey_resume.pdf', '_blank')">
+          <button class="inline-btn" style="margin-left: 12px;" onclick="window.open('https://drive.google.com/file/d/1Bbes1d-WL8k4JzvyeqQaOe9rzeyKIdLX/view?usp=sharing', '_blank')">
             📥 Download PDF
           </button>
         `;
