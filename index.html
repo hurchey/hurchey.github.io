@@ -4,27 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eric Hurchey | Portfolio</title>
-        <link rel="stylesheet" href="style.css">
+    <meta
+        name="description"
+        content="Terminal-first portfolio for Eric Hurchey, featuring current work at GAIN, active projects, and a dual terminal and GUI experience."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- CRT Effect -->
     <div class="crt-effect"></div>
 
-    <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-text">
-            <span>Initializing Portfolio System</span>
+            <span>Booting Eric Hurchey portfolio</span>
             <span class="loading-dots"></span>
         </div>
     </div>
 
-    <!-- Hacking Mode Overlay -->
     <div class="hacking-container" id="hackingContainer">
         <div class="hacking-terminal">
             <div class="hacking-header">
-                <span class="hacking-title">SECURITY_CHALLENGE_v1.0 [HACK MODE] <span id="hackTypingIndicator" class="hack-typing-indicator">█</span></span>
+                <span class="hacking-title">SECURITY_CHALLENGE_v2.0 [HACK MODE] <span id="hackTypingIndicator" class="hack-typing-indicator">█</span></span>
                 <div class="hack-header-actions">
-                    <button class="hacking-close-btn" onclick="exitHackMode()" aria-label="Close hack terminal">✕</button>
+                    <button class="hacking-close-btn" onclick="exitHackMode()" aria-label="Close hack terminal">X</button>
                     <button class="hacking-exit-btn" onclick="exitHackMode()">EXIT [ESC]</button>
                 </div>
             </div>
@@ -36,56 +39,21 @@
         </div>
     </div>
 
-    <!-- Quick Commands Bar -->
     <div class="quick-commands-bar" id="quickCommandsBar">
-        <button class="quick-cmd-close" onclick="hideQuickCommands()">✕</button>
-        <div class="quick-commands-container">
-            <div class="quick-cmd-section">
-                <span class="quick-cmd-label">📄 About Me</span>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat ~/about/bio.txt')">📝 Biography</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat ~/about/interests.txt')">🎯 Interests</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('ls ~/about')">📁 View All About</button>
-            </div>
-            <div class="quick-cmd-section">
-                <span class="quick-cmd-label">💼 Projects</span>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat ~/projects/food-suggestion-app-wht-s-ckin.md')">🥘 Food Suggestion App</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat ~/projects/website-cloning.md')">🕸️ Website Cloning</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat ~/projects/warehouse-robot.md')">🤖 Warehouse Robot</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat ~/projects/README.md')">📖 All Projects</button>
-            </div>
-            <div class="quick-cmd-section">
-                <span class="quick-cmd-label">🚀 Skills & Experience</span>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat ~/skills/summary.txt')">🧰 Tech Stack</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat ~/experience/current.txt')">📅 Experience</button>
-            </div>
-            <div class="quick-cmd-section">
-                <span class="quick-cmd-label">⚡ Quick Actions & Fun</span>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('cat ~/contact.txt')">📧 Contact</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('download resume')">📥 Resume</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('gui')">🖼️ Visual Mode</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('hack')">🎮 Hack Game</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('matrix')">🌐 Matrix</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('knicks')">🏀 Easter Egg</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('violin')">🎻 Easter Egg</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('linsanity')">🔥 Linsanity</button>
-                <button class="quick-cmd-btn" onclick="executeQuickCommand('clear')">🧹 Clear</button>
-            </div>
-        </div>
+        <button class="quick-cmd-close" onclick="hideQuickCommands()" aria-label="Close quick commands">X</button>
+        <div class="quick-commands-container" id="quickCommandsContainer"></div>
+        <div class="quick-cmd-hint">Press Tab again to close the command deck.</div>
     </div>
 
-    <!-- Terminal Mode Container -->
     <div class="terminal-container" id="terminalContainer">
-        <!-- Fixed Header Section -->
         <div class="terminal-header-section">
             <div class="terminal-header">
                 <div class="terminal-title">
-                    <span>TERMINAL://PORTFOLIO_SYSTEM_V1.0</span>
+                    <span id="terminalSystemTitle">TERMINAL://ERIC_HURCHEY.SYSTEM</span>
                 </div>
                 <div class="terminal-status">
-                    <button class="gui-switch-btn" onclick="setMode('gui')" title="Switch to Visual Mode">
-                        🖼️ Visual Mode
-                    </button>
-                    <span class="help-text">Press Tab for quick commands or type ? for help</span>
+                    <button class="gui-switch-btn" onclick="setMode('gui')" title="Switch to visual mode">Visual Mode</button>
+                    <span class="help-text" id="terminalHelpHint">Press Tab for quick commands or type ? for help</span>
                     <div class="status-item">
                         <div class="status-dot"></div>
                         <span>CONNECTED</span>
@@ -97,12 +65,10 @@
             </div>
         </div>
 
-        <!-- Scrollable Terminal Body -->
         <div class="terminal-body">
             <div class="terminal-output" id="terminalOutput"></div>
         </div>
 
-        <!-- Fixed Input Section -->
         <div class="terminal-input-wrapper">
             <div class="terminal-input-section">
                 <span class="terminal-prompt" id="prompt">visitor@home:~$</span>
@@ -114,355 +80,30 @@
         </div>
     </div>
 
-    <!-- GUI Mode Container -->
     <div class="gui-container" id="guiContainer">
-        <!-- 3D Canvas Background -->
         <canvas id="canvas3d"></canvas>
-        
-        <!-- GUI Navigation -->
+
         <nav class="gui-nav">
             <div class="gui-nav-content">
-                <div class="gui-nav-logo">Eric Hurchey</div>
-                <ul class="gui-nav-menu">
-                    <li><a class="gui-nav-link" onclick="showGuiSection('home')">Home</a></li>
-                    <li><a class="gui-nav-link" onclick="showGuiSection('about')">About</a></li>
-                    <li><a class="gui-nav-link" onclick="showGuiSection('skills')">Skills</a></li>
-                    <li><a class="gui-nav-link" onclick="showGuiSection('projects')">Projects</a></li>
-                    <li><a class="gui-nav-link" onclick="showGuiSection('experience')">Experience</a></li>
-                    <li><a class="gui-nav-link" onclick="showGuiSection('contact')">Contact</a></li>
-                </ul>
+                <button class="gui-nav-logo" onclick="showGuiSection('home')">Eric Hurchey</button>
+                <ul class="gui-nav-menu" id="guiNavMenu"></ul>
                 <button class="gui-back-btn" onclick="setMode('terminal')">Terminal</button>
             </div>
         </nav>
 
         <div class="gui-content">
-            <!-- GUI Home Section -->
-            <div class="gui-section active" id="gui-home">
-                <div class="gui-hero">
-                    <div class="gui-hero-content">
-                        <h1>Eric Hurchey</h1>
-                        <p class="gui-hero-subtitle">Software Engineer & Product Manager</p>
-                        <p class="gui-hero-tagline">CS Student at Brandeis | Building the future with AI & modern web tech</p>
-                        
-                        <div class="gui-stats-row">
-                            <div class="gui-stat-item">
-                                <span class="gui-stat-number">3+</span>
-                                <span class="gui-stat-label">Years Experience</span>
-                            </div>
-                            <div class="gui-stat-item">
-                                <span class="gui-stat-number">5+</span>
-                                <span class="gui-stat-label">Major Projects</span>
-                            </div>
-                            <div class="gui-stat-item">
-                                <span class="gui-stat-number">100+</span>
-                                <span class="gui-stat-label">Students Mentored</span>
-                            </div>
-                        </div>
-                        
-                        <div class="gui-hero-buttons">
-                            <button class="gui-button primary" onclick="showGuiSection('projects')">View Projects</button>
-                            <button class="gui-button" onclick="showGuiSection('about')">About Me</button>
-                            <button class="gui-button" onclick="showGuiSection('skills')">Skills</button>
-                            <button class="gui-button" onclick="showGuiSection('experience')">Experience</button>
-                            <button class="gui-button" onclick="showGuiSection('contact')">Contact</button>
-                        </div>
-                        
-                        <div class="gui-highlights">
-                            <h3>What I Do</h3>
-                            <div class="gui-highlight-grid">
-                                <div class="gui-highlight-item">
-                                    <span class="highlight-icon">⚡</span>
-                                    <h4>Fast & Scalable</h4>
-                                    <p>Building performant applications that scale</p>
-                                </div>
-                                <div class="gui-highlight-item">
-                                    <span class="highlight-icon">🎨</span>
-                                    <h4>Beautiful UX</h4>
-                                    <p>Creating intuitive user experiences</p>
-                                </div>
-                                <div class="gui-highlight-item">
-                                    <span class="highlight-icon">🔒</span>
-                                    <h4>Secure Code</h4>
-                                    <p>Following best security practices</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="gui-terminal-hint">
-                            <p>💻 Prefer command-line? <button class="gui-link-button" onclick="setMode('terminal')">Switch to Terminal</button></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Other GUI Sections -->
-            <div class="gui-section" id="gui-about">
-                <div class="gui-grid-section">
-                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
-                    <h2 class="gui-section-title">About Me</h2>
-                    
-                    <div class="gui-about-intro">
-                        <p>Passionate developer with a unique blend of technical expertise and product thinking, 
-                        dedicated to creating meaningful digital experiences that make a difference.</p>
-                    </div>
-                    
-                    <div class="gui-grid">
-                        <div class="gui-card">
-                            <span class="card-icon">🎯</span>
-                            <h3>My Mission</h3>
-                            <p>Building innovative solutions that bridge the gap between complex technology and user needs. 
-                            I believe great software should be powerful yet intuitive, solving real problems elegantly.</p>
-                        </div>
-                        <div class="gui-card">
-                            <span class="card-icon">🎓</span>
-                            <h3>Background</h3>
-                            <p>Computer Science graduate with a passion for full-stack development. My journey started with 
-                            curiosity about how things work and evolved into a career building impactful applications.</p>
-                        </div>
-                        <div class="gui-card">
-                            <span class="card-icon">💡</span>
-                            <h3>Approach</h3>
-                            <p>I combine technical excellence with user-centered design, ensuring every project delivers 
-                            real value. Agile methodologies and clean code principles guide my development process.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="gui-values-section">
-                        <h3>Core Values</h3>
-                        <div class="gui-values-grid">
-                            <div class="value-item">
-                                <span class="value-icon">🚀</span>
-                                <h4>Innovation</h4>
-                                <p>Always exploring new technologies and approaches</p>
-                            </div>
-                            <div class="value-item">
-                                <span class="value-icon">🤝</span>
-                                <h4>Collaboration</h4>
-                                <p>Best results come from great teamwork</p>
-                            </div>
-                            <div class="value-item">
-                                <span class="value-icon">📚</span>
-                                <h4>Continuous Learning</h4>
-                                <p>Technology evolves, and so do I</p>
-                            </div>
-                            <div class="value-item">
-                                <span class="value-icon">✨</span>
-                                <h4>Quality</h4>
-                                <p>Excellence in every line of code</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="gui-interests">
-                        <h3>Beyond Code</h3>
-                        <p>When I'm not coding, you'll find me:</p>
-                        <ul class="interests-list">
-                            <li>🏀 Watching NBA games (Knicks & Warriors fan!)</li>
-                            <li>🎻 Playing violin (14+ years of classical training)</li>
-                            <li>📖 Reading about emerging technologies</li>
-                            <li>🎮 Building side projects and experimenting with new frameworks</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="gui-section" id="gui-skills">
-                <div class="gui-grid-section">
-                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
-                    <h2 class="gui-section-title">Skills</h2>
-                    <div class="gui-grid">
-                        <div class="gui-card">
-                            <h3>Frontend</h3>
-                            <p>React, TypeScript, Next.js, Three.js, TailwindCSS, WebGL</p>
-                        </div>
-                        <div class="gui-card">
-                            <h3>Backend</h3>
-                            <p>Node.js, Python, Django, Express, PostgreSQL, MongoDB</p>
-                        </div>
-                        <div class="gui-card">
-                            <h3>Tools & Cloud</h3>
-                            <p>Git, Docker, AWS, Kubernetes, CI/CD, Agile methodologies</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="gui-section" id="gui-projects">
-                <div class="gui-grid-section">
-                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
-                    <h2 class="gui-section-title">Projects</h2>
-                    
-                    <div class="gui-projects-intro">
-                        <p>A showcase of my technical expertise and problem-solving abilities through real-world applications.</p>
-                    </div>
-                    
-                    <div class="gui-grid">
-                        <div class="gui-project-card">
-                            <div class="project-header">
-                                <h3>Warehouse Robot</h3>
-                                <span class="project-badge">Robotics & Automation</span>
-                            </div>
-                            <p>Simulated warehouse robot stack handling navigation, perception, pick/put-away, and real-time inventory sync.</p>
-                            <div class="project-tech">
-                                <span class="tech-tag">Python</span>
-                                <span class="tech-tag">ROS</span>
-                                <span class="tech-tag">OpenCV</span>
-                                <span class="tech-tag">MQTT</span>
-                                <span class="tech-tag">React</span>
-                            </div>
-                            <div class="project-stats">
-                                <span>🤖 Nav + obstacle avoidance</span>
-                                <span>📦 Inventory + dashboard sync</span>
-                            </div>
-                            <button class="project-link" onclick="window.open('https://github.com/hurchey/Warehouse-Robot', '_blank')">View Code →</button>
-                        </div>
-                        
-                        <div class="gui-project-card">
-                            <div class="project-header">
-                                <h3>Quantum Visualizer</h3>
-                                <span class="project-badge">3D Graphics</span>
-                            </div>
-                            <p>3D visualization tool for quantum states, used by universities for quantum computing education.</p>
-                            <div class="project-tech">
-                                <span class="tech-tag">Three.js</span>
-                                <span class="tech-tag">TypeScript</span>
-                                <span class="tech-tag">Python</span>
-                            </div>
-                            <div class="project-stats">
-                                <span>🎓 3 universities</span>
-                                <span>⭐ 500+ stars</span>
-                            </div>
-                            <button class="project-link" onclick="alert('GitHub: github.com/hurchey/quantum-visualizer')">View Code →</button>
-                        </div>
-                        
-                        <div class="gui-project-card">
-                            <div class="project-header">
-                                <h3>Decentralized Portfolio</h3>
-                                <span class="project-badge">Blockchain</span>
-                            </div>
-                            <p>Blockchain-based portfolio platform ensuring data ownership and authenticity.</p>
-                            <div class="project-tech">
-                                <span class="tech-tag">Ethereum</span>
-                                <span class="tech-tag">Solidity</span>
-                                <span class="tech-tag">IPFS</span>
-                            </div>
-                            <div class="project-stats">
-                                <span>💼 500+ portfolios</span>
-                                <span>💰 $50K+ processed</span>
-                            </div>
-                            <button class="project-link" onclick="alert('GitHub: github.com/hurchey/decentralized-portfolio')">View Code →</button>
-                        </div>
-                    </div>
-                    
-                    <div class="gui-cta-section">
-                        <p>Want to see more?</p>
-                        <button class="gui-button" onclick="window.open('https://github.com/hurchey', '_blank')">Visit My GitHub</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="gui-section" id="gui-experience">
-                <div class="gui-grid-section">
-                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
-                    <h2 class="gui-section-title">Experience</h2>
-                    
-                    <div class="gui-timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-date">2025 - Present</div>
-                            <div class="timeline-content">
-                                <h3>Software Engineer Intern</h3>
-                                <h4>myGenius • Remote, Israel</h4>
-                                <p>Engineering AI-powered testing platform using NLP and machine learning to transform 
-                                academic PDFs into adaptive, personalized tests.</p>
-                                <div class="timeline-achievements">
-                                    <span>✅ 25% improvement in user satisfaction</span>
-                                    <span>✅ Real-time PDF parsing implementation</span>
-                                    <span>✅ Enhanced student engagement</span>
-                                </div>
-                                <div class="timeline-tech">
-                                    <span class="tech-badge">React</span>
-                                    <span class="tech-badge">TypeScript</span>
-                                    <span class="tech-badge">NLP</span>
-                                    <span class="tech-badge">Machine Learning</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="timeline-item">
-                            <div class="timeline-date">2023 - 2025</div>
-                            <div class="timeline-content">
-                                <h3>Level II ITS Technician</h3>
-                                <h4>Brandeis ITS Help Desk • Waltham, MA</h4>
-                                <p>Improved first response times on 250+ tickets, documented triage guides, and mentored 
-                                technicians across Linux, macOS, and Windows environments.</p>
-                                <div class="timeline-achievements">
-                                    <span>✅ Handled 250+ technical tickets</span>
-                                    <span>✅ Reduced repeat tickets significantly</span>
-                                    <span>✅ Mentored junior technicians</span>
-                                </div>
-                                <div class="timeline-tech">
-                                    <span class="tech-badge">Linux</span>
-                                    <span class="tech-badge">macOS</span>
-                                    <span class="tech-badge">Windows</span>
-                                    <span class="tech-badge">Troubleshooting</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="timeline-item">
-                            <div class="timeline-date">2023</div>
-                            <div class="timeline-content">
-                                <h3>Software Engineer Intern</h3>
-                                <h4>Peachy • Remote, NY</h4>
-                                <p>Developed dynamic product filtering and user feedback features. Automated Shopify 
-                                migration workflows reducing timelines by 35%.</p>
-                                <div class="timeline-achievements">
-                                    <span>✅ Served 10,000+ daily users</span>
-                                    <span>✅ 99.9% data accuracy in migrations</span>
-                                    <span>✅ 35% faster project timelines</span>
-                                </div>
-                                <div class="timeline-tech">
-                                    <span class="tech-badge">React</span>
-                                    <span class="tech-badge">Shopify</span>
-                                    <span class="tech-badge">Node.js</span>
-                                    <span class="tech-badge">APIs</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="gui-experience-cta">
-                        <p>Interested in working together?</p>
-                        <button class="gui-button primary" onclick="showGuiSection('contact')">Get In Touch</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="gui-section" id="gui-contact">
-                <div class="gui-grid-section">
-                    <button class="gui-nav-back" onclick="showGuiSection('home')">← Back to Home</button>
-                    <h2 class="gui-section-title">Contact</h2>
-                    <div class="gui-grid">
-                        <div class="gui-card">
-                            <h3>Email</h3>
-                            <p><a href="mailto:eric.hurchey@gmail.com">eric.hurchey@gmail.com</a></p>
-                        </div>
-                        <div class="gui-card">
-                            <h3>LinkedIn</h3>
-                            <p><a href="https://linkedin.com/in/eric-hurchey/" target="_blank" rel="noreferrer">linkedin.com/in/eric-hurchey/</a></p>
-                        </div>
-                        <div class="gui-card">
-                            <h3>GitHub</h3>
-                            <p><a href="https://github.com/hurchey" target="_blank" rel="noreferrer">github.com/hurchey</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <section class="gui-section active" id="gui-home"></section>
+            <section class="gui-section" id="gui-now"></section>
+            <section class="gui-section" id="gui-about"></section>
+            <section class="gui-section" id="gui-skills"></section>
+            <section class="gui-section" id="gui-projects"></section>
+            <section class="gui-section" id="gui-experience"></section>
+            <section class="gui-section" id="gui-contact"></section>
         </div>
     </div>
 
-    <!-- Three.js for 3D Background -->
-        <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="content.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
