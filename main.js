@@ -169,75 +169,27 @@ function renderGuiHome() {
     )
     .join("");
 
-  const highlights = (HERO.highlights || [])
+  const contactLinks = (CONTACT.methods || [])
     .map(
-      (item) => `
-        <div class="gui-highlight-item">
-          <p class="highlight-label">${item.title}</p>
-          <p>${item.text}</p>
-        </div>
-      `
+      (item) => `<a class="gui-button" href="${item.href}" target="${item.href.startsWith("mailto:") ? "_self" : "_blank"}" rel="noreferrer">${item.label}</a>`
     )
     .join("");
-
-  const signalPoints = (HERO.signal?.points || [])
-    .map((point) => `<li>${point}</li>`)
-    .join("");
-
-  const signalLinks = (HERO.signal?.links || [])
-    .map(
-      (link) => `<a class="signal-link" href="${link.url}" target="_blank" rel="noreferrer">${link.label}</a>`
-    )
-    .join("");
-
-  const highlightedProjects = PROJECTS.filter((project) => project.featured !== false).slice(0, 3);
-  const projectRailSource = highlightedProjects.length ? highlightedProjects : PROJECTS.slice(0, 3);
-
-  const projectRail = projectRailSource.map(
-    (project) => `
-      <div class="project-rail-card">
-        <div class="project-rail-topline">
-          <span class="project-status ${slugify(project.status)}">${project.status}</span>
-          <span class="project-rail-badge">${project.badge}</span>
-        </div>
-        <h3>${project.title}</h3>
-        <p>${project.summary}</p>
-      </div>
-    `
-  ).join("");
 
   section.innerHTML = `
     <div class="gui-shell gui-home-shell">
       <section class="gui-hero">
-        <div class="gui-hero-grid">
-          <div class="gui-hero-copy">
-            <p class="section-kicker">${HERO.eyebrow}</p>
-            <h1>${HERO.headline}</h1>
-            <p class="gui-hero-subtitle">${PROFILE.name} | ${PROFILE.role}</p>
-            <p class="gui-hero-tagline">${PROFILE.tagline}</p>
-            <p class="gui-hero-summary">${HERO.summary}</p>
-            <div class="gui-hero-buttons">${renderActionButtons(HERO.buttons || [])}</div>
-            <div class="gui-stats-row">${stats}</div>
+        <div class="gui-hero-copy" style="max-width: 800px;">
+          <p class="section-kicker">${PROFILE.role} // ${PROFILE.location}</p>
+          <h1>${PROFILE.name}</h1>
+          <p class="gui-hero-tagline">${PROFILE.tagline}</p>
+          <div class="gui-stats-row">${stats}</div>
+          <div class="gui-hero-buttons">
+            <a class="gui-button primary" href="${PROFILE.resumeUrl}" target="_blank" rel="noreferrer">Resume</a>
+            <a class="gui-button" href="${PROFILE.github}" target="_blank" rel="noreferrer">GitHub</a>
+            <a class="gui-button" href="${PROFILE.linkedin}" target="_blank" rel="noreferrer">LinkedIn</a>
+            <button class="gui-button" onclick="setMode('terminal')">Terminal Mode</button>
           </div>
-
-          <aside class="gui-signal-card">
-            <p class="signal-label">${HERO.signal?.label || ""}</p>
-            <h2>${HERO.signal?.heading || ""}</h2>
-            <p class="signal-body">${HERO.signal?.body || ""}</p>
-            <ul class="signal-list">${signalPoints}</ul>
-            <div class="signal-links">${signalLinks}</div>
-          </aside>
         </div>
-      </section>
-
-      <section class="gui-highlight-grid">${highlights}</section>
-
-      <section class="project-rail">
-        <div class="section-header compact">
-          <p class="section-kicker">RECENT SIGNALS</p>
-          <h2 class="gui-section-title">Projects that reflect current direction</h2>
-        </div>
-        <div class="project-rail-grid">${projectRail}</div>
       </section>
     </div>
   `;
@@ -282,20 +234,7 @@ function renderGuiNow() {
     "RIGHT NOW",
     "What is current",
     NOW.intro,
-    `
-      <div class="gui-grid now-grid">${cards}</div>
-      <div class="focus-panel">
-        <div>
-          <p class="card-kicker">CURRENT FOCUS</p>
-          <h3>What I am optimizing for</h3>
-        </div>
-        <ul class="focus-list">${focusList}</ul>
-        <div class="focus-actions">
-          <button class="gui-button primary" onclick="showGuiSection('projects')">See Active Work</button>
-          <button class="gui-button" onclick="setMode('terminal')">Open Terminal View</button>
-        </div>
-      </div>
-    `
+    `<div class="gui-grid now-grid">${cards}</div>`
   );
 }
 
@@ -358,21 +297,9 @@ function renderGuiSkills() {
   renderStandardSection(
     "gui-skills",
     "SKILLS",
-    "Tools I reach for",
-    "I do not try to present everything as a flat wall of buzzwords. These are the areas I actually use to build, debug, and iterate.",
-    `
-      <div class="gui-grid">${cards}</div>
-      <div class="focus-panel compact-panel">
-        <div>
-          <p class="card-kicker">WORKING STYLE</p>
-          <h3>What matters more than the checklist</h3>
-        </div>
-        <p>
-          I care most about shipping focused software, learning domains deeply enough to make good product decisions,
-          and writing code that stays understandable after the first demo.
-        </p>
-      </div>
-    `
+    "Technical stack",
+    "The tools I use to build, debug, and iterate.",
+    `<div class="gui-grid">${cards}</div>`
   );
 }
 
@@ -402,14 +329,8 @@ function renderGuiProjects() {
     "gui-projects",
     "PROJECTS",
     "Things I am building or have finished",
-    "These projects are here because they reflect how I think: practical problems, clear user value, and a willingness to learn by building.",
-    `
-      <div class="gui-grid project-grid">${cards}</div>
-      <div class="gui-cta-section">
-        <p>Want the broader repo list as well?</p>
-        <a class="gui-button" href="${PROFILE.github}" target="_blank" rel="noreferrer">Visit My GitHub</a>
-      </div>
-    `
+    "Practical problems, clear user value, and learning by building.",
+    `<div class="gui-grid project-grid">${cards}</div>`
   );
 }
 
@@ -438,14 +359,8 @@ function renderGuiExperience() {
     "gui-experience",
     "EXPERIENCE",
     "Recent roles and context",
-    "I want the experience section to show progression rather than a flat list of titles. The through-line is practical engineering, communication, and learning by doing.",
-    `
-      <div class="gui-timeline">${timeline}</div>
-      <div class="gui-experience-cta">
-        <p>Interested in talking through any of this?</p>
-        <button class="gui-button primary" onclick="showGuiSection('contact')">Get In Touch</button>
-      </div>
-    `
+    "Practical engineering, communication, and learning by doing.",
+    `<div class="gui-timeline">${timeline}</div>`
   );
 }
 
@@ -454,8 +369,7 @@ function renderGuiContact() {
     .map(
       (item) => `
         <article class="gui-card contact-card">
-          <p class="card-kicker">CONTACT</p>
-          <h3>${item.label}</h3>
+          <p class="card-kicker">${item.label.toUpperCase()}</p>
           <p><a href="${item.href}" target="${item.href.startsWith("mailto:") ? "_self" : "_blank"}" rel="noreferrer">${item.value}</a></p>
         </article>
       `
@@ -469,18 +383,9 @@ function renderGuiContact() {
     CONTACT.intro,
     `
       <div class="gui-grid">${methods}</div>
-      <div class="focus-panel compact-panel">
-        <div>
-          <p class="card-kicker">NEXT STEP</p>
-          <h3>If you want the quicker version</h3>
-        </div>
-        <p>
-          Email is best if you want to talk directly. GitHub is best if you want to see how I think in repos. The terminal view is best if you want the site in its native form.
-        </p>
-        <div class="focus-actions">
-          <a class="gui-button primary" href="${PROFILE.resumeUrl}" target="_blank" rel="noreferrer">Resume</a>
-          <button class="gui-button" onclick="setMode('terminal')">Open Terminal</button>
-        </div>
+      <div class="gui-hero-buttons" style="margin-top: 24px;">
+        <a class="gui-button primary" href="${PROFILE.resumeUrl}" target="_blank" rel="noreferrer">Resume</a>
+        <a class="gui-button" href="${PROFILE.github}" target="_blank" rel="noreferrer">GitHub</a>
       </div>
     `
   );
@@ -506,16 +411,26 @@ function setMode(mode) {
   currentMode = mode;
   const body = document.body;
 
+  body.classList.remove("gui-mode", "quant-mode");
+  hideQuickCommands();
+
   if (mode === "gui") {
     body.classList.add("gui-mode");
-    hideQuickCommands();
     showGuiSection("home");
     window.scrollTo(0, 0);
     init3DBackground();
     return;
   }
 
-  body.classList.remove("gui-mode");
+  if (mode === "quant") {
+    body.classList.add("quant-mode");
+    window.scrollTo(0, 0);
+    destroy3DBackground();
+    renderQuantInline();
+    startQuantInlineClock();
+    return;
+  }
+
   destroy3DBackground();
   if (terminalSystem) terminalSystem.focusInput();
 }
@@ -550,8 +465,8 @@ function init3DBackground() {
   ];
 
   const materials = [
-    new window.THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.18 }),
-    new window.THREE.MeshBasicMaterial({ color: 0x8d8d8d, wireframe: true, transparent: true, opacity: 0.1 })
+    new window.THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, transparent: true, opacity: 0.15 }),
+    new window.THREE.MeshBasicMaterial({ color: 0x008800, wireframe: true, transparent: true, opacity: 0.08 })
   ];
 
   shapes3d = [];
@@ -1418,7 +1333,7 @@ class TerminalPortfolio {
     this.addOutput("  contact            Show contact details", "info");
     this.addOutput("  download resume    Open resume link", "info");
     this.addOutput("  gui                Switch to visual mode", "info");
-    this.addOutput("  quant              Open the quant-themed subsite", "info");
+    this.addOutput("  quant              Switch to quant mode", "info");
     this.addOutput("  find <pattern>     Find files by name", "info");
     this.addOutput("  grep <pattern>     Search inside files", "info");
     this.addOutput("  clear              Clear terminal", "info");
@@ -1482,8 +1397,8 @@ class TerminalPortfolio {
   }
 
   openQuantSite() {
-    this.addOutput("Opening quant subsite...", "info");
-    window.open("quant.html", "_blank", "noopener,noreferrer");
+    this.addOutput("Switching to quant mode...", "info");
+    setTimeout(() => setMode("quant"), 300);
   }
 
   findFiles(args) {
@@ -1675,6 +1590,153 @@ class TerminalPortfolio {
     update();
     setInterval(update, 1000);
   }
+}
+
+/* ── Quant inline mode ── */
+
+const QUANT_SITE = PORTFOLIO.quantSite || {};
+const QUANT_CURVES = {
+  primary: [18, 24, 22, 29, 33, 31, 38, 44, 41, 49, 54, 57],
+  secondary: [11, 15, 13, 19, 21, 18, 25, 27, 24, 31, 29, 35]
+};
+
+function quantSparkline(values, variant) {
+  const w = 320, h = 96;
+  const min = Math.min(...values), max = Math.max(...values);
+  const step = w / (values.length - 1);
+  const pts = values.map((v, i) => {
+    const y = max === min ? h / 2 : h - ((v - min) / (max - min)) * (h - 14) - 7;
+    return `${i * step},${y}`;
+  }).join(" ");
+  return `<svg class="sparkline ${variant}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" /></svg>`;
+}
+
+function renderQuantInlineNav() {
+  const nav = document.getElementById("quantInlineLinks");
+  if (!nav) return;
+  nav.innerHTML = (QUANT_SITE.navigation || [])
+    .map((item) => `<a href="#quant-${item.id}">${item.label}</a>`)
+    .join("");
+}
+
+function renderQuantInline() {
+  const app = document.getElementById("quantInlineApp");
+  if (!app) return;
+
+  renderQuantInlineNav();
+
+  const hero = QUANT_SITE.hero || {};
+  const metrics = (hero.metrics || []).map((m) => `<div class="metric-card"><span class="metric-label">${m.label}</span><strong>${m.value}</strong></div>`).join("");
+  const notes = (hero.notes || []).map((n) => `<div class="note-row">${n}</div>`).join("");
+  const tape = [...(hero.tape || []), ...(hero.tape || [])].map((item, i) => `<span class="ticker-item">${String(i + 1).padStart(2, "0")} ${item}</span>`).join("");
+
+  const researchCards = (QUANT_SITE.research || []).map((item) => `
+    <article class="quant-panel research-card">
+      <p class="quant-kicker">THESIS</p>
+      <h3>${item.title}</h3>
+      <p>${item.body}</p>
+    </article>
+  `).join("");
+
+  const processItems = (QUANT_SITE.process || []).map((item) => `<li>${item}</li>`).join("");
+  const focusRows = (QUANT_SITE.focusBoard || []).map((item) => `<div class="focus-board-row"><span>${item.label}</span><strong>${item.value}</strong></div>`).join("");
+
+  const projectCards = PROJECTS.map((project, i) => `
+    <article class="quant-panel book-card">
+      <div class="book-card-header">
+        <span class="book-index">${String(i + 1).padStart(2, "0")}</span>
+        <span class="book-status ${project.status.toLowerCase().replace(/[^a-z0-9]+/g, "-")}">${project.status}</span>
+      </div>
+      <h3>${project.title}</h3>
+      <p class="book-badge">${project.badge}</p>
+      <p class="book-summary">${project.summary}</p>
+      <div class="book-tags">${(project.tech || []).map((t) => `<span>${t}</span>`).join("")}</div>
+      <div class="book-actions">
+        <a class="quant-button primary" href="${project.link}" target="_blank" rel="noreferrer">Repository</a>
+      </div>
+    </article>
+  `).join("");
+
+  const expRows = EXPERIENCE.map((item) => `
+    <div class="ledger-row">
+      <span class="ledger-period">${item.dates}</span>
+      <div><strong>${item.title}</strong><p>${item.company} · ${item.location}</p></div>
+      <div class="ledger-signal"><p>${item.summary}</p><div class="ledger-tags">${(item.tech || []).map((t) => `<span>${t}</span>`).join("")}</div></div>
+    </div>
+  `).join("");
+
+  const contactCards = (CONTACT.methods || []).map((item) => `
+    <article class="quant-panel contact-card">
+      <p class="quant-kicker">CHANNEL</p>
+      <h3>${item.label}</h3>
+      <a href="${item.href}" ${item.href.startsWith("mailto:") ? "" : 'target="_blank" rel="noreferrer"'}>${item.value}</a>
+    </article>
+  `).join("");
+
+  app.innerHTML = `
+    <section class="quant-section quant-hero-section" id="quant-overview">
+      <div class="quant-hero-grid">
+        <div class="quant-hero-copy quant-panel">
+          <p class="quant-kicker">${hero.eyebrow || ""}</p>
+          <h1>${hero.headline || ""}</h1>
+          <p class="quant-summary">${hero.summary || ""}</p>
+          <div class="quant-hero-actions">
+            <a class="quant-button primary" href="${PROFILE.github}" target="_blank" rel="noreferrer">GitHub</a>
+            <a class="quant-button" href="${PROFILE.resumeUrl}" target="_blank" rel="noreferrer">Resume</a>
+            <button class="quant-button" onclick="setMode('terminal')">Terminal</button>
+          </div>
+          <div class="quant-notes">${notes}</div>
+        </div>
+        <aside class="quant-desk quant-panel">
+          <div class="desk-header"><div><p class="quant-kicker">DESK SNAPSHOT</p><h2>Current board</h2></div><span class="desk-status">LIVE RESEARCH</span></div>
+          <div class="metric-grid">${metrics}</div>
+          <div class="curve-card">
+            <div class="curve-header"><span>Research momentum</span><span>12-step view</span></div>
+            ${quantSparkline(QUANT_CURVES.primary, "primary")}
+            ${quantSparkline(QUANT_CURVES.secondary, "secondary")}
+          </div>
+        </aside>
+      </div>
+      <div class="ticker-shell"><div class="ticker-track">${tape}</div></div>
+    </section>
+
+    <section class="quant-section" id="quant-research">
+      <div class="section-head"><p class="quant-kicker">RESEARCH STACK</p><h2>How I want the work to look</h2></div>
+      <div class="research-grid">${researchCards}</div>
+      <div class="board-grid">
+        <div class="quant-panel process-panel"><p class="quant-kicker">PROCESS</p><h3>Operating rules</h3><ul class="process-list">${processItems}</ul></div>
+        <div class="quant-panel focus-board"><p class="quant-kicker">FOCUS BOARD</p><h3>What is actually in motion</h3><div class="focus-board-grid">${focusRows}</div></div>
+      </div>
+    </section>
+
+    <section class="quant-section" id="quant-projects">
+      <div class="section-head"><p class="quant-kicker">TRADE BOOK</p><h2>Projects under review</h2></div>
+      <div class="book-grid">${projectCards}</div>
+    </section>
+
+    <section class="quant-section" id="quant-experience">
+      <div class="section-head"><p class="quant-kicker">TRACK RECORD</p><h2>Experience ledger</h2></div>
+      <div class="ledger-table quant-panel">
+        <div class="ledger-head ledger-row"><span>Period</span><span>Role</span><span>Signal</span></div>
+        ${expRows}
+      </div>
+    </section>
+
+    <section class="quant-section" id="quant-contact">
+      <div class="section-head"><p class="quant-kicker">CONTACT</p><h2>Open channel</h2><p class="section-copy">${QUANT_SITE.contactLine || ""}</p></div>
+      <div class="contact-grid">${contactCards}</div>
+    </section>
+  `;
+}
+
+let quantClockInterval = null;
+function startQuantInlineClock() {
+  const clock = document.getElementById("quantInlineClock");
+  if (!clock) return;
+  if (quantClockInterval) clearInterval(quantClockInterval);
+  const update = () => { clock.textContent = new Date().toTimeString().split(" ")[0]; };
+  update();
+  quantClockInterval = setInterval(update, 1000);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -39,7 +39,6 @@ window.PORTFOLIO_CONTENT = {
     buttons: [
       { label: "View Projects", type: "section", target: "projects", primary: true },
       { label: "What Is Current", type: "section", target: "now" },
-      { label: "Quant Lab", type: "external", target: "quant.html" },
       { label: "Switch to Terminal", type: "mode", target: "terminal" },
       { label: "GitHub", type: "external", target: "https://github.com/hurchey" }
     ],

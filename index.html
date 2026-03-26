@@ -87,7 +87,10 @@
             <div class="gui-nav-content">
                 <button class="gui-nav-logo" onclick="showGuiSection('home')">Eric Hurchey</button>
                 <ul class="gui-nav-menu" id="guiNavMenu"></ul>
-                <button class="gui-back-btn" onclick="setMode('terminal')">Terminal</button>
+                <div class="gui-nav-actions">
+                    <button class="gui-mode-toggle" id="quantModeBtn" onclick="setMode('quant')">Quant Mode</button>
+                    <button class="gui-back-btn" onclick="setMode('terminal')">Terminal</button>
+                </div>
             </div>
         </nav>
 
@@ -100,6 +103,21 @@
             <section class="gui-section" id="gui-experience"></section>
             <section class="gui-section" id="gui-contact"></section>
         </div>
+    </div>
+
+    <div class="quant-container" id="quantContainer">
+        <nav class="quant-inline-nav">
+            <div class="quant-inline-nav-content">
+                <span class="quant-inline-brand">ERIC HURCHEY // QUANT LAB</span>
+                <nav class="quant-inline-links" id="quantInlineLinks"></nav>
+                <div class="quant-inline-actions">
+                    <span class="quant-inline-clock" id="quantInlineClock">00:00:00</span>
+                    <button class="gui-mode-toggle" onclick="setMode('gui')">Portfolio Mode</button>
+                    <button class="gui-back-btn" onclick="setMode('terminal')">Terminal</button>
+                </div>
+            </div>
+        </nav>
+        <main class="quant-inline-main" id="quantInlineApp"></main>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
