@@ -1301,20 +1301,39 @@ class TerminalPortfolio {
   }
 
   showWelcomeMessage() {
-    const ascii = buildTerminalBanner([
-      PROFILE.name.toUpperCase(),
-      "SOFTWARE ENGINEER // TERMINAL PORTFOLIO"
-    ]);
+    const bigName = [
+      "███████╗██████╗ ██╗ ██████╗",
+      "██╔════╝██╔══██╗██║██╔════╝",
+      "█████╗  ██████╔╝██║██║     ",
+      "██╔══╝  ██╔══██╗██║██║     ",
+      "███████╗██║  ██║██║╚██████╗",
+      "╚══════╝╚═╝  ╚═╝╚═╝ ╚═════╝",
+      "",
+      "██╗  ██╗██╗   ██╗██████╗  ██████╗██╗  ██╗███████╗██╗   ██╗",
+      "██║  ██║██║   ██║██╔══██╗██╔════╝██║  ██║██╔════╝╚██╗ ██╔╝",
+      "███████║██║   ██║██████╔╝██║     ███████║█████╗   ╚████╔╝ ",
+      "██╔══██║██║   ██║██╔══██╗██║     ██╔══██║██╔══╝    ╚██╔╝  ",
+      "██║  ██║╚██████╔╝██║  ██║╚██████╗██║  ██║███████╗   ██║   ",
+      "╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝   "
+    ].join("\n");
 
     const container = document.createElement("div");
     container.className = "ascii-art-container";
 
     const pre = document.createElement("pre");
     pre.className = "ascii-art";
-    pre.textContent = ascii;
+    pre.textContent = bigName;
 
     container.appendChild(pre);
     this.output.appendChild(container);
+
+    const tagline = document.createElement("div");
+    tagline.className = "ascii-art-container";
+    const tagPre = document.createElement("pre");
+    tagPre.className = "ascii-art ascii-tagline";
+    tagPre.textContent = "SOFTWARE ENGINEER // TERMINAL PORTFOLIO";
+    tagline.appendChild(tagPre);
+    this.output.appendChild(tagline);
     this.addOutput("", "");
     this.addOutput('Welcome. Type "help" or press Tab for quick commands.', "success");
     this.addOutput("Current signal: Software Engineer Intern at GAIN.", "info");

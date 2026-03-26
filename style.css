@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&family=Inter:wght@300;400;500;600&family=Orbitron:wght@400;500;600;700&display=swap');
 
 :root {
     --terminal-bg: #000000;
@@ -343,11 +343,19 @@ body.gui-mode .quant-container {
 
 .ascii-art {
     color: var(--terminal-green);
-    font-size: 12px;
+    font-size: 10px;
     line-height: 1.05;
     text-align: center;
     margin: 8px auto;
-    text-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+    text-shadow: 0 0 20px rgba(0, 255, 0, 0.5), 0 0 40px rgba(0, 255, 0, 0.2);
+}
+
+.ascii-tagline {
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    margin-top: 12px;
+    color: var(--terminal-gray);
+    text-shadow: none;
 }
 
 .clickable-item {
@@ -509,18 +517,37 @@ body.gui-mode .gui-container {
 .gui-container::before {
     z-index: 0;
     background:
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.18));
-    opacity: 0.4;
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.1));
+    opacity: 0.5;
 }
 
 .gui-container::after {
     z-index: 0;
     background:
-        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06), transparent 35%),
-        radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.03), transparent 30%);
+        radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.08), transparent 40%),
+        radial-gradient(ellipse at 80% 100%, rgba(255, 255, 255, 0.04), transparent 35%);
+}
+
+.gui-scan-line {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+    z-index: 1;
+    animation: guiScan 8s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes guiScan {
+    0% { top: -2px; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { top: 100vh; opacity: 0; }
 }
 
 #canvas3d {
@@ -563,10 +590,11 @@ body.gui-mode .gui-nav {
 .gui-nav-logo {
     border: none;
     background: transparent;
-    color: var(--gui-accent);
-    font-family: 'Fira Code', monospace;
-    font-size: 15px;
-    letter-spacing: 0.12em;
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     cursor: pointer;
 }
@@ -598,16 +626,21 @@ body.gui-mode .gui-nav {
 
 .gui-back-btn {
     border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--gui-accent);
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
     padding: 10px 16px;
     cursor: pointer;
-    transition: transform 0.18s ease, background 0.18s ease;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    transition: all 0.2s ease;
 }
 
 .gui-back-btn:hover {
-    transform: translateY(-1px);
     background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .gui-content {
@@ -628,11 +661,13 @@ body.gui-mode .gui-nav {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(16px);
+        transform: translateY(20px);
+        filter: blur(4px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
+        filter: blur(0);
     }
 }
 
@@ -669,8 +704,33 @@ body.gui-mode .gui-nav {
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(8, 8, 8, 0.92);
     box-shadow: var(--gui-shadow);
-    transform-style: preserve-3d;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
     transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.gui-hero-copy::before,
+.gui-signal-card::before,
+.gui-card::before,
+.gui-project-card::before,
+.timeline-content::before,
+.project-rail-card::before,
+.focus-panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.5);
+    transition: width 0.4s ease;
+}
+
+.gui-card:hover::before,
+.gui-project-card:hover::before,
+.timeline-content:hover::before,
+.project-rail-card:hover::before,
+.focus-panel:hover::before {
+    width: 100%;
 }
 
 .gui-hero-copy {
@@ -685,8 +745,8 @@ body.gui-mode .gui-nav {
 .project-rail-card:hover,
 .focus-panel:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .gui-hero-copy::after,
@@ -698,11 +758,20 @@ body.gui-mode .gui-nav {
 .focus-panel::after {
     content: "";
     position: absolute;
-    inset: auto auto 0 0;
-    width: 120px;
+    bottom: 0;
+    right: 0;
+    width: 40px;
     height: 1px;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), transparent);
-    opacity: 0.4;
+    background: rgba(255, 255, 255, 0.4);
+    transition: width 0.4s ease;
+}
+
+.gui-card:hover::after,
+.gui-project-card:hover::after,
+.timeline-content:hover::after,
+.project-rail-card:hover::after,
+.focus-panel:hover::after {
+    width: 100%;
 }
 
 .section-header {
@@ -717,23 +786,47 @@ body.gui-mode .gui-nav {
 .card-kicker,
 .signal-label,
 .highlight-label {
-    color: var(--gui-accent);
+    color: var(--gui-accent-cool);
     font-family: 'Fira Code', monospace;
-    font-size: 12px;
-    letter-spacing: 0.22em;
+    font-size: 11px;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+    padding-left: 14px;
+}
+
+.section-kicker::before,
+.card-kicker::before,
+.signal-label::before,
+.highlight-label::before {
+    content: "//";
+    position: absolute;
+    left: 0;
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .gui-hero h1 {
     max-width: 100%;
     margin: 14px 0 18px;
-    font-family: 'Fira Code', monospace;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
     font-size: clamp(3.4rem, 8vw, 6rem);
     line-height: 1;
-    letter-spacing: -0.04em;
+    letter-spacing: 0.02em;
     color: #ffffff;
     text-transform: uppercase;
-    text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 60px rgba(255, 255, 255, 0.15), 0 0 120px rgba(255, 255, 255, 0.05);
+    animation: heroFlicker 4s ease-in-out infinite;
+}
+
+@keyframes heroFlicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.8; }
+    94% { opacity: 1; }
+    96% { opacity: 0.9; }
+    97% { opacity: 1; }
 }
 
 .gui-hero-subtitle {
@@ -786,30 +879,34 @@ body.gui-mode .gui-nav {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     background: rgba(255, 255, 255, 0.04);
     color: #ffffff;
-    padding: 13px 18px;
+    padding: 13px 20px;
     text-decoration: none;
     cursor: pointer;
     font-family: 'Fira Code', monospace;
-    font-size: 13px;
-    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    transition: all 0.2s ease;
 }
 
 .gui-button:hover {
-    transform: translateY(-1px);
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
 }
 
 .gui-button.primary {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.4);
+    background: #ffffff;
     color: #000000;
 }
 
 .gui-button.primary:hover {
-    background: #ffffff;
+    background: #e0e0e0;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
 }
 
 .gui-stats-row {
@@ -823,13 +920,15 @@ body.gui-mode .gui-nav {
     padding: 16px 18px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.02);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
 }
 
 .gui-stat-number {
     display: block;
     margin-bottom: 6px;
     color: #ffffff;
-    font-family: 'Fira Code', monospace;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
     font-size: 1.8rem;
 }
 
@@ -926,9 +1025,12 @@ body.gui-mode .gui-nav {
 .timeline-content h3,
 .gui-interests h3,
 .focus-panel h3 {
-    color: var(--gui-text);
-    font-size: 1.35rem;
-    line-height: 1.25;
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    font-size: 1.15rem;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
 }
 
 .project-rail-card h3 {
@@ -985,8 +1087,14 @@ body.gui-mode .gui-nav {
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.04);
     color: #ffffff;
-    padding: 10px 14px;
+    padding: 10px 16px;
     cursor: pointer;
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    transition: all 0.2s ease;
 }
 
 .gui-nav-back:hover {
@@ -995,10 +1103,11 @@ body.gui-mode .gui-nav {
 
 .gui-section-title {
     margin-top: 10px;
-    font-family: 'Fira Code', monospace;
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
     line-height: 1.1;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.03em;
     color: #ffffff;
     text-transform: uppercase;
 }
@@ -1102,27 +1211,30 @@ body.gui-mode .gui-nav {
     border: 1px solid rgba(255, 255, 255, 0.15);
     background: rgba(255, 255, 255, 0.04);
     color: #ffffff;
-    padding: 11px 14px;
+    padding: 11px 16px;
     text-decoration: none;
     cursor: pointer;
     font-family: 'Fira Code', monospace;
-    font-size: 13px;
-    transition: transform 0.18s ease, background 0.18s ease;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    transition: all 0.2s ease;
 }
 
 .project-link:hover {
-    transform: translateY(-1px);
     background: rgba(255, 255, 255, 0.08);
 }
 
 .project-link.primary {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.4);
+    background: #ffffff;
     color: #000000;
 }
 
 .project-link.primary:hover {
-    background: #ffffff;
+    background: #e0e0e0;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 .gui-cta-section,
@@ -1386,7 +1498,12 @@ body.gui-mode .gui-nav {
     }
 
     .ascii-art {
+        font-size: 6px;
+    }
+
+    .ascii-tagline {
         font-size: 10px;
+        letter-spacing: 0.15em;
     }
 
     .quick-commands-bar {
@@ -1429,21 +1546,22 @@ body.gui-mode .gui-nav {
 
 .gui-mode-toggle {
     font: inherit;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
     color: #ffffff;
     padding: 10px 16px;
     cursor: pointer;
     font-family: 'Fira Code', monospace;
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    transition: all 0.2s ease;
 }
 
 .gui-mode-toggle:hover {
-    transform: translateY(-1px);
     background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.35);
 }
 
 /* ── Quant inline mode ── */
