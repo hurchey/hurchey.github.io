@@ -17,12 +17,12 @@
     --gui-surface: rgba(8, 8, 8, 0.9);
     --gui-surface-strong: rgba(12, 12, 12, 0.95);
     --gui-surface-soft: rgba(18, 18, 18, 0.7);
-    --gui-line: rgba(0, 255, 0, 0.15);
-    --gui-line-strong: rgba(0, 255, 0, 0.3);
-    --gui-text: #e0e0e0;
-    --gui-text-soft: #999999;
-    --gui-accent: #00ff00;
-    --gui-accent-cool: #00cc00;
+    --gui-line: rgba(255, 255, 255, 0.1);
+    --gui-line-strong: rgba(255, 255, 255, 0.2);
+    --gui-text: #e8e8e8;
+    --gui-text-soft: #888888;
+    --gui-accent: #ffffff;
+    --gui-accent-cool: #cccccc;
     --gui-shadow: 0 28px 120px rgba(0, 0, 0, 0.7);
 }
 
@@ -509,8 +509,8 @@ body.gui-mode .gui-container {
 .gui-container::before {
     z-index: 0;
     background:
-        linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 56px 56px;
     mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.18));
     opacity: 0.4;
@@ -519,8 +519,8 @@ body.gui-mode .gui-container {
 .gui-container::after {
     z-index: 0;
     background:
-        radial-gradient(circle at 50% 0%, rgba(0, 255, 0, 0.06), transparent 35%),
-        radial-gradient(circle at 50% 100%, rgba(0, 255, 0, 0.03), transparent 30%);
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.06), transparent 35%),
+        radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.03), transparent 30%);
 }
 
 #canvas3d {
@@ -529,8 +529,9 @@ body.gui-mode .gui-container {
     width: 100%;
     height: 100%;
     z-index: 0;
-    opacity: 0.5;
+    opacity: 0.45;
     mix-blend-mode: screen;
+    filter: saturate(0) contrast(1.1);
 }
 
 .gui-nav {
@@ -543,7 +544,7 @@ body.gui-mode .gui-container {
     z-index: 1000;
     backdrop-filter: blur(18px);
     background: rgba(0, 0, 0, 0.92);
-    border-bottom: 1px solid rgba(0, 255, 0, 0.12);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 body.gui-mode .gui-nav {
@@ -568,7 +569,6 @@ body.gui-mode .gui-nav {
     letter-spacing: 0.12em;
     text-transform: uppercase;
     cursor: pointer;
-    text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
 }
 
 .gui-nav-menu {
@@ -592,13 +592,13 @@ body.gui-mode .gui-nav {
 .gui-nav-link:hover,
 .gui-nav-link.active {
     color: var(--gui-accent);
-    border-color: rgba(0, 255, 0, 0.2);
-    background: rgba(0, 255, 0, 0.07);
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .gui-back-btn {
-    border: 1px solid rgba(0, 255, 0, 0.2);
-    background: rgba(0, 255, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
     color: var(--gui-accent);
     padding: 10px 16px;
     cursor: pointer;
@@ -607,7 +607,7 @@ body.gui-mode .gui-nav {
 
 .gui-back-btn:hover {
     transform: translateY(-1px);
-    background: rgba(0, 255, 0, 0.12);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .gui-content {
@@ -666,8 +666,8 @@ body.gui-mode .gui-nav {
 .focus-panel {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(0, 255, 0, 0.12);
-    background: rgba(5, 5, 5, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(8, 8, 8, 0.92);
     box-shadow: var(--gui-shadow);
     transform-style: preserve-3d;
     transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
@@ -685,8 +685,8 @@ body.gui-mode .gui-nav {
 .project-rail-card:hover,
 .focus-panel:hover {
     transform: translateY(-4px);
-    border-color: rgba(0, 255, 0, 0.25);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 0, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .gui-hero-copy::after,
@@ -701,8 +701,8 @@ body.gui-mode .gui-nav {
     inset: auto auto 0 0;
     width: 120px;
     height: 1px;
-    background: linear-gradient(90deg, rgba(0, 255, 0, 0.6), transparent);
-    opacity: 0.5;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), transparent);
+    opacity: 0.4;
 }
 
 .section-header {
@@ -725,15 +725,15 @@ body.gui-mode .gui-nav {
 }
 
 .gui-hero h1 {
-    max-width: 11ch;
+    max-width: 100%;
     margin: 14px 0 18px;
     font-family: 'Fira Code', monospace;
-    font-size: clamp(2.4rem, 6vw, 4rem);
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    color: var(--gui-accent);
+    font-size: clamp(3.4rem, 8vw, 6rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: #ffffff;
     text-transform: uppercase;
-    text-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
 }
 
 .gui-hero-subtitle {
@@ -786,9 +786,9 @@ body.gui-mode .gui-nav {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(0, 255, 0, 0.2);
-    background: rgba(0, 255, 0, 0.05);
-    color: var(--gui-accent);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
     padding: 13px 18px;
     text-decoration: none;
     cursor: pointer;
@@ -799,18 +799,17 @@ body.gui-mode .gui-nav {
 
 .gui-button:hover {
     transform: translateY(-1px);
-    background: rgba(0, 255, 0, 0.1);
-    box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .gui-button.primary {
-    border-color: rgba(0, 255, 0, 0.4);
-    background: rgba(0, 255, 0, 0.15);
-    color: var(--gui-accent);
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.92);
+    color: #000000;
 }
 
 .gui-button.primary:hover {
-    background: rgba(0, 255, 0, 0.22);
+    background: #ffffff;
 }
 
 .gui-stats-row {
@@ -822,14 +821,14 @@ body.gui-mode .gui-nav {
 
 .gui-stat-item {
     padding: 16px 18px;
-    border: 1px solid rgba(0, 255, 0, 0.1);
-    background: rgba(0, 255, 0, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .gui-stat-number {
     display: block;
     margin-bottom: 6px;
-    color: var(--gui-accent);
+    color: #ffffff;
     font-family: 'Fira Code', monospace;
     font-size: 1.8rem;
 }
@@ -892,8 +891,8 @@ body.gui-mode .gui-nav {
 
 .gui-highlight-item {
     padding: 22px;
-    border: 1px solid rgba(0, 255, 0, 0.08);
-    background: rgba(0, 255, 0, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .highlight-label {
@@ -946,8 +945,8 @@ body.gui-mode .gui-nav {
 
 .project-rail-badge,
 .project-badge {
-    border: 1px solid rgba(0, 255, 0, 0.15);
-    color: var(--gui-accent);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--gui-text-soft);
     padding: 5px 10px;
     font-size: 11px;
     white-space: nowrap;
@@ -961,37 +960,37 @@ body.gui-mode .gui-nav {
     font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: rgba(0, 255, 0, 0.08);
-    color: var(--gui-accent);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
 }
 
 .project-status.finished {
-    background: rgba(0, 255, 0, 0.12);
-    color: var(--gui-accent);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
 }
 
 .project-status.in-progress {
-    background: rgba(255, 255, 0, 0.12);
-    color: var(--terminal-yellow);
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
 }
 
 .project-status.prototype,
 .project-status.concept {
-    background: rgba(0, 255, 255, 0.08);
-    color: var(--terminal-cyan);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--gui-text-soft);
 }
 
 .gui-nav-back {
     margin-bottom: 20px;
-    border: 1px solid rgba(0, 255, 0, 0.15);
-    background: rgba(0, 255, 0, 0.05);
-    color: var(--gui-accent);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
     padding: 10px 14px;
     cursor: pointer;
 }
 
 .gui-nav-back:hover {
-    background: rgba(0, 255, 0, 0.1);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .gui-section-title {
@@ -1000,9 +999,8 @@ body.gui-mode .gui-nav {
     font-size: clamp(1.8rem, 4vw, 2.6rem);
     line-height: 1.1;
     letter-spacing: -0.02em;
-    color: var(--gui-accent);
+    color: #ffffff;
     text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(0, 255, 0, 0.15);
 }
 
 .section-intro {
@@ -1044,8 +1042,8 @@ body.gui-mode .gui-nav {
 
 .value-item {
     padding: 22px;
-    border: 1px solid rgba(0, 255, 0, 0.08);
-    background: rgba(0, 255, 0, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .value-item h4 {
@@ -1061,8 +1059,8 @@ body.gui-mode .gui-nav {
 .gui-interests {
     margin-top: 30px;
     padding: 26px;
-    border: 1px solid rgba(0, 255, 0, 0.12);
-    background: rgba(5, 5, 5, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(8, 8, 8, 0.9);
 }
 
 .chip-group,
@@ -1077,9 +1075,9 @@ body.gui-mode .gui-nav {
 .skill-chip,
 .tech-tag,
 .tech-badge {
-    border: 1px solid rgba(0, 255, 0, 0.12);
-    background: rgba(0, 255, 0, 0.05);
-    color: var(--gui-accent);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
     padding: 8px 12px;
     font-size: 12px;
     font-family: 'Fira Code', monospace;
@@ -1101,9 +1099,9 @@ body.gui-mode .gui-nav {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(0, 255, 0, 0.2);
-    background: rgba(0, 255, 0, 0.05);
-    color: var(--gui-accent);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
     padding: 11px 14px;
     text-decoration: none;
     cursor: pointer;
@@ -1114,17 +1112,17 @@ body.gui-mode .gui-nav {
 
 .project-link:hover {
     transform: translateY(-1px);
-    background: rgba(0, 255, 0, 0.1);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .project-link.primary {
-    border-color: rgba(0, 255, 0, 0.4);
-    background: rgba(0, 255, 0, 0.15);
-    color: var(--gui-accent);
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.92);
+    color: #000000;
 }
 
 .project-link.primary:hover {
-    background: rgba(0, 255, 0, 0.22);
+    background: #ffffff;
 }
 
 .gui-cta-section,
@@ -1164,7 +1162,7 @@ body.gui-mode .gui-nav {
 
 .timeline-date {
     padding-top: 22px;
-    color: var(--gui-accent);
+    color: var(--gui-text-soft);
     font-family: 'Fira Code', monospace;
     font-size: 13px;
     letter-spacing: 0.08em;
@@ -1413,7 +1411,7 @@ body.gui-mode .gui-nav {
 
     .gui-hero h1 {
         max-width: 100%;
-        font-size: clamp(1.8rem, 10vw, 3rem);
+        font-size: clamp(2.4rem, 12vw, 4rem);
     }
 
     .gui-hero-tagline {
@@ -1431,9 +1429,9 @@ body.gui-mode .gui-nav {
 
 .gui-mode-toggle {
     font: inherit;
-    border: 1px solid rgba(0, 255, 0, 0.25);
-    background: rgba(0, 255, 0, 0.08);
-    color: var(--terminal-green);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
     padding: 10px 16px;
     cursor: pointer;
     font-family: 'Fira Code', monospace;
@@ -1444,8 +1442,8 @@ body.gui-mode .gui-nav {
 
 .gui-mode-toggle:hover {
     transform: translateY(-1px);
-    background: rgba(0, 255, 0, 0.15);
-    border-color: rgba(0, 255, 0, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ── Quant inline mode ── */

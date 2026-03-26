@@ -465,8 +465,8 @@ function init3DBackground() {
   ];
 
   const materials = [
-    new window.THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, transparent: true, opacity: 0.15 }),
-    new window.THREE.MeshBasicMaterial({ color: 0x008800, wireframe: true, transparent: true, opacity: 0.08 })
+    new window.THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.12 }),
+    new window.THREE.MeshBasicMaterial({ color: 0x888888, wireframe: true, transparent: true, opacity: 0.06 })
   ];
 
   shapes3d = [];

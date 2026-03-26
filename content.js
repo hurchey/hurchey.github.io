@@ -33,7 +33,7 @@ window.PORTFOLIO_CONTENT = {
       "This site keeps the terminal idea at the center, but the story is about what I am working on now: real-world engineering experience at GAIN and self-directed projects that push me into new domains.",
     stats: [
       { value: "Now", label: "GAIN intern" },
-      { value: "8", label: "Projects tracked" },
+      { value: "6", label: "Projects tracked" },
       { value: "100+", label: "Students supported" }
     ],
     buttons: [
@@ -273,40 +273,6 @@ window.PORTFOLIO_CONTENT = {
       ],
       link: "https://github.com/hurchey/Warehouse-Robot"
     },
-    {
-      title: "Quantum Visualizer",
-      featured: false,
-      status: "Finished",
-      badge: "3D Graphics",
-      summary:
-        "A 3D visualization tool for quantum states built to make abstract quantum computing ideas more approachable.",
-      description:
-        "This project focused on technical visualization and educational clarity, using 3D graphics to turn difficult concepts into something more tangible.",
-      tech: ["Three.js", "TypeScript", "Python"],
-      bullets: [
-        "Built interactive 3D visuals for quantum state exploration.",
-        "Framed the project around educational clarity rather than just visuals.",
-        "Used graphics work to make abstract technical ideas easier to reason about."
-      ],
-      link: "https://github.com/hurchey/quantum-visualizer"
-    },
-    {
-      title: "Decentralized Portfolio",
-      featured: false,
-      status: "Concept",
-      badge: "Blockchain",
-      summary:
-        "A blockchain-based portfolio platform centered on data ownership and authenticity.",
-      description:
-        "The project explored what a portfolio product looks like when authenticity and storage are treated as core product concerns instead of afterthoughts.",
-      tech: ["Ethereum", "Solidity", "IPFS"],
-      bullets: [
-        "Explored decentralized storage and on-chain authenticity ideas.",
-        "Connected product thinking with blockchain constraints and tradeoffs.",
-        "Used the build as a way to think about ownership in digital identity products."
-      ],
-      link: "https://github.com/hurchey/decentralized-portfolio"
-    }
   ],
   experience: [
     {
@@ -501,8 +467,6 @@ window.PORTFOLIO_CONTENT = {
         { label: "Food Suggestion App", command: "cat ~/projects/food-suggestion-app-wht-s-ckin.md" },
         { label: "Website Cloning", command: "cat ~/projects/website-cloning.md" },
         { label: "Warehouse Robot", command: "cat ~/projects/warehouse-robot.md" },
-        { label: "Quantum Visualizer", command: "cat ~/projects/quantum-visualizer.md" },
-        { label: "Decentralized Portfolio", command: "cat ~/projects/decentralized-portfolio.md" },
         { label: "Project index", command: "cat ~/projects/README.md" }
       ]
     },
