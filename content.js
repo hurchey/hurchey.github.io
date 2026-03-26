@@ -15,7 +15,7 @@ window.PORTFOLIO_CONTENT = {
     email: "eric.hurchey@gmail.com",
     linkedin: "https://linkedin.com/in/eric-hurchey/",
     github: "https://github.com/hurchey",
-    resumeUrl: "https://drive.google.com/file/d/1Bbes1d-WL8k4JzvyeqQaOe9rzeyKIdLX/view?usp=sharing"
+    resumeUrl: "https://drive.google.com/file/d/1ip9DtI4M8OZy_Fi2CZ4v8rOhmdsjaO3W/view?usp=sharing"
   },
   navigation: [
     { id: "home", label: "Home" },
