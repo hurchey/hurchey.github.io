@@ -1766,9 +1766,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
   terminalSystem = new TerminalPortfolio();
   window.terminalSystem = terminalSystem;
+
+  initGuiInteractions();
 });
 
 function exitHackMode() {
   if (terminalSystem) terminalSystem.hackGame.exit();
 }
 window.exitHackMode = exitHackMode;
+
+/* ── GUI interactive effects ── */
+
+function initGuiInteractions() {
+  const cursorGlow = document.getElementById("guiCursorGlow");
+
+  // Cursor glow follower
+  document.addEventListener("mousemove", (e) => {
+    if (currentMode !== "gui" || !cursorGlow) return;
+    cursorGlow.style.left = e.clientX + "px";
+    cursorGlow.style.top = e.clientY + "px";
+  });
+
+  // 3D card tilt on hover
+  document.addEventListener("mousemove", (e) => {
+    if (currentMode !== "gui") return;
+    const cards = document.querySelectorAll(".gui-card, .gui-project-card, .timeline-content, .project-rail-card, .focus-panel");
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const isHovered = (
+        e.clientX >= rect.left && e.clientX <= rect.right &&
+        e.clientY >= rect.top && e.clientY <= rect.bottom
+      );
+      if (isHovered) {
+        const xCenter = rect.left + rect.width / 2;
+        const yCenter = rect.top + rect.height / 2;
+        const rotateY = ((e.clientX - xCenter) / rect.width) * 8;
+        const rotateX = ((yCenter - e.clientY) / rect.height) * 6;
+        card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+      } else {
+        card.style.transform = "";
+      }
+    });
+  });
+
+  // Reset tilt on mouse leave
+  document.addEventListener("mouseleave", () => {
+    document.querySelectorAll(".gui-card, .gui-project-card, .timeline-content, .project-rail-card, .focus-panel").forEach((card) => {
+      card.style.transform = "";
+    });
+  });
+}

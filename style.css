@@ -517,37 +517,68 @@ body.gui-mode .gui-container {
 .gui-container::before {
     z-index: 0;
     background:
-        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.1));
-    opacity: 0.5;
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.05));
+    opacity: 0.6;
 }
 
 .gui-container::after {
     z-index: 0;
     background:
-        radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.08), transparent 40%),
-        radial-gradient(ellipse at 80% 100%, rgba(255, 255, 255, 0.04), transparent 35%);
+        radial-gradient(ellipse at 15% 0%, rgba(255, 255, 255, 0.07), transparent 40%),
+        radial-gradient(ellipse at 85% 100%, rgba(255, 255, 255, 0.03), transparent 35%);
 }
 
+/* Noise grain overlay */
+.gui-noise {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+}
+
+/* Scan line */
 .gui-scan-line {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
-    z-index: 1;
-    animation: guiScan 8s linear infinite;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 10%, rgba(255, 255, 255, 0.08) 50%, transparent 90%);
+    z-index: 3;
+    animation: guiScan 6s linear infinite;
     pointer-events: none;
 }
 
 @keyframes guiScan {
-    0% { top: -2px; opacity: 0; }
-    5% { opacity: 1; }
-    95% { opacity: 1; }
+    0% { top: -1px; opacity: 0; }
+    3% { opacity: 1; }
+    97% { opacity: 1; }
     100% { top: 100vh; opacity: 0; }
+}
+
+/* Cursor glow that follows mouse */
+.gui-cursor-glow {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.04), transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+    transition: left 0.15s ease-out, top 0.15s ease-out;
+    display: none;
+}
+
+body.gui-mode .gui-cursor-glow {
+    display: block;
 }
 
 #canvas3d {
@@ -607,21 +638,39 @@ body.gui-mode .gui-nav {
 }
 
 .gui-nav-link {
-    border: 1px solid transparent;
-    border-radius: 999px;
+    border: none;
     background: transparent;
     color: var(--gui-text-soft);
     padding: 10px 14px;
-    font-size: 13px;
+    font-size: 12px;
+    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    position: relative;
+    transition: color 0.25s ease;
+}
+
+.gui-nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background: #ffffff;
+    transition: width 0.3s ease, left 0.3s ease;
 }
 
 .gui-nav-link:hover,
 .gui-nav-link.active {
-    color: var(--gui-accent);
-    border-color: rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+.gui-nav-link:hover::after,
+.gui-nav-link.active::after {
+    width: 60%;
+    left: 20%;
 }
 
 .gui-back-btn {
@@ -672,17 +721,17 @@ body.gui-mode .gui-nav {
 }
 
 .gui-shell {
-    width: min(1240px, calc(100vw - 40px));
+    width: min(1100px, calc(100vw - 60px));
     margin: 0 auto;
-    padding: 52px 0 72px;
+    padding: 60px 0 100px;
 }
 
 .gui-home-shell {
-    padding-top: 60px;
+    padding-top: 80px;
 }
 
 .gui-hero {
-    padding: 24px 0 10px;
+    padding: 30px 0 20px;
 }
 
 .gui-hero-grid {
@@ -701,13 +750,15 @@ body.gui-mode .gui-nav {
 .focus-panel {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(8, 8, 8, 0.92);
-    box-shadow: var(--gui-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(6, 6, 6, 0.94);
+    box-shadow: 0 4px 40px rgba(0, 0, 0, 0.4);
     clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
-    transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+    transform-style: preserve-3d;
+    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
+/* Corner accent markers — top-left and bottom-right */
 .gui-hero-copy::before,
 .gui-signal-card::before,
 .gui-card::before,
@@ -719,10 +770,11 @@ body.gui-mode .gui-nav {
     position: absolute;
     top: 0;
     left: 0;
-    width: 40px;
+    width: 30px;
     height: 1px;
-    background: rgba(255, 255, 255, 0.5);
-    transition: width 0.4s ease;
+    background: rgba(255, 255, 255, 0.45);
+    transition: width 0.5s ease, background 0.5s ease;
+    z-index: 1;
 }
 
 .gui-card:hover::before,
@@ -730,12 +782,56 @@ body.gui-mode .gui-nav {
 .timeline-content:hover::before,
 .project-rail-card:hover::before,
 .focus-panel:hover::before {
-    width: 100%;
+    width: 60%;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* Staggered reveal animation for cards in grids */
+.gui-grid > *,
+.gui-timeline > *,
+.gui-values-grid > *,
+.gui-stats-row > *,
+.gui-highlight-grid > * {
+    opacity: 0;
+    animation: cardReveal 0.5s ease forwards;
+}
+
+.gui-grid > *:nth-child(1),
+.gui-timeline > *:nth-child(1),
+.gui-values-grid > *:nth-child(1),
+.gui-stats-row > *:nth-child(1) { animation-delay: 0.1s; }
+.gui-grid > *:nth-child(2),
+.gui-timeline > *:nth-child(2),
+.gui-values-grid > *:nth-child(2),
+.gui-stats-row > *:nth-child(2) { animation-delay: 0.2s; }
+.gui-grid > *:nth-child(3),
+.gui-timeline > *:nth-child(3),
+.gui-values-grid > *:nth-child(3),
+.gui-stats-row > *:nth-child(3) { animation-delay: 0.3s; }
+.gui-grid > *:nth-child(4),
+.gui-timeline > *:nth-child(4),
+.gui-values-grid > *:nth-child(4) { animation-delay: 0.4s; }
+.gui-grid > *:nth-child(5),
+.gui-timeline > *:nth-child(5) { animation-delay: 0.5s; }
+.gui-grid > *:nth-child(6),
+.gui-timeline > *:nth-child(6) { animation-delay: 0.6s; }
+.gui-grid > *:nth-child(n+7) { animation-delay: 0.7s; }
+
+@keyframes cardReveal {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .gui-hero-copy {
-    padding: 34px;
+    padding: 44px;
     min-height: 100%;
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .gui-signal-card:hover,
@@ -744,9 +840,8 @@ body.gui-mode .gui-nav {
 .timeline-content:hover,
 .project-rail-card:hover,
 .focus-panel:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .gui-hero-copy::after,
@@ -760,10 +855,10 @@ body.gui-mode .gui-nav {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 40px;
+    width: 30px;
     height: 1px;
-    background: rgba(255, 255, 255, 0.4);
-    transition: width 0.4s ease;
+    background: rgba(255, 255, 255, 0.35);
+    transition: width 0.5s ease, background 0.5s ease;
 }
 
 .gui-card:hover::after,
@@ -771,11 +866,12 @@ body.gui-mode .gui-nav {
 .timeline-content:hover::after,
 .project-rail-card:hover::after,
 .focus-panel:hover::after {
-    width: 100%;
+    width: 60%;
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .section-header {
-    margin-bottom: 28px;
+    margin-bottom: 40px;
 }
 
 .section-header.compact {
@@ -816,23 +912,38 @@ body.gui-mode .gui-nav {
     letter-spacing: 0.02em;
     color: #ffffff;
     text-transform: uppercase;
-    text-shadow: 0 0 60px rgba(255, 255, 255, 0.15), 0 0 120px rgba(255, 255, 255, 0.05);
-    animation: heroFlicker 4s ease-in-out infinite;
+    position: relative;
+    animation: glitchText 6s ease-in-out infinite;
 }
 
-@keyframes heroFlicker {
-    0%, 100% { opacity: 1; }
-    92% { opacity: 1; }
-    93% { opacity: 0.8; }
-    94% { opacity: 1; }
-    96% { opacity: 0.9; }
-    97% { opacity: 1; }
+.gui-hero h1::after {
+    content: "_";
+    animation: cursorBlink 1s step-end infinite;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 300;
+}
+
+@keyframes cursorBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+@keyframes glitchText {
+    0%, 100% { text-shadow: none; }
+    90% { text-shadow: none; }
+    91% { text-shadow: -2px 0 rgba(255, 255, 255, 0.15), 2px 0 rgba(255, 255, 255, 0.1); transform: translate(0); }
+    92% { text-shadow: 2px 0 rgba(255, 255, 255, 0.15), -1px 0 rgba(255, 255, 255, 0.1); transform: translate(-1px, 0); }
+    93% { text-shadow: none; transform: translate(1px, 0); }
+    94% { text-shadow: -1px 0 rgba(255, 255, 255, 0.12); transform: translate(0); }
+    95% { text-shadow: none; transform: translate(0); }
 }
 
 .gui-hero-subtitle {
-    color: var(--gui-text);
-    font-size: 16px;
-    letter-spacing: 0.02em;
+    color: var(--gui-text-soft);
+    font-size: 14px;
+    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
 }
 
 .gui-hero-tagline,
@@ -980,7 +1091,7 @@ body.gui-mode .gui-nav {
 .project-rail-grid,
 .gui-values-grid {
     display: grid;
-    gap: 18px;
+    gap: 22px;
 }
 
 .gui-highlight-grid {
@@ -1110,6 +1221,15 @@ body.gui-mode .gui-nav {
     letter-spacing: 0.03em;
     color: #ffffff;
     text-transform: uppercase;
+    animation: subtleGlitch 8s ease-in-out infinite;
+}
+
+@keyframes subtleGlitch {
+    0%, 100% { text-shadow: none; }
+    94% { text-shadow: none; }
+    95% { text-shadow: -1px 0 rgba(255, 255, 255, 0.1), 1px 0 rgba(255, 255, 255, 0.08); }
+    96% { text-shadow: 1px 0 rgba(255, 255, 255, 0.1); }
+    97% { text-shadow: none; }
 }
 
 .section-intro {
@@ -1128,7 +1248,7 @@ body.gui-mode .gui-nav {
 .gui-card,
 .gui-project-card,
 .focus-panel {
-    padding: 26px;
+    padding: 30px;
 }
 
 .card-kicker {
@@ -1184,12 +1304,24 @@ body.gui-mode .gui-nav {
 .skill-chip,
 .tech-tag,
 .tech-badge {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.04);
-    color: #ffffff;
-    padding: 8px 12px;
-    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 14px;
+    font-size: 11px;
     font-family: 'Fira Code', monospace;
+    letter-spacing: 0.04em;
+    transition: all 0.25s ease;
+    cursor: default;
+}
+
+.skill-chip:hover,
+.tech-tag:hover,
+.tech-badge:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
 }
 
 .project-summary {
@@ -1262,7 +1394,7 @@ body.gui-mode .gui-nav {
 
 .gui-timeline {
     display: grid;
-    gap: 20px;
+    gap: 24px;
 }
 
 .timeline-item {
