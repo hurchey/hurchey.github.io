@@ -415,6 +415,7 @@ function setMode(mode) {
   hideQuickCommands();
 
   if (mode === "gui") {
+    if (history.replaceState) history.replaceState(null, "", window.location.pathname);
     body.classList.add("gui-mode");
     sectionTransitioning = false;
     // Use direct show for mode switch entry
@@ -444,6 +445,7 @@ function setMode(mode) {
     return;
   }
 
+  if (history.replaceState) history.replaceState(null, "", window.location.pathname);
   destroy3DBackground();
   if (terminalSystem) terminalSystem.focusInput();
 }
@@ -1859,11 +1861,17 @@ function quantSparkline(values, variant) {
   return `<svg class="sparkline ${variant}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" />${liveDot}</svg>`;
 }
 
+function scrollToQuantSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth" });
+}
+window.scrollToQuantSection = scrollToQuantSection;
+
 function renderQuantInlineNav() {
   const nav = document.getElementById("quantInlineLinks");
   if (!nav) return;
   nav.innerHTML = (QUANT_SITE.navigation || [])
-    .map((item) => `<a href="#quant-${item.id}">${item.label}</a>`)
+    .map((item) => `<a href="javascript:void(0)" onclick="scrollToQuantSection('quant-${item.id}')">${item.label}</a>`)
     .join("");
 }
 
