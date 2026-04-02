@@ -11,7 +11,7 @@ window.PORTFOLIO_CONTENT = {
     subtitle: "Product-minded builder with a terminal-first portfolio",
     tagline:
       "I like turning curious ideas into useful software, then refining the experience until it feels intentional.",
-    location: "Waltham, MA",
+    location: "New York City, NY",
     email: "eric.hurchey@gmail.com",
     linkedin: "https://linkedin.com/in/eric-hurchey/",
     github: "https://github.com/hurchey",

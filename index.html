@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eric Hurchey | Portfolio</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
     <meta
         name="description"
         content="Terminal-first portfolio for Eric Hurchey, featuring current work at GAIN, active projects, and a dual terminal and GUI experience."
@@ -11,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 </head>
 <body>
     <div class="crt-effect"></div>
@@ -51,16 +53,23 @@
                 <div class="terminal-title">
                     <span id="terminalSystemTitle">TERMINAL://ERIC_HURCHEY.SYSTEM</span>
                 </div>
+                <div class="retro-hud" id="retroHud">
+                    <span class="hud-item">LVL<span class="hud-val">01</span></span>
+                    <span class="hud-sep">◆</span>
+                    <span class="hud-item">HP<span class="hud-bar" id="hudHpBar">████████</span></span>
+                    <span class="hud-sep">◆</span>
+                    <span class="hud-item">CMD<span class="hud-val" id="hudCmdCount">000</span></span>
+                </div>
                 <div class="terminal-status">
                     <button class="gui-switch-btn" onclick="setMode('gui')" title="Switch to visual mode">Visual Mode</button>
                     <button class="gui-switch-btn" onclick="setMode('quant')" title="Switch to quant mode">Quant Mode</button>
                     <span class="help-text" id="terminalHelpHint">Press Tab for quick commands or type ? for help</span>
                     <div class="status-item">
                         <div class="status-dot"></div>
-                        <span>CONNECTED</span>
+                        <span class="retro-label">ONLINE</span>
                     </div>
-                    <div class="status-item">
-                        <span id="time">00:00:00</span>
+                    <div class="status-item retro-clock-item">
+                        <span class="retro-label">TIME</span><span id="time">00:00:00</span>
                     </div>
                 </div>
             </div>
@@ -85,6 +94,7 @@
         <div class="gui-noise"></div>
         <div class="gui-scan-line"></div>
         <div class="gui-cursor-glow" id="guiCursorGlow"></div>
+        <canvas id="particleCanvas"></canvas>
         <canvas id="canvas3d"></canvas>
 
         <nav class="gui-nav">
@@ -110,6 +120,8 @@
     </div>
 
     <div class="quant-container" id="quantContainer">
+        <canvas id="quantCanvas"></canvas>
+        <div class="quant-cursor-glow" id="quantCursorGlow"></div>
         <nav class="quant-inline-nav">
             <div class="quant-inline-nav-content">
                 <span class="quant-inline-brand">ERIC HURCHEY // QUANT LAB</span>
@@ -123,6 +135,10 @@
         </nav>
         <main class="quant-inline-main" id="quantInlineApp"></main>
     </div>
+
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <canvas id="staticOverlay"></canvas>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="content.js"></script>

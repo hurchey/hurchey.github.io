@@ -1,17 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&family=Inter:wght@300;400;500;600&family=Orbitron:wght@400;500;600;700&display=swap');
 
 :root {
-    --terminal-bg: #000000;
-    --terminal-panel: #0a0a0a;
-    --terminal-panel-strong: #111111;
-    --terminal-line: rgba(0, 255, 0, 0.3);
-    --terminal-green: #00ff00;
-    --terminal-cyan: #00ffff;
-    --terminal-yellow: #ffff00;
-    --terminal-red: #ff0040;
+    --terminal-bg: #000300;
+    --terminal-panel: #000a00;
+    --terminal-panel-strong: #001200;
+    --terminal-line: rgba(0, 255, 0, 0.35);
+    --terminal-green: #00ff41;
+    --terminal-cyan: #00f5ff;
+    --terminal-yellow: #ffe600;
+    --terminal-red: #ff2851;
     --terminal-magenta: #ff00ff;
-    --terminal-white: #f0f0f0;
-    --terminal-gray: #808080;
+    --terminal-white: #e8ffe8;
+    --terminal-gray: #4a7a4a;
+    --terminal-amber: #ffb000;
+    --phosphor-glow: 0 0 7px currentColor, 0 0 20px currentColor;
 
     --gui-bg: #000000;
     --gui-surface: rgba(8, 8, 8, 0.9);
@@ -50,6 +52,34 @@ body {
     position: relative;
 }
 
+/* Retro game scanlines — thicker, more visible */
+body:not(.gui-mode):not(.quant-mode)::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.28) 0px,
+        rgba(0, 0, 0, 0.28) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Retro phosphor screen glow — green tint radiating from center */
+body:not(.gui-mode):not(.quant-mode)::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0, 255, 60, 0.035) 0%, transparent 70%),
+        radial-gradient(circle, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+    pointer-events: none;
+    z-index: 9998;
+}
+
 body.gui-mode {
     font-family: 'Inter', sans-serif;
     color: var(--gui-text);
@@ -72,10 +102,10 @@ body.gui-mode {
     inset: 0;
     background: repeating-linear-gradient(
         0deg,
-        rgba(0, 0, 0, 0.15),
-        rgba(0, 0, 0, 0.15) 1px,
+        rgba(0, 0, 0, 0.28),
+        rgba(0, 0, 0, 0.28) 1px,
         transparent 1px,
-        transparent 2px
+        transparent 3px
     );
 }
 
@@ -83,7 +113,7 @@ body.gui-mode {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.4) 100%);
+    background: radial-gradient(circle, transparent 45%, rgba(0, 0, 0, 0.65) 100%);
 }
 
 body.gui-mode .crt-effect {
@@ -129,6 +159,11 @@ body.gui-mode .crt-effect {
     height: 100vh;
     position: relative;
     overflow: hidden;
+    box-shadow:
+        inset 0 0 120px rgba(0, 255, 60, 0.04),
+        inset 0 0 2px rgba(0, 255, 60, 0.3),
+        0 0 0 1px rgba(0, 255, 60, 0.2),
+        0 0 30px rgba(0, 255, 60, 0.08);
 }
 
 body.gui-mode .terminal-container,
@@ -138,8 +173,31 @@ body.gui-mode .quant-container {
 
 .terminal-header-section {
     flex-shrink: 0;
-    padding: 22px 24px 0;
-    background: rgba(0, 0, 0, 0.95);
+    padding: 14px 24px 0;
+    background: rgba(0, 3, 0, 0.97);
+    border-bottom: 2px solid rgba(0, 255, 60, 0.25);
+    position: relative;
+}
+
+/* Pixel-art corner brackets on the header */
+.terminal-header-section::before,
+.terminal-header-section::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: var(--terminal-green);
+    border-style: solid;
+    opacity: 0.7;
+    bottom: -2px;
+}
+.terminal-header-section::before {
+    left: 10px;
+    border-width: 0 0 2px 2px;
+}
+.terminal-header-section::after {
+    right: 10px;
+    border-width: 0 2px 2px 0;
 }
 
 .terminal-header {
@@ -147,16 +205,84 @@ body.gui-mode .quant-container {
     justify-content: space-between;
     align-items: center;
     gap: 18px;
-    padding: 12px 0 16px;
-    border-bottom: 1px solid var(--terminal-line);
+    padding: 10px 0 14px;
 }
 
 .terminal-title {
     color: var(--terminal-green);
-    font-size: 13px;
-    letter-spacing: 0.12em;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    text-shadow: 0 0 10px rgba(0, 255, 60, 0.7), 0 0 24px rgba(0, 255, 60, 0.35);
+    line-height: 1.6;
+}
+
+/* ── Retro game HUD ── */
+.retro-hud {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--terminal-amber);
+    text-shadow: 0 0 8px rgba(255, 176, 0, 0.8), 0 0 20px rgba(255, 176, 0, 0.4);
+    border: 1px solid rgba(255, 176, 0, 0.25);
+    padding: 7px 14px;
+    background: rgba(255, 176, 0, 0.04);
+    letter-spacing: 0.04em;
+    position: relative;
+}
+
+.retro-hud::before,
+.retro-hud::after {
+    content: "";
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-color: var(--terminal-amber);
+    border-style: solid;
+    opacity: 0.6;
+}
+.retro-hud::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+.retro-hud::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+
+.hud-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: rgba(255, 176, 0, 0.55);
+}
+
+.hud-val {
+    color: var(--terminal-amber);
+}
+
+.hud-bar {
+    color: var(--terminal-green);
+    text-shadow: 0 0 6px rgba(0, 255, 60, 0.9), 0 0 16px rgba(0, 255, 60, 0.5);
+    letter-spacing: -0.02em;
+}
+
+.hud-sep {
+    color: rgba(255, 176, 0, 0.3);
+    font-size: 6px;
+}
+
+.retro-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    letter-spacing: 0.06em;
+    color: var(--terminal-green);
+    text-shadow: 0 0 8px rgba(0, 255, 60, 0.6);
+}
+
+.retro-clock-item {
+    gap: 6px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--terminal-green);
+    text-shadow: 0 0 8px rgba(0, 255, 60, 0.7);
 }
 
 .terminal-status {
@@ -224,6 +350,7 @@ body.gui-mode .quant-container {
     overflow-y: auto;
     padding: 0 24px;
     scroll-behavior: smooth;
+    background: radial-gradient(ellipse 90% 80% at 50% 40%, rgba(0, 255, 60, 0.022) 0%, transparent 65%);
 }
 
 .terminal-body::-webkit-scrollbar,
@@ -269,6 +396,7 @@ body.gui-mode .quant-container {
     color: var(--terminal-green);
     font-weight: 500;
     white-space: nowrap;
+    text-shadow: 0 0 8px rgba(0, 255, 60, 0.9), 0 0 20px rgba(0, 255, 60, 0.4);
 }
 
 .terminal-input-container {
@@ -294,6 +422,7 @@ body.gui-mode .quant-container {
     width: 9px;
     height: 18px;
     background: var(--terminal-green);
+    box-shadow: 0 0 8px rgba(0, 255, 60, 0.9), 0 0 20px rgba(0, 255, 60, 0.5);
     animation: blink 1s infinite;
     pointer-events: none;
 }
@@ -301,6 +430,96 @@ body.gui-mode .quant-container {
 @keyframes blink {
     0%, 49% { opacity: 1; }
     50%, 100% { opacity: 0; }
+}
+
+/* Keystroke cursor flash */
+@keyframes cursorFlash {
+    0%   { background: #ffffff; box-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 36px rgba(255,255,255,0.4); }
+    100% { background: var(--terminal-green); box-shadow: 0 0 10px rgba(0,255,0,0.6); }
+}
+
+.terminal-cursor.flash {
+    animation: cursorFlash 0.14s ease forwards;
+}
+
+/* Output line slide-in */
+@keyframes outputSlideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.output-line {
+    animation: outputSlideIn 0.13s ease forwards;
+}
+
+/* Ghost autocomplete text */
+.terminal-ghost {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: rgba(255, 255, 255, 0.18);
+    font: inherit;
+    pointer-events: none;
+    white-space: pre;
+    user-select: none;
+    line-height: inherit;
+}
+
+/* Ambient screen flicker */
+@keyframes termFlicker {
+    0%, 100% { opacity: 1;   filter: brightness(1)   contrast(1);   transform: translate(0, 0)    skewX(0deg); }
+
+    /* ── Event 1: quick double-stutter ── */
+    60%      { opacity: 1;   filter: brightness(1)   contrast(1);   transform: translate(0, 0)    skewX(0deg); }
+    60.3%    { opacity: 0.2; filter: brightness(0.3) contrast(2);   transform: translate(-4px, 0) skewX(-1.5deg); }
+    60.6%    { opacity: 1;   filter: brightness(1.3) contrast(0.9); transform: translate(5px, 0)  skewX(0.8deg); }
+    60.9%    { opacity: 0.4; filter: brightness(0.5) contrast(1.8); transform: translate(-3px, 1px) skewX(1deg); }
+    61.2%    { opacity: 1;   filter: brightness(1)   contrast(1);   transform: translate(0, 0)    skewX(0deg); }
+
+    /* ── Event 2: full 1-second breakdown ── */
+    80%      { opacity: 1;   filter: brightness(1)   contrast(1);   transform: translate(0, 0)    skewX(0deg); }
+
+    /* screen dies */
+    80.5%    { opacity: 0.1; filter: brightness(0.15) contrast(3);  transform: translate(6px, 0)  skewX(-2deg); }
+    /* partial recovery — wrong position */
+    81%      { opacity: 0.6; filter: brightness(0.7)  contrast(1.4) hue-rotate(18deg); transform: translate(-8px, 2px) skewX(2.5deg); }
+    /* another drop */
+    81.5%    { opacity: 0.15; filter: brightness(0.2) contrast(2.5); transform: translate(10px, -2px) skewX(-3deg); }
+    /* flashes bright */
+    82%      { opacity: 1;   filter: brightness(1.6)  contrast(0.8); transform: translate(-5px, 0) skewX(1deg); }
+    /* settles back crooked */
+    82.5%    { opacity: 0.7; filter: brightness(0.8)  contrast(1.2) hue-rotate(8deg); transform: translate(3px, 1px) skewX(-1deg); }
+    /* one last hard cut */
+    83%      { opacity: 0.2; filter: brightness(0.25) contrast(2.8); transform: translate(-6px, 0) skewX(2deg); }
+    /* snap back */
+    83.5%    { opacity: 1;   filter: brightness(1.05) contrast(1);   transform: translate(0, 0)   skewX(0deg); }
+    84%      { opacity: 1;   filter: brightness(1)    contrast(1);   transform: translate(0, 0)   skewX(0deg); }
+}
+
+.terminal-container {
+    animation: termFlicker 12s linear infinite;
+}
+
+/* Idle "PRESS ANY KEY" prompt */
+.output-idle-prompt {
+    color: var(--terminal-amber);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    text-shadow: 0 0 10px rgba(255, 176, 0, 0.9), 0 0 24px rgba(255, 176, 0, 0.5);
+    text-align: center;
+    margin: 22px 0 10px;
+    letter-spacing: 0.08em;
+}
+
+/* Boot sequence line reveal */
+@keyframes bootLineIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.boot-line {
+    opacity: 0;
+    animation: bootLineIn 0.12s ease forwards;
 }
 
 .output-line {
@@ -311,28 +530,34 @@ body.gui-mode .quant-container {
 
 .output-command {
     color: var(--terminal-white);
+    text-shadow: 0 0 5px rgba(232, 255, 232, 0.5);
 }
 
 .output-error {
     color: var(--terminal-red);
+    text-shadow: 0 0 7px rgba(255, 40, 81, 0.8), 0 0 18px rgba(255, 40, 81, 0.4);
 }
 
 .output-success {
     color: var(--terminal-green);
+    text-shadow: 0 0 7px rgba(0, 255, 65, 0.85), 0 0 20px rgba(0, 255, 65, 0.4);
 }
 
 .output-info {
     color: var(--terminal-cyan);
+    text-shadow: 0 0 6px rgba(0, 245, 255, 0.75), 0 0 16px rgba(0, 245, 255, 0.35);
 }
 
 .output-warning {
     color: var(--terminal-yellow);
+    text-shadow: 0 0 6px rgba(255, 230, 0, 0.8), 0 0 18px rgba(255, 230, 0, 0.35);
 }
 
 .output-section {
     color: var(--terminal-magenta);
     font-weight: 600;
     margin: 14px 0 6px;
+    text-shadow: 0 0 7px rgba(255, 0, 255, 0.8), 0 0 20px rgba(255, 0, 255, 0.35);
 }
 
 .ascii-art-container {
@@ -347,7 +572,7 @@ body.gui-mode .quant-container {
     line-height: 1.05;
     text-align: center;
     margin: 8px auto;
-    text-shadow: 0 0 20px rgba(0, 255, 0, 0.5), 0 0 40px rgba(0, 255, 0, 0.2);
+    text-shadow: 0 0 12px rgba(0, 255, 60, 0.9), 0 0 28px rgba(0, 255, 60, 0.5), 0 0 60px rgba(0, 255, 60, 0.2);
 }
 
 .ascii-tagline {
@@ -2217,6 +2442,440 @@ body.quant-mode .crt-effect { opacity: 0; }
 
 .quant-container .contact-card a:hover {
     text-decoration: underline;
+}
+
+/* ── Custom cursor ── */
+
+body.gui-mode,
+body.gui-mode * {
+    cursor: none !important;
+}
+
+.cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 5px;
+    background: #ffffff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 100000;
+    margin: -2.5px 0 0 -2.5px;
+    mix-blend-mode: difference;
+    transition: width 0.12s ease, height 0.12s ease, margin 0.12s ease;
+    display: none;
+    will-change: transform;
+}
+
+body.gui-mode .cursor-dot {
+    display: block;
+}
+
+.cursor-dot.clicking {
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+}
+
+.cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    margin: -19px 0 0 -19px;
+    transition: width 0.2s ease, height 0.2s ease, margin 0.2s ease,
+                border-color 0.2s ease, border-width 0.2s ease;
+    display: none;
+    will-change: transform;
+}
+
+body.gui-mode .cursor-ring {
+    display: block;
+}
+
+.cursor-ring.hovering {
+    width: 62px;
+    height: 62px;
+    margin: -31px 0 0 -31px;
+    border-color: rgba(255, 255, 255, 0.85);
+}
+
+.cursor-ring.clicking {
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.9);
+}
+
+.cursor-trail-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99997;
+    mix-blend-mode: screen;
+    display: none;
+    will-change: transform;
+}
+
+body.gui-mode .cursor-trail-dot {
+    display: block;
+}
+
+/* ── Click pulse rings ── */
+
+.click-pulse {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99996;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    width: 0;
+    height: 0;
+    animation: clickPulseAnim 0.75s ease-out forwards;
+}
+
+.click-pulse.secondary {
+    border-color: rgba(255, 255, 255, 0.25);
+    animation-duration: 1.1s;
+    animation-delay: 0.06s;
+}
+
+@keyframes clickPulseAnim {
+    0%   { width: 0;     height: 0;     opacity: 1; }
+    100% { width: 140px; height: 140px; opacity: 0; }
+}
+
+/* ── Holographic shimmer ── */
+
+.card-holographic {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    mix-blend-mode: screen;
+    border-radius: inherit;
+    background:
+        radial-gradient(
+            circle at calc(var(--hx, 0.5) * 100%) calc(var(--hy, 0.5) * 100%),
+            hsl(calc(var(--hangle, 0) + 0), 90%, 65%, 0.09),
+            hsl(calc(var(--hangle, 0) + 90), 90%, 65%, 0.06) 35%,
+            hsl(calc(var(--hangle, 0) + 180), 90%, 65%, 0.05) 65%,
+            transparent 85%
+        ),
+        linear-gradient(
+            calc(var(--hangle, 0deg) + 40deg),
+            transparent 25%,
+            rgba(255, 255, 255, 0.025) 45%,
+            transparent 65%
+        );
+}
+
+/* ── CRT static overlay ── */
+
+#staticOverlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9998;
+    pointer-events: none;
+    display: none;
+    image-rendering: pixelated;
+    mix-blend-mode: screen;
+    opacity: 0;
+}
+
+/* ── Particle canvas ── */
+
+#particleCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+
+body.gui-mode #particleCanvas {
+    opacity: 0.7;
+}
+
+/* ── Text scramble ── */
+
+.scramble-text {
+    display: inline;
+}
+
+.scramble-char {
+    display: inline-block;
+    transition: opacity 0.08s ease;
+}
+
+.scramble-char.scrambling {
+    opacity: 0.6;
+    color: var(--gui-text-soft);
+}
+
+/* ── Skill-project cross-linking ── */
+
+.skill-chip.interactive {
+    cursor: pointer;
+    position: relative;
+}
+
+.skill-chip.interactive:hover,
+.skill-chip.active-filter {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.08);
+}
+
+.skill-chip.active-filter {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.gui-project-card.tech-dimmed {
+    opacity: 0.2;
+    transform: scale(0.97);
+    filter: grayscale(0.5);
+    transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+}
+
+.gui-project-card.tech-highlighted {
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.gui-project-card .tech-tag.tech-match {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Magnetic buttons ── */
+
+.gui-button.magnetic,
+.project-link.magnetic,
+.gui-back-btn.magnetic,
+.gui-mode-toggle.magnetic {
+    transition: transform 0.2s ease-out, background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* ── Smooth section transitions ── */
+
+.gui-section.section-exit {
+    display: block;
+    animation: sectionExit 0.3s ease forwards;
+}
+
+.gui-section.section-enter {
+    display: block;
+    animation: sectionEnter 0.45s ease forwards;
+}
+
+@keyframes sectionExit {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.98);
+        filter: blur(6px);
+    }
+}
+
+@keyframes sectionEnter {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.97);
+        filter: blur(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+/* ── Scroll reveal ── */
+
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scroll-reveal:nth-child(2) { transition-delay: 0.08s; }
+.scroll-reveal:nth-child(3) { transition-delay: 0.16s; }
+.scroll-reveal:nth-child(4) { transition-delay: 0.24s; }
+.scroll-reveal:nth-child(5) { transition-delay: 0.32s; }
+.scroll-reveal:nth-child(6) { transition-delay: 0.4s; }
+
+/* ── Quant canvas background ── */
+
+#quantCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+body.quant-mode #quantCanvas {
+    opacity: 1;
+}
+
+/* ── Quant cursor glow ── */
+
+.quant-cursor-glow {
+    position: fixed;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(126, 255, 168, 0.055), transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+    transition: left 0.18s ease-out, top 0.18s ease-out;
+    display: none;
+}
+
+body.quant-mode .quant-cursor-glow {
+    display: block;
+}
+
+/* ── Quant panel scroll-reveal ── */
+
+.quant-panel, .section-head, .book-card, .research-card, .ledger-row {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.55s ease, transform 0.55s ease, border-color 0.2s ease;
+}
+
+.quant-panel.q-revealed, .section-head.q-revealed,
+.book-card.q-revealed, .research-card.q-revealed, .ledger-row.q-revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* stagger siblings */
+.quant-panel:nth-child(2), .book-card:nth-child(2), .research-card:nth-child(2) { transition-delay: 0.08s; }
+.quant-panel:nth-child(3), .book-card:nth-child(3), .research-card:nth-child(3) { transition-delay: 0.16s; }
+.quant-panel:nth-child(4) { transition-delay: 0.24s; }
+.ledger-row:nth-child(2)  { transition-delay: 0.06s; }
+.ledger-row:nth-child(3)  { transition-delay: 0.12s; }
+.ledger-row:nth-child(4)  { transition-delay: 0.18s; }
+.ledger-row:nth-child(5)  { transition-delay: 0.24s; }
+.ledger-row:nth-child(6)  { transition-delay: 0.30s; }
+.ledger-row:nth-child(n+7){ transition-delay: 0.36s; }
+
+/* ── Enhanced quant panel hover ── */
+
+.quant-panel {
+    transform-style: preserve-3d;
+}
+
+.quant-panel:hover {
+    border-color: rgba(126, 255, 168, 0.28);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(126, 255, 168, 0.06);
+}
+
+/* ── Animated sparkline ── */
+
+.sparkline polyline {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawLine 1.6s ease forwards;
+}
+
+.sparkline.secondary polyline {
+    animation-delay: 0.35s;
+}
+
+@keyframes drawLine {
+    to { stroke-dashoffset: 0; }
+}
+
+/* ── Sparkline live-tick dot ── */
+
+.sparkline-live-dot {
+    fill: #7effa8;
+    filter: drop-shadow(0 0 4px rgba(126, 255, 168, 0.9));
+    animation: livePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+    0%, 100% { r: 3; opacity: 1; }
+    50%       { r: 5; opacity: 0.6; }
+}
+
+/* ── LIVE pulse badge ── */
+
+.desk-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #7effa8;
+    box-shadow: 0 0 8px rgba(126, 255, 168, 0.9);
+    animation: liveDotPulse 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes liveDotPulse {
+    0%, 100% { opacity: 1;  transform: scale(1); }
+    50%       { opacity: 0.3; transform: scale(0.7); }
+}
+
+/* ── Enhanced ticker ── */
+
+.ticker-item.tick-up   { color: #7effa8; }
+.ticker-item.tick-down { color: #ff6b6b; }
+
+.ticker-track {
+    animation: tickerScroll 20s linear infinite;
+}
+
+/* ── Metric countup ── */
+
+.metric-card strong {
+    display: inline-block;
+    transition: color 0.3s ease;
+}
+
+.metric-card.counting strong {
+    color: #7effa8;
 }
 
 /* Quant responsive */

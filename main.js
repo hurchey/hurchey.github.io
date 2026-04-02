@@ -416,9 +416,22 @@ function setMode(mode) {
 
   if (mode === "gui") {
     body.classList.add("gui-mode");
-    showGuiSection("home");
+    sectionTransitioning = false;
+    // Use direct show for mode switch entry
+    document.querySelectorAll(".gui-section").forEach((s) => s.classList.remove("active", "section-exit", "section-enter"));
+    const home = document.getElementById("gui-home");
+    if (home) {
+      home.classList.add("active");
+      updateActiveNav("home");
+    }
     window.scrollTo(0, 0);
     init3DBackground();
+    clearSkillFilter();
+    setTimeout(() => {
+      triggerScrambleOnVisible();
+      initSkillProjectLinking();
+      initHolographicCards();
+    }, 100);
     return;
   }
 
@@ -445,7 +458,6 @@ function showGuiSection(sectionId) {
     window.scrollTo(0, 0);
   }
 }
-window.showGuiSection = showGuiSection;
 
 function init3DBackground() {
   const canvas = document.getElementById("canvas3d");
@@ -485,14 +497,41 @@ function init3DBackground() {
 
   camera3d.position.z = 7;
 
+  // Store original positions for mouse reactivity
+  shapes3d.forEach((shape) => {
+    shape.userData.baseX = shape.position.x;
+    shape.userData.baseY = shape.position.y;
+  });
+
   const animate3D = () => {
     animationId3d = requestAnimationFrame(animate3D);
+
+    // Convert mouse to normalized coordinates (-1 to 1)
+    const mx = (mouseX / window.innerWidth) * 2 - 1;
+    const my = -(mouseY / window.innerHeight) * 2 + 1;
+
     shapes3d.forEach((shape, index) => {
       shape.rotation.x += 0.001 * (index + 1);
       shape.rotation.y += 0.0009 * (index + 1);
-      shape.position.y += Math.sin(Date.now() * 0.00035 + index) * 0.0012;
-      shape.position.x += Math.cos(Date.now() * 0.0002 + index) * 0.0007;
+
+      // Organic floating motion
+      const floatY = Math.sin(Date.now() * 0.00035 + index) * 0.0012;
+      const floatX = Math.cos(Date.now() * 0.0002 + index) * 0.0007;
+      shape.userData.baseY += floatY;
+      shape.userData.baseX += floatX;
+
+      // Mouse attraction — shapes drift toward cursor
+      const targetX = shape.userData.baseX + mx * 1.5 * (index % 2 === 0 ? 1 : -0.6);
+      const targetY = shape.userData.baseY + my * 1.2 * (index % 2 === 0 ? 1 : -0.6);
+      shape.position.x += (targetX - shape.position.x) * 0.02;
+      shape.position.y += (targetY - shape.position.y) * 0.02;
+
+      // Rotate faster when mouse is active
+      const mouseSpeed = Math.abs(mx) + Math.abs(my);
+      shape.rotation.x += mouseSpeed * 0.001;
+      shape.rotation.y += mouseSpeed * 0.0008;
     });
+
     renderer3d.render(scene3d, camera3d);
   };
 
@@ -846,11 +885,15 @@ class TerminalPortfolio {
   }
 
   init() {
+    this.cmdCount = 0;
+    this.idleTimer = null;
+    this.idleLine = null;
     this.setupEvents();
     this.showWelcomeMessage();
     this.startClock();
     this.updatePrompt();
     this.updateCursorPosition();
+    this.resetIdleTimer();
   }
 
   buildFileSystem() {
@@ -1042,8 +1085,22 @@ class TerminalPortfolio {
   }
 
   setupEvents() {
+    // Ghost text element inside the input container
+    this.ghostEl = document.createElement("span");
+    this.ghostEl.className = "terminal-ghost";
+    const inputContainer = document.querySelector(".terminal-input-container");
+    if (inputContainer) inputContainer.appendChild(this.ghostEl);
+
     this.input.addEventListener("keydown", (event) => this.handleKeyPress(event));
-    this.input.addEventListener("input", () => this.updateCursorPosition());
+
+    this.input.addEventListener("input", () => {
+      this.updateCursorPosition();
+      this.updateGhostText();
+      this.flashCursor();
+      this.clearIdleLine();
+      this.resetIdleTimer();
+    });
+
     this.input.addEventListener("click", () => this.updateCursorPosition());
 
     document.addEventListener("selectionchange", () => {
@@ -1060,6 +1117,66 @@ class TerminalPortfolio {
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && quickCommandsVisible) hideQuickCommands();
     });
+  }
+
+  flashCursor() {
+    if (!this.cursor) return;
+    this.cursor.classList.remove("flash");
+    // Force reflow so re-adding the class triggers the animation
+    void this.cursor.offsetWidth;
+    this.cursor.classList.add("flash");
+    setTimeout(() => this.cursor.classList.remove("flash"), 140);
+  }
+
+  updateGhostText() {
+    if (!this.ghostEl) return;
+    const val = this.input.value;
+    if (!val) { this.ghostEl.textContent = ""; return; }
+
+    const completion = this.getCompletion(val);
+    if (completion && completion.startsWith(val) && completion !== val) {
+      this.ghostEl.textContent = completion;
+      // Position ghost at cursor left offset
+      this.ghostEl.style.left = "0px";
+    } else {
+      this.ghostEl.textContent = "";
+    }
+  }
+
+  getCompletion(val) {
+    const commandNames = Object.keys(this.commands).filter(c => !c.includes(" "));
+    const topLevel = [...commandNames, "ls", "cd", "cat", "pwd"];
+
+    // Complete bare command names
+    const matchedCmd = topLevel.find(c => c.startsWith(val) && c !== val);
+    if (matchedCmd) return matchedCmd;
+
+    // Complete paths for cat / cd
+    const catMatch = val.match(/^(cat|cd)\s+(~\/[\w/-]*)$/);
+    if (catMatch) {
+      const prefix = catMatch[2];
+      const parts = prefix.split("/");
+      const segment = parts.pop();
+      const dirPath = parts.join("/") || "~";
+      const dirNode = this.resolveDirNode(dirPath);
+      if (dirNode && dirNode.contents) {
+        const match = Object.keys(dirNode.contents).find(n => n.startsWith(segment) && n !== segment);
+        if (match) return `${catMatch[1]} ${dirPath}/${match}`;
+      }
+    }
+
+    return null;
+  }
+
+  resolveDirNode(path) {
+    if (path === "~") return this.fileSystem["~"];
+    const parts = path.replace(/^~\//, "").split("/");
+    let node = this.fileSystem["~"];
+    for (const part of parts) {
+      if (!part || !node.contents || !node.contents[part]) return null;
+      node = node.contents[part];
+    }
+    return node;
   }
 
   focusInput() {
@@ -1083,15 +1200,27 @@ class TerminalPortfolio {
 
   handleKeyPress(event) {
     if (event.key === "Enter") {
+      this.ghostEl && (this.ghostEl.textContent = "");
       this.executeCommand();
     } else if (event.key === "Tab") {
       event.preventDefault();
-      quickCommandsVisible ? hideQuickCommands() : showQuickCommands();
+      // Accept ghost completion if one exists, otherwise open quick commands
+      const ghost = this.ghostEl && this.ghostEl.textContent;
+      if (ghost && ghost.startsWith(this.input.value) && ghost !== this.input.value) {
+        this.input.value = ghost;
+        this.ghostEl.textContent = "";
+        this.updateCursorPosition();
+        this.flashCursor();
+      } else {
+        quickCommandsVisible ? hideQuickCommands() : showQuickCommands();
+      }
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
+      this.ghostEl && (this.ghostEl.textContent = "");
       this.navigateHistory(-1);
     } else if (event.key === "ArrowDown") {
       event.preventDefault();
+      this.ghostEl && (this.ghostEl.textContent = "");
       this.navigateHistory(1);
     } else if (event.ctrlKey && event.key.toLowerCase() === "l") {
       event.preventDefault();
@@ -1112,6 +1241,11 @@ class TerminalPortfolio {
   executeCommand() {
     const fullCommand = this.input.value.trim();
     if (!fullCommand) return;
+
+    this.clearIdleLine();
+    this.resetIdleTimer();
+    this.cmdCount++;
+    this.updateHud();
 
     this.commandHistory.push(fullCommand);
     this.historyIndex = this.commandHistory.length;
@@ -1301,7 +1435,7 @@ class TerminalPortfolio {
   }
 
   showWelcomeMessage() {
-    const bigName = [
+    const asciiLines = [
       "███████╗██████╗ ██╗ ██████╗",
       "██╔════╝██╔══██╗██║██╔════╝",
       "█████╗  ██████╔╝██║██║     ",
@@ -1315,30 +1449,82 @@ class TerminalPortfolio {
       "██╔══██║██║   ██║██╔══██╗██║     ██╔══██║██╔══╝    ╚██╔╝  ",
       "██║  ██║╚██████╔╝██║  ██║╚██████╗██║  ██║███████╗   ██║   ",
       "╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝   "
-    ].join("\n");
+    ];
 
-    const container = document.createElement("div");
-    container.className = "ascii-art-container";
+    const TAGLINE = "SOFTWARE ENGINEER // TERMINAL PORTFOLIO";
+    const welcomeLines = [
+      { text: 'Welcome. Type "help" or press Tab for quick commands.', cls: "success" },
+      { text: "Current signal: Software Engineer Intern at GAIN.", cls: "info" },
+      { text: 'Try "now", "ls", "gui", or "cat ~/projects/README.md".', cls: "info" }
+    ];
 
+    // Phase 1: ASCII art lines stagger in
+    const asciiContainer = document.createElement("div");
+    asciiContainer.className = "ascii-art-container";
     const pre = document.createElement("pre");
     pre.className = "ascii-art";
-    pre.textContent = bigName;
+    pre.innerHTML = "";
+    asciiContainer.appendChild(pre);
+    this.output.appendChild(asciiContainer);
 
-    container.appendChild(pre);
-    this.output.appendChild(container);
+    asciiLines.forEach((line, i) => {
+      setTimeout(() => {
+        const span = document.createElement("span");
+        span.className = "boot-line";
+        span.style.animationDelay = "0s";
+        span.style.display = "block";
+        span.textContent = line;
+        pre.appendChild(span);
+        this.scrollToBottom();
+      }, i * 55);
+    });
 
-    const tagline = document.createElement("div");
-    tagline.className = "ascii-art-container";
-    const tagPre = document.createElement("pre");
-    tagPre.className = "ascii-art ascii-tagline";
-    tagPre.textContent = "SOFTWARE ENGINEER // TERMINAL PORTFOLIO";
-    tagline.appendChild(tagPre);
-    this.output.appendChild(tagline);
-    this.addOutput("", "");
-    this.addOutput('Welcome. Type "help" or press Tab for quick commands.', "success");
-    this.addOutput("Current signal: Software Engineer Intern at GAIN.", "info");
-    this.addOutput('Try "now", "ls", "gui", or "cat ~/projects/README.md".', "info");
-    this.addOutput("", "");
+    // Phase 2: Tagline types itself
+    const tagDelay = asciiLines.length * 55 + 120;
+    setTimeout(() => {
+      const tagContainer = document.createElement("div");
+      tagContainer.className = "ascii-art-container";
+      const tagPre = document.createElement("pre");
+      tagPre.className = "ascii-art ascii-tagline";
+      tagPre.textContent = "";
+      tagContainer.appendChild(tagPre);
+      this.output.appendChild(tagContainer);
+      this.typeTextInto(tagPre, TAGLINE, 28, () => {
+        // Phase 3: Welcome lines stagger in
+        this.addOutputAnimated("", "");
+        welcomeLines.forEach((line, i) => {
+          setTimeout(() => {
+            this.addOutputAnimated(line.text, line.cls);
+            if (i === welcomeLines.length - 1) {
+              this.addOutputAnimated("", "");
+              this.scrollToBottom();
+            }
+          }, i * 220);
+        });
+      });
+    }, tagDelay);
+  }
+
+  typeTextInto(element, text, speed, done) {
+    let i = 0;
+    const step = () => {
+      if (i < text.length) {
+        element.textContent += text[i];
+        i++;
+        this.scrollToBottom();
+        setTimeout(step, speed);
+      } else if (done) {
+        done();
+      }
+    };
+    step();
+  }
+
+  addOutputAnimated(text, className = "") {
+    const line = document.createElement("div");
+    line.className = `output-line ${className ? `output-${className}` : ""}`;
+    line.textContent = text;
+    this.output.appendChild(line);
     this.scrollToBottom();
   }
 
@@ -1369,6 +1555,7 @@ class TerminalPortfolio {
     this.currentPath = "~";
     this.matrixUnlocked = false;
     this.updatePrompt();
+    if (this.ghostEl) this.ghostEl.textContent = "";
     this.showWelcomeMessage();
   }
 
@@ -1609,6 +1796,43 @@ class TerminalPortfolio {
     update();
     setInterval(update, 1000);
   }
+
+  updateHud() {
+    const cmdEl = document.getElementById("hudCmdCount");
+    if (cmdEl) cmdEl.textContent = String(this.cmdCount).padStart(3, "0");
+  }
+
+  resetIdleTimer() {
+    clearTimeout(this.idleTimer);
+    this.idleTimer = setTimeout(() => this.showIdlePrompt(), 25000);
+  }
+
+  showIdlePrompt() {
+    if (currentMode !== "terminal") return;
+    this.clearIdleLine();
+    this.idleLine = document.createElement("div");
+    this.idleLine.className = "output-line output-idle-prompt";
+    this.output.appendChild(this.idleLine);
+    this.scrollToBottom();
+
+    // Blink the text like an old game continue screen
+    let visible = true;
+    const msg = "▶ PRESS ANY KEY TO CONTINUE ◀";
+    this.idleBlink = setInterval(() => {
+      if (!this.idleLine) { clearInterval(this.idleBlink); return; }
+      this.idleLine.textContent = visible ? msg : "";
+      visible = !visible;
+    }, 600);
+    this.idleLine.textContent = msg;
+  }
+
+  clearIdleLine() {
+    clearInterval(this.idleBlink);
+    if (this.idleLine) {
+      this.idleLine.remove();
+      this.idleLine = null;
+    }
+  }
 }
 
 /* ── Quant inline mode ── */
@@ -1623,11 +1847,16 @@ function quantSparkline(values, variant) {
   const w = 320, h = 96;
   const min = Math.min(...values), max = Math.max(...values);
   const step = w / (values.length - 1);
-  const pts = values.map((v, i) => {
+  const coords = values.map((v, i) => {
     const y = max === min ? h / 2 : h - ((v - min) / (max - min)) * (h - 14) - 7;
-    return `${i * step},${y}`;
-  }).join(" ");
-  return `<svg class="sparkline ${variant}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" /></svg>`;
+    return { x: i * step, y };
+  });
+  const pts = coords.map(p => `${p.x},${p.y}`).join(" ");
+  const last = coords[coords.length - 1];
+  const liveDot = variant === "primary"
+    ? `<circle class="sparkline-live-dot" cx="${last.x}" cy="${last.y}" r="3"/>`
+    : "";
+  return `<svg class="sparkline ${variant}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" />${liveDot}</svg>`;
 }
 
 function renderQuantInlineNav() {
@@ -1647,7 +1876,14 @@ function renderQuantInline() {
   const hero = QUANT_SITE.hero || {};
   const metrics = (hero.metrics || []).map((m) => `<div class="metric-card"><span class="metric-label">${m.label}</span><strong>${m.value}</strong></div>`).join("");
   const notes = (hero.notes || []).map((n) => `<div class="note-row">${n}</div>`).join("");
-  const tape = [...(hero.tape || []), ...(hero.tape || [])].map((item, i) => `<span class="ticker-item">${String(i + 1).padStart(2, "0")} ${item}</span>`).join("");
+  const TICK_DELTAS = ["+2.4%", "-0.8%", "+1.1%", "+3.7%", "-1.5%", "+0.6%", "+4.2%", "-2.1%"];
+  const tapeItems = [...(hero.tape || []), ...(hero.tape || [])];
+  const tape = tapeItems.map((item, i) => {
+    const delta = TICK_DELTAS[i % TICK_DELTAS.length];
+    const dir = delta.startsWith("+") ? "tick-up" : "tick-down";
+    const arrow = delta.startsWith("+") ? "▲" : "▼";
+    return `<span class="ticker-item ${dir}">${String(i + 1).padStart(2, "0")} ${item} <span style="opacity:0.7">${arrow}${delta}</span></span>`;
+  }).join("");
 
   const researchCards = (QUANT_SITE.research || []).map((item) => `
     <article class="quant-panel research-card">
@@ -1707,7 +1943,7 @@ function renderQuantInline() {
           <div class="quant-notes">${notes}</div>
         </div>
         <aside class="quant-desk quant-panel">
-          <div class="desk-header"><div><p class="quant-kicker">DESK SNAPSHOT</p><h2>Current board</h2></div><span class="desk-status">LIVE RESEARCH</span></div>
+          <div class="desk-header"><div><p class="quant-kicker">DESK SNAPSHOT</p><h2>Current board</h2></div><span class="desk-status"><span class="live-dot"></span>LIVE RESEARCH</span></div>
           <div class="metric-grid">${metrics}</div>
           <div class="curve-card">
             <div class="curve-header"><span>Research momentum</span><span>12-step view</span></div>
@@ -1746,6 +1982,9 @@ function renderQuantInline() {
       <div class="contact-grid">${contactCards}</div>
     </section>
   `;
+
+  // Init interactions after DOM is painted
+  setTimeout(initQuantInteractions, 80);
 }
 
 let quantClockInterval = null;
@@ -1758,16 +1997,209 @@ function startQuantInlineClock() {
   quantClockInterval = setInterval(update, 1000);
 }
 
+/* ── Quant interactions ── */
+
+let quantCanvasAnim = null;
+
+function initQuantInteractions() {
+  initQuantCanvas();
+  initQuantScrollReveal();
+  initQuantCardTilt();
+  initQuantCursorGlow();
+  initQuantMetricCountup();
+}
+
+function initQuantCanvas() {
+  const canvas = document.getElementById("quantCanvas");
+  if (!canvas) return;
+  if (quantCanvasAnim) cancelAnimationFrame(quantCanvasAnim);
+
+  const ctx = canvas.getContext("2d");
+  let W = window.innerWidth, H = window.innerHeight;
+
+  function resize() {
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width  = W * (window.devicePixelRatio || 1);
+    canvas.height = H * (window.devicePixelRatio || 1);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  // Data-stream columns: random numbers scrolling downward
+  const COLS = 18;
+  const colW = W / COLS;
+  const DIGITS = "0123456789.+-";
+  const cols = Array.from({ length: COLS }, (_, i) => ({
+    x: i * colW + colW / 2,
+    y: Math.random() * H,
+    speed: Math.random() * 0.4 + 0.15,
+    chars: Array.from({ length: 14 }, () => DIGITS[Math.floor(Math.random() * DIGITS.length)])
+  }));
+
+  // Faint grid
+  const GRID = 60;
+
+  function draw() {
+    quantCanvasAnim = requestAnimationFrame(draw);
+    if (currentMode !== "quant") return;
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid lines
+    ctx.strokeStyle = "rgba(126, 255, 168, 0.028)";
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += GRID) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += GRID) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // Scrolling data columns
+    ctx.font = "10px 'Fira Code', monospace";
+    cols.forEach(col => {
+      col.y += col.speed;
+      if (col.y > H + 200) col.y = -200;
+
+      // Occasionally mutate a character
+      if (Math.random() < 0.02) {
+        const ci = Math.floor(Math.random() * col.chars.length);
+        col.chars[ci] = DIGITS[Math.floor(Math.random() * DIGITS.length)];
+      }
+
+      col.chars.forEach((ch, i) => {
+        const alpha = Math.max(0, 0.07 - i * 0.005);
+        ctx.fillStyle = `rgba(126, 255, 168, ${alpha})`;
+        ctx.fillText(ch, col.x, col.y + i * 14);
+      });
+    });
+
+    // Faint diagonal signal lines
+    const t = Date.now() * 0.00008;
+    for (let s = 0; s < 3; s++) {
+      const phase = t + s * 2.1;
+      const x0 = (phase * 180) % (W + 400) - 200;
+      ctx.beginPath();
+      ctx.moveTo(x0, 0);
+      ctx.lineTo(x0 + 300, H);
+      ctx.strokeStyle = `rgba(157, 199, 255, 0.025)`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  draw();
+}
+
+function initQuantScrollReveal() {
+  const targets = document.querySelectorAll(
+    ".quant-panel, .section-head, .book-card, .research-card, .ledger-row"
+  );
+  if (!targets.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("q-revealed");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  targets.forEach(el => observer.observe(el));
+}
+
+function initQuantCardTilt() {
+  const panels = document.querySelectorAll(".quant-panel");
+
+  document.addEventListener("mousemove", (e) => {
+    if (currentMode !== "quant") return;
+    panels.forEach(panel => {
+      const rect = panel.getBoundingClientRect();
+      const inside = e.clientX >= rect.left && e.clientX <= rect.right &&
+                     e.clientY >= rect.top  && e.clientY <= rect.bottom;
+      if (inside) {
+        const rx = ((e.clientY - rect.top  - rect.height / 2) / rect.height) * -5;
+        const ry = ((e.clientX - rect.left - rect.width  / 2) / rect.width ) *  6;
+        panel.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-3px)`;
+      } else if (panel.style.transform) {
+        panel.style.transform = "";
+      }
+    });
+  });
+
+  document.addEventListener("mouseleave", () => {
+    if (currentMode !== "quant") return;
+    panels.forEach(p => { p.style.transform = ""; });
+  });
+}
+
+function initQuantCursorGlow() {
+  const glow = document.getElementById("quantCursorGlow");
+  if (!glow) return;
+  document.addEventListener("mousemove", e => {
+    if (currentMode !== "quant") return;
+    glow.style.left = e.clientX + "px";
+    glow.style.top  = e.clientY + "px";
+  });
+}
+
+function initQuantMetricCountup() {
+  const cards = document.querySelectorAll(".metric-card");
+  cards.forEach(card => {
+    const strong = card.querySelector("strong");
+    if (!strong) return;
+    const raw = strong.textContent.trim();
+    // Only animate pure words, not numbers — skip things like "QuantPilot"
+    const numMatch = raw.match(/^(\D*)(\d+)(\D*)$/);
+    if (!numMatch) return;
+
+    const prefix = numMatch[1], num = parseInt(numMatch[2], 10), suffix = numMatch[3];
+    if (isNaN(num) || num > 9999) return;
+
+    strong.textContent = prefix + "0" + suffix;
+    card.classList.add("counting");
+
+    const duration = 900, steps = 40;
+    let step = 0;
+    const interval = setInterval(() => {
+      step++;
+      const val = Math.round((step / steps) * num);
+      strong.textContent = prefix + val + suffix;
+      if (step >= steps) {
+        strong.textContent = prefix + num + suffix;
+        card.classList.remove("counting");
+        clearInterval(interval);
+      }
+    }, duration / steps);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   renderNav();
   renderQuickCommands();
   renderGuiSections();
-  showGuiSection("home");
+
+  // Use simple show for initial render (no animation needed)
+  document.querySelectorAll(".gui-section").forEach((s) => s.classList.remove("active"));
+  const homeSection = document.getElementById("gui-home");
+  if (homeSection) {
+    homeSection.classList.add("active");
+    updateActiveNav("home");
+  }
 
   terminalSystem = new TerminalPortfolio();
   window.terminalSystem = terminalSystem;
 
   initGuiInteractions();
+
+  // Initialize skill linking and holographic cards after sections are rendered
+  setTimeout(() => {
+    initSkillProjectLinking();
+    initHolographicCards();
+  }, 100);
 });
 
 function exitHackMode() {
@@ -1777,14 +2209,25 @@ window.exitHackMode = exitHackMode;
 
 /* ── GUI interactive effects ── */
 
+let mouseX = 0;
+let mouseY = 0;
+let particleSystem = null;
+let activeSkillFilter = null;
+let sectionTransitioning = false;
+
 function initGuiInteractions() {
   const cursorGlow = document.getElementById("guiCursorGlow");
 
-  // Cursor glow follower
   document.addEventListener("mousemove", (e) => {
-    if (currentMode !== "gui" || !cursorGlow) return;
-    cursorGlow.style.left = e.clientX + "px";
-    cursorGlow.style.top = e.clientY + "px";
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+    if (currentMode !== "gui") return;
+
+    if (cursorGlow) {
+      cursorGlow.style.left = e.clientX + "px";
+      cursorGlow.style.top = e.clientY + "px";
+    }
   });
 
   // 3D card tilt on hover
@@ -1792,6 +2235,7 @@ function initGuiInteractions() {
     if (currentMode !== "gui") return;
     const cards = document.querySelectorAll(".gui-card, .gui-project-card, .timeline-content, .project-rail-card, .focus-panel");
     cards.forEach((card) => {
+      if (card.classList.contains("tech-dimmed")) return;
       const rect = card.getBoundingClientRect();
       const isHovered = (
         e.clientX >= rect.left && e.clientX <= rect.right &&
@@ -1809,10 +2253,554 @@ function initGuiInteractions() {
     });
   });
 
-  // Reset tilt on mouse leave
   document.addEventListener("mouseleave", () => {
     document.querySelectorAll(".gui-card, .gui-project-card, .timeline-content, .project-rail-card, .focus-panel").forEach((card) => {
       card.style.transform = "";
     });
   });
+
+  initMagneticButtons();
+  initParticleNetwork();
+  initCustomCursor();
+  initClickPulses();
+}
+
+/* ── Particle constellation network ── */
+
+function initParticleNetwork() {
+  const canvas = document.getElementById("particleCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+
+  const particles = [];
+  const PARTICLE_COUNT = 80;
+  const CONNECTION_DISTANCE = 150;
+  const MOUSE_RADIUS = 200;
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let animId = null;
+
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width * (window.devicePixelRatio || 1);
+    canvas.height = height * (window.devicePixelRatio || 1);
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      radius: Math.random() * 1.5 + 0.5,
+      baseAlpha: Math.random() * 0.4 + 0.2
+    });
+  }
+
+  // Ambient floating code characters
+  const CODE_TOKENS = ["01", "1", "0", "//", "{}", "[]", "=>", "!=", "&&", ">>", "<<", "0x", "ff", "null", ";"];
+  const codeChars = [];
+  for (let i = 0; i < 22; i++) {
+    codeChars.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vy: -(Math.random() * 0.25 + 0.08),
+      token: CODE_TOKENS[Math.floor(Math.random() * CODE_TOKENS.length)],
+      alpha: Math.random() * 0.09 + 0.03,
+      size: Math.floor(Math.random() * 3) + 9
+    });
+  }
+
+  function animate() {
+    animId = requestAnimationFrame(animate);
+    if (currentMode !== "gui") return;
+
+    ctx.clearRect(0, 0, width, height);
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+
+      // Mouse repulsion
+      const dx = p.x - mouseX;
+      const dy = p.y - mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < MOUSE_RADIUS && dist > 0) {
+        const force = (MOUSE_RADIUS - dist) / MOUSE_RADIUS * 0.8;
+        p.vx += (dx / dist) * force;
+        p.vy += (dy / dist) * force;
+      }
+
+      // Dampen velocity
+      p.vx *= 0.98;
+      p.vy *= 0.98;
+
+      // Clamp speed
+      const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+      if (speed > 2) {
+        p.vx = (p.vx / speed) * 2;
+        p.vy = (p.vy / speed) * 2;
+      }
+
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Wrap around edges
+      if (p.x < -10) p.x = width + 10;
+      if (p.x > width + 10) p.x = -10;
+      if (p.y < -10) p.y = height + 10;
+      if (p.y > height + 10) p.y = -10;
+
+      // Draw particle
+      const alpha = p.baseAlpha + (dist < MOUSE_RADIUS ? (MOUSE_RADIUS - dist) / MOUSE_RADIUS * 0.3 : 0);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.fill();
+    }
+
+    // Draw ambient code tokens
+    ctx.save();
+    ctx.font = "9px 'Fira Code', monospace";
+    codeChars.forEach((c) => {
+      ctx.fillStyle = `rgba(255, 255, 255, ${c.alpha})`;
+      ctx.fillText(c.token, c.x, c.y);
+      c.y += c.vy;
+      if (c.y < -20) {
+        c.y = height + 20;
+        c.x = Math.random() * width;
+        c.token = CODE_TOKENS[Math.floor(Math.random() * CODE_TOKENS.length)];
+      }
+    });
+    ctx.restore();
+
+    // Draw connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < CONNECTION_DISTANCE) {
+          const opacity = (1 - dist / CONNECTION_DISTANCE) * 0.15;
+
+          // Brighter lines near mouse
+          const midX = (particles[i].x + particles[j].x) / 2;
+          const midY = (particles[i].y + particles[j].y) / 2;
+          const mouseDist = Math.sqrt((midX - mouseX) ** 2 + (midY - mouseY) ** 2);
+          const mouseBoost = mouseDist < MOUSE_RADIUS ? (MOUSE_RADIUS - mouseDist) / MOUSE_RADIUS * 0.2 : 0;
+
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(255, 255, 255, ${opacity + mouseBoost})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  animate();
+
+  particleSystem = {
+    destroy() {
+      if (animId) cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+    }
+  };
+}
+
+/* ── Mouse-reactive 3D shapes ── */
+
+const originalAnimate3D = null;
+
+function init3DBackgroundWithMouseReactivity() {
+  if (!renderer3d || !shapes3d.length) return;
+
+  // Mouse reactivity is handled in the existing animate loop
+  // We just need to override the animation to include mouse influence
+}
+
+/* ── Text scramble/decode effect ── */
+
+const SCRAMBLE_CHARS = "!<>-_\\/[]{}=+*^?#_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function scrambleText(element) {
+  if (!element || element.dataset.scrambled === "true") return;
+  element.dataset.scrambled = "true";
+
+  const originalText = element.textContent;
+  const length = originalText.length;
+  let frame = 0;
+  const totalFrames = length + 20;
+
+  function update() {
+    let output = "";
+    for (let i = 0; i < length; i++) {
+      if (originalText[i] === " ") {
+        output += " ";
+        continue;
+      }
+      const revealPoint = (i / length) * (totalFrames - 10);
+      if (frame >= revealPoint) {
+        output += originalText[i];
+      } else {
+        output += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+      }
+    }
+    element.textContent = output;
+    frame++;
+
+    if (frame < totalFrames) {
+      requestAnimationFrame(update);
+    } else {
+      element.textContent = originalText;
+    }
+  }
+
+  update();
+}
+
+function triggerScrambleOnVisible() {
+  const titles = document.querySelectorAll(".gui-section.active .gui-section-title, .gui-section.active .gui-hero h1");
+  titles.forEach((title) => scrambleText(title));
+}
+
+/* ── Skill-project cross-linking ── */
+
+function initSkillProjectLinking() {
+  document.querySelectorAll(".skill-chip").forEach((chip) => {
+    chip.classList.add("interactive");
+    chip.addEventListener("click", () => {
+      const skill = chip.textContent.trim().toLowerCase();
+
+      if (activeSkillFilter === skill) {
+        clearSkillFilter();
+        return;
+      }
+
+      activeSkillFilter = skill;
+
+      // Update chip states
+      document.querySelectorAll(".skill-chip").forEach((c) => {
+        c.classList.remove("active-filter");
+      });
+      chip.classList.add("active-filter");
+
+      // Navigate to projects section and highlight
+      showGuiSection("projects");
+      setTimeout(() => highlightProjectsBySkill(skill), 100);
+    });
+  });
+}
+
+function highlightProjectsBySkill(skill) {
+  const projectCards = document.querySelectorAll(".gui-project-card");
+  projectCards.forEach((card) => {
+    const techTags = card.querySelectorAll(".tech-tag");
+    let hasMatch = false;
+    techTags.forEach((tag) => {
+      const tagText = tag.textContent.trim().toLowerCase();
+      if (tagText === skill || tagText.includes(skill) || skill.includes(tagText)) {
+        hasMatch = true;
+        tag.classList.add("tech-match");
+      } else {
+        tag.classList.remove("tech-match");
+      }
+    });
+
+    if (hasMatch) {
+      card.classList.remove("tech-dimmed");
+      card.classList.add("tech-highlighted");
+    } else {
+      card.classList.add("tech-dimmed");
+      card.classList.remove("tech-highlighted");
+    }
+  });
+
+  // Add a clear filter button if not already present
+  const section = document.getElementById("gui-projects");
+  if (section && !section.querySelector(".clear-filter-btn")) {
+    const shell = section.querySelector(".gui-shell");
+    if (shell) {
+      const btn = document.createElement("button");
+      btn.className = "gui-button clear-filter-btn";
+      btn.textContent = `Showing: ${skill} — Click to clear`;
+      btn.style.marginBottom = "20px";
+      btn.onclick = clearSkillFilter;
+      const header = shell.querySelector(".section-header");
+      if (header) header.after(btn);
+    }
+  }
+}
+
+function clearSkillFilter() {
+  activeSkillFilter = null;
+  document.querySelectorAll(".skill-chip").forEach((c) => c.classList.remove("active-filter"));
+  document.querySelectorAll(".gui-project-card").forEach((card) => {
+    card.classList.remove("tech-dimmed", "tech-highlighted");
+    card.querySelectorAll(".tech-tag").forEach((tag) => tag.classList.remove("tech-match"));
+  });
+  document.querySelectorAll(".clear-filter-btn").forEach((btn) => btn.remove());
+}
+
+/* ── Magnetic button hover effect ── */
+
+function initMagneticButtons() {
+  const handleMagnetic = (e) => {
+    if (currentMode !== "gui") return;
+    const buttons = document.querySelectorAll(".gui-button, .project-link, .gui-back-btn, .gui-mode-toggle, .gui-nav-link");
+    buttons.forEach((btn) => {
+      const rect = btn.getBoundingClientRect();
+      const bx = rect.left + rect.width / 2;
+      const by = rect.top + rect.height / 2;
+      const dx = e.clientX - bx;
+      const dy = e.clientY - by;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const threshold = 80;
+
+      if (dist < threshold) {
+        const pull = (threshold - dist) / threshold;
+        const moveX = dx * pull * 0.3;
+        const moveY = dy * pull * 0.3;
+        btn.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        btn.classList.add("magnetic");
+      } else if (btn.classList.contains("magnetic")) {
+        btn.style.transform = "";
+        btn.classList.remove("magnetic");
+      }
+    });
+  };
+
+  document.addEventListener("mousemove", handleMagnetic);
+}
+
+/* ── Smooth section transitions ── */
+
+const originalShowGuiSection = showGuiSection;
+
+function showGuiSectionAnimated(sectionId) {
+  if (sectionTransitioning) return;
+
+  const currentSection = document.querySelector(".gui-section.active");
+  const targetSection = document.getElementById(`gui-${sectionId}`);
+
+  if (!targetSection || currentSection === targetSection) return;
+
+  sectionTransitioning = true;
+
+  if (currentSection) {
+    currentSection.classList.remove("active");
+    currentSection.classList.add("section-exit");
+
+    // Fire CRT static flash mid-exit
+    setTimeout(() => showStaticFlash(), 110);
+
+    setTimeout(() => {
+      currentSection.classList.remove("section-exit");
+      currentSection.style.display = "";
+
+      targetSection.classList.add("active", "section-enter");
+      updateActiveNav(sectionId);
+      window.scrollTo(0, 0);
+
+      setTimeout(() => {
+        targetSection.classList.remove("section-enter");
+        triggerScrambleOnVisible();
+        initHolographicCards();
+        sectionTransitioning = false;
+
+        if (sectionId === "skills") {
+          setTimeout(initSkillProjectLinking, 50);
+        }
+      }, 450);
+    }, 300);
+  } else {
+    targetSection.classList.add("active", "section-enter");
+    updateActiveNav(sectionId);
+    window.scrollTo(0, 0);
+    setTimeout(() => {
+      targetSection.classList.remove("section-enter");
+      triggerScrambleOnVisible();
+      initHolographicCards();
+      sectionTransitioning = false;
+    }, 450);
+  }
+}
+
+// Override showGuiSection with the animated version
+showGuiSection = function(sectionId) {
+  if (currentMode === "gui") {
+    showGuiSectionAnimated(sectionId);
+  } else {
+    // Non-gui mode: use simple swap
+    document.querySelectorAll(".gui-section").forEach((section) => section.classList.remove("active"));
+    const target = document.getElementById(`gui-${sectionId}`);
+    if (target) {
+      target.classList.add("active");
+      updateActiveNav(sectionId);
+      window.scrollTo(0, 0);
+    }
+  }
+};
+window.showGuiSection = showGuiSection;
+
+/* ── Custom animated cursor ── */
+
+function initCustomCursor() {
+  const dot = document.getElementById("cursorDot");
+  const ring = document.getElementById("cursorRing");
+  if (!dot || !ring) return;
+
+  const TRAIL_COUNT = 7;
+  const trail = [];
+
+  for (let i = 0; i < TRAIL_COUNT; i++) {
+    const el = document.createElement("div");
+    el.className = "cursor-trail-dot";
+    const size = Math.max(1.2, 5 - i * 0.52);
+    const alpha = Math.max(0.04, 0.38 - i * 0.048);
+    el.style.cssText = `width:${size}px;height:${size}px;margin:${-size / 2}px 0 0 ${-size / 2}px;background:rgba(255,255,255,${alpha});`;
+    document.body.appendChild(el);
+    trail.push({ el, x: -200, y: -200 });
+  }
+
+  let dotX = -200, dotY = -200;
+  let ringX = -200, ringY = -200;
+
+  document.addEventListener("mousemove", (e) => {
+    dotX = e.clientX;
+    dotY = e.clientY;
+  });
+
+  (function loop() {
+    requestAnimationFrame(loop);
+    if (currentMode !== "gui") return;
+
+    dot.style.transform = `translate(${dotX}px,${dotY}px)`;
+
+    ringX += (dotX - ringX) * 0.1;
+    ringY += (dotY - ringY) * 0.1;
+    ring.style.transform = `translate(${ringX}px,${ringY}px)`;
+
+    trail[0].x += (dotX - trail[0].x) * 0.42;
+    trail[0].y += (dotY - trail[0].y) * 0.42;
+    trail[0].el.style.transform = `translate(${trail[0].x}px,${trail[0].y}px)`;
+
+    for (let i = 1; i < trail.length; i++) {
+      const lag = Math.max(0.06, 0.28 - i * 0.022);
+      trail[i].x += (trail[i - 1].x - trail[i].x) * lag;
+      trail[i].y += (trail[i - 1].y - trail[i].y) * lag;
+      trail[i].el.style.transform = `translate(${trail[i].x}px,${trail[i].y}px)`;
+    }
+  })();
+
+  document.addEventListener("mousedown", () => {
+    if (currentMode !== "gui") return;
+    dot.classList.add("clicking");
+    ring.classList.add("clicking");
+  });
+  document.addEventListener("mouseup", () => {
+    dot.classList.remove("clicking");
+    ring.classList.remove("clicking");
+  });
+  document.addEventListener("mouseover", (e) => {
+    if (currentMode !== "gui") return;
+    if (e.target.closest("a, button")) {
+      ring.classList.add("hovering");
+    } else {
+      ring.classList.remove("hovering");
+    }
+  });
+}
+
+/* ── Click shockwave pulse ── */
+
+function initClickPulses() {
+  document.addEventListener("click", (e) => {
+    if (currentMode !== "gui") return;
+    spawnPulse(e.clientX, e.clientY, false);
+    setTimeout(() => spawnPulse(e.clientX, e.clientY, true), 65);
+  });
+}
+
+function spawnPulse(x, y, secondary) {
+  const el = document.createElement("div");
+  el.className = "click-pulse" + (secondary ? " secondary" : "");
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), secondary ? 1200 : 800);
+}
+
+/* ── Holographic foil shimmer on cards ── */
+
+function initHolographicCards() {
+  document.querySelectorAll(".gui-project-card, .now-card").forEach((card) => {
+    if (card.querySelector(".card-holographic")) return;
+
+    const shimmer = document.createElement("div");
+    shimmer.className = "card-holographic";
+    card.appendChild(shimmer);
+
+    card.addEventListener("mousemove", (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      const angle = Math.atan2(y - 0.5, x - 0.5) * (180 / Math.PI) + 180;
+      shimmer.style.setProperty("--hx", x);
+      shimmer.style.setProperty("--hy", y);
+      shimmer.style.setProperty("--hangle", `${angle}deg`);
+      shimmer.style.opacity = "1";
+    });
+
+    card.addEventListener("mouseleave", () => {
+      shimmer.style.opacity = "0";
+    });
+  });
+}
+
+/* ── CRT static flash between section transitions ── */
+
+function showStaticFlash() {
+  const overlay = document.getElementById("staticOverlay");
+  if (!overlay) return;
+
+  const W = 280, H = 158;
+  overlay.width = W;
+  overlay.height = H;
+  const ctx = overlay.getContext("2d");
+  overlay.style.display = "block";
+
+  let frame = 0;
+  const TOTAL = 12;
+
+  (function tick() {
+    const img = ctx.createImageData(W, H);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const on = Math.random() > 0.42;
+      const v = on ? Math.floor(Math.random() * 220 + 35) : 0;
+      d[i] = v; d[i + 1] = v; d[i + 2] = v; d[i + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+
+    const t = frame / TOTAL;
+    overlay.style.opacity = String(Math.sin(t * Math.PI) * 0.28);
+    frame++;
+
+    if (frame < TOTAL) {
+      requestAnimationFrame(tick);
+    } else {
+      overlay.style.opacity = "0";
+      overlay.style.display = "none";
+    }
+  })();
 }
