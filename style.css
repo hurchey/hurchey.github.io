@@ -2912,3 +2912,284 @@ body.quant-mode .quant-cursor-glow {
         grid-template-columns: 1fr;
     }
 }
+
+/* ═══════════════════════════════════════════════════════
+   CYBER-FUTURE AESTHETIC LAYER
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Grid: tighter pitch, more visible lines ── */
+.gui-container::before {
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: none;
+    opacity: 1;
+}
+
+/* ── Secondary coarse grid ── */
+.gui-container::after {
+    background:
+        radial-gradient(ellipse at 15% 0%, rgba(255, 255, 255, 0.07), transparent 40%),
+        radial-gradient(ellipse at 85% 100%, rgba(255, 255, 255, 0.03), transparent 35%),
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    background-size: auto, auto, 200px 200px, 200px 200px;
+}
+
+/* ── Noise grain: slightly more texture ── */
+.gui-noise {
+    opacity: 0.06;
+}
+
+/* ── Scan line: brighter, slower sweep ── */
+.gui-scan-line {
+    background: linear-gradient(90deg, transparent 10%, rgba(255, 255, 255, 0.14) 50%, transparent 90%);
+    height: 2px;
+    animation-duration: 9s;
+}
+
+/* ── Nav: cyber bottom border + status indicator ── */
+.gui-nav {
+    border-bottom-color: rgba(255, 255, 255, 0.14);
+}
+
+.gui-nav-actions::before {
+    content: "◆ SYS_ONLINE";
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    margin-right: 6px;
+    animation: sysOnlinePulse 3s ease-in-out infinite;
+}
+
+@keyframes sysOnlinePulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* ── Section header: left accent bar + counter watermark ── */
+.section-header {
+    position: relative;
+    padding-left: 16px;
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
+    overflow: visible;
+}
+
+.section-header.compact {
+    padding-left: 16px;
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Watermark section number */
+.gui-content {
+    counter-reset: section-num;
+}
+
+.gui-shell {
+    counter-increment: section-num;
+}
+
+.section-header::after {
+    content: "0" counter(section-num);
+    position: absolute;
+    right: 0;
+    top: -16px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 5.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.028);
+    line-height: 1;
+    z-index: 0;
+    pointer-events: none;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+}
+
+/* ── Section kicker: trailing dash after label ── */
+.section-kicker::after {
+    content: "";
+    display: inline-block;
+    width: 28px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.35);
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+/* ── Card borders: more defined ── */
+.gui-hero-copy,
+.gui-signal-card,
+.gui-card,
+.gui-project-card,
+.timeline-content,
+.project-rail-card,
+.focus-panel {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Corner accent marks: longer and brighter ── */
+.gui-hero-copy::before,
+.gui-signal-card::before,
+.gui-card::before,
+.gui-project-card::before,
+.timeline-content::before,
+.project-rail-card::before,
+.focus-panel::before {
+    width: 38px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.gui-hero-copy::after,
+.gui-signal-card::after,
+.gui-card::after,
+.gui-project-card::after,
+.timeline-content::after,
+.project-rail-card::after,
+.focus-panel::after {
+    width: 38px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Cards: L-bracket vertical lines + diagonal hatching ── */
+.gui-card,
+.gui-project-card,
+.timeline-content,
+.project-rail-card,
+.focus-panel,
+.now-card {
+    background-color: rgba(6, 6, 6, 0.94);
+    background-image:
+        /* top-left vertical bracket arm */
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 28px, transparent 28px),
+        /* bottom-right vertical bracket arm */
+        linear-gradient(to top, rgba(255, 255, 255, 0.38) 28px, transparent 28px),
+        /* diagonal hatching texture */
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 22px,
+            rgba(255, 255, 255, 0.014) 22px,
+            rgba(255, 255, 255, 0.014) 23px
+        );
+    background-position: left top, right bottom, 0 0;
+    background-size: 1px 100%, 1px 100%, 100% 100%;
+    background-repeat: no-repeat, no-repeat, repeat;
+}
+
+/* ── Card hover: brighter corner accents ── */
+.gui-card:hover::before,
+.gui-project-card:hover::before,
+.timeline-content:hover::before,
+.project-rail-card:hover::before,
+.focus-panel:hover::before {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.gui-card:hover::after,
+.gui-project-card:hover::after,
+.timeline-content:hover::after,
+.project-rail-card:hover::after,
+.focus-panel:hover::after {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Buttons: diagonal hatch on hover ── */
+.gui-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.gui-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 5px,
+        rgba(255, 255, 255, 0.04) 5px,
+        rgba(255, 255, 255, 0.04) 6px
+    );
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.gui-button:hover::before {
+    opacity: 1;
+}
+
+/* ── Tech tags + badges: angular clip ── */
+.tech-tag,
+.skill-chip,
+.project-rail-badge,
+.project-badge {
+    border-radius: 0;
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+}
+
+/* ── Stat items: more defined border ── */
+.gui-stat-item {
+    border-color: rgba(255, 255, 255, 0.13);
+}
+
+/* ── Highlight grid: top accent border ── */
+.gui-highlight-item {
+    border-top: 2px solid rgba(255, 255, 255, 0.16);
+}
+
+/* ── Hero glitch: more aggressive ── */
+@keyframes glitchText {
+    0%, 100% { text-shadow: none; transform: translate(0); }
+    86% { text-shadow: none; transform: translate(0); }
+    87% {
+        text-shadow: -3px 0 rgba(255, 255, 255, 0.25), 3px 0 rgba(255, 255, 255, 0.12);
+        transform: translate(3px, 0) skewX(-0.8deg);
+    }
+    88% {
+        text-shadow: 3px 0 rgba(255, 255, 255, 0.2), -2px 0 rgba(255, 255, 255, 0.1);
+        transform: translate(-3px, 0) skewX(0.5deg);
+    }
+    89% { text-shadow: none; transform: translate(1px, 0); }
+    90% { text-shadow: -1px 0 rgba(255, 255, 255, 0.18); transform: translate(0); }
+    91% { text-shadow: none; transform: translate(0); }
+    95% { text-shadow: none; transform: translate(0); }
+    96% {
+        text-shadow: -2px 0 rgba(255, 255, 255, 0.15), 1px 0 rgba(200, 200, 200, 0.1);
+        transform: translate(1px, 0);
+    }
+    97% { text-shadow: none; transform: translate(0); }
+}
+
+/* ── Section title glitch: sharper twitch ── */
+@keyframes subtleGlitch {
+    0%, 100% { text-shadow: none; transform: translate(0); }
+    91% { text-shadow: none; transform: translate(0); }
+    92% {
+        text-shadow: -2px 0 rgba(255, 255, 255, 0.14), 2px 0 rgba(255, 255, 255, 0.08);
+        transform: translate(1px, 0);
+    }
+    93% { text-shadow: none; transform: translate(-1px, 0); }
+    94% { text-shadow: none; transform: translate(0); }
+}
+
+/* ── Contact cards: angular clip ── */
+.contact-card {
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+
+/* ── Focus panel top border accent ── */
+.focus-panel {
+    border-top: 2px solid rgba(255, 255, 255, 0.18);
+}
+
+/* ── Project status badges: angular ── */
+.project-status {
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+    border-radius: 0;
+}

@@ -12,7 +12,7 @@ const QUICK_COMMANDS = PORTFOLIO.quickCommands || [];
 const NAVIGATION = PORTFOLIO.navigation || [];
 const TERMINAL = PORTFOLIO.terminal || {};
 
-let currentMode = "terminal";
+let currentMode = "gui";
 let terminalSystem = null;
 let quickCommandsVisible = false;
 let firstVisit = !localStorage.getItem("portfolioVisited");
@@ -2201,6 +2201,7 @@ document.addEventListener("DOMContentLoaded", () => {
   terminalSystem = new TerminalPortfolio();
   window.terminalSystem = terminalSystem;
 
+  setMode("gui");
   initGuiInteractions();
 
   // Initialize skill linking and holographic cards after sections are rendered
