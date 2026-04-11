@@ -17,10 +17,15 @@
 <body class="gui-mode">
     <div class="crt-effect"></div>
 
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-text">
-            <span>Booting Eric Hurchey portfolio</span>
-            <span class="loading-dots"></span>
+    <div class="loading-screen hidden" id="loadingScreen">
+        <div class="terminal-boot">
+            <div class="boot-header">TERMINAL://ERIC_HURCHEY.SYSTEM</div>
+            <div class="boot-progress">
+                <span class="boot-line">▶ INITIALIZING TERMINAL INTERFACE<span class="boot-ok">[OK]</span></span>
+                <span class="boot-line">▶ LOADING COMMAND MODULES<span class="boot-ok">[OK]</span></span>
+                <span class="boot-line">▶ ESTABLISHING SECURE SESSION<span class="boot-ok">[OK]</span></span>
+            </div>
+            <span class="boot-cursor">█</span>
         </div>
     </div>
 
@@ -28,6 +33,7 @@
         <div class="hacking-terminal">
             <div class="hacking-header">
                 <span class="hacking-title">SECURITY_CHALLENGE_v2.0 [HACK MODE] <span id="hackTypingIndicator" class="hack-typing-indicator">█</span></span>
+                <div class="hack-meta" id="hackMeta">LV1 | Integrity 100% | Score 0</div>
                 <div class="hack-header-actions">
                     <button class="hacking-close-btn" onclick="exitHackMode()" aria-label="Close hack terminal">X</button>
                     <button class="hacking-exit-btn" onclick="exitHackMode()">EXIT [ESC]</button>

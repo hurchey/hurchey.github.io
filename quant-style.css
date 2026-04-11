@@ -26,11 +26,11 @@ html {
 
 body {
     min-height: 100vh;
-    font-family: "Sora", sans-serif;
+    font-family: "IBM Plex Mono", monospace;
     background:
-        radial-gradient(circle at 15% 18%, rgba(126, 255, 168, 0.08), transparent 28%),
-        radial-gradient(circle at 85% 10%, rgba(157, 199, 255, 0.08), transparent 24%),
-        linear-gradient(180deg, #030303 0%, #050505 45%, #090909 100%);
+        radial-gradient(circle at 15% 18%, rgba(126, 255, 168, 0.04), transparent 24%),
+        radial-gradient(circle at 85% 10%, rgba(157, 199, 255, 0.04), transparent 20%),
+        linear-gradient(180deg, #020202 0%, #050505 45%, #080808 100%);
     color: var(--quant-text);
     overflow-x: hidden;
     position: relative;
@@ -151,12 +151,10 @@ body::before {
 .quant-panel {
     position: relative;
     overflow: hidden;
-    background:
-        linear-gradient(180deg, rgba(10, 12, 15, 0.96), rgba(16, 18, 22, 0.84)),
-        radial-gradient(circle at top left, rgba(255, 255, 255, 0.06), transparent 44%);
+    background: linear-gradient(180deg, rgba(7, 9, 11, 0.98), rgba(11, 13, 16, 0.9));
     border: 1px solid var(--quant-line);
     box-shadow: var(--quant-shadow);
-    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+    clip-path: none;
 }
 
 .quant-panel::after {
@@ -170,10 +168,10 @@ body::before {
 }
 
 .quant-kicker {
-    color: var(--quant-blue);
+    color: var(--quant-green);
     font-family: "IBM Plex Mono", monospace;
-    font-size: 12px;
-    letter-spacing: 0.18em;
+    font-size: 11px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
@@ -183,8 +181,9 @@ body::before {
 
 .section-head h2 {
     margin-top: 10px;
-    font-size: clamp(2.2rem, 5vw, 3.2rem);
-    letter-spacing: -0.08em;
+    font-size: 1.2rem;
+    letter-spacing: 0.08em;
+    font-family: "IBM Plex Mono", monospace;
     text-transform: uppercase;
 }
 
@@ -214,11 +213,12 @@ body::before {
 }
 
 .quant-hero-copy h1 {
-    margin: 14px 0 18px;
-    max-width: 10ch;
-    font-size: clamp(3.2rem, 8vw, 5.8rem);
-    line-height: 0.9;
-    letter-spacing: -0.1em;
+    margin: 12px 0 16px;
+    max-width: 18ch;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    line-height: 1.08;
+    letter-spacing: 0.02em;
+    font-family: "IBM Plex Mono", monospace;
     text-transform: uppercase;
 }
 
@@ -231,7 +231,7 @@ body::before {
 .focus-board-row span,
 .metric-label {
     color: var(--quant-text-soft);
-    line-height: 1.75;
+    line-height: 1.65;
 }
 
 .quant-hero-actions,
@@ -252,6 +252,10 @@ body::before {
     color: var(--quant-text);
     text-decoration: none;
     transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .quant-button:hover {
@@ -276,7 +280,7 @@ body::before {
     padding: 14px 16px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.02);
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .desk-header {
@@ -288,7 +292,8 @@ body::before {
 
 .desk-header h2 {
     margin-top: 10px;
-    font-size: 1.8rem;
+    font-size: 1.1rem;
+    text-transform: uppercase;
 }
 
 .desk-status {
@@ -323,7 +328,7 @@ body::before {
 .metric-card strong {
     display: block;
     margin-top: 10px;
-    font-size: 1.25rem;
+    font-size: 1rem;
 }
 
 .curve-card {
@@ -417,7 +422,8 @@ body::before {
 .book-card h3,
 .contact-card h3 {
     margin: 12px 0;
-    font-size: 1.35rem;
+    font-size: 1rem;
+    text-transform: uppercase;
 }
 
 .process-list {

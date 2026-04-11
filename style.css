@@ -1,19 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&family=Inter:wght@300;400;500;600&family=Orbitron:wght@400;500;600;700&display=swap');
 
 :root {
-    --terminal-bg: #000300;
-    --terminal-panel: #000a00;
-    --terminal-panel-strong: #001200;
+    --terminal-bg: #000000;
+    --terminal-panel: #000000;
+    --terminal-panel-strong: #000000;
     --terminal-line: rgba(0, 255, 0, 0.35);
-    --terminal-green: #00ff41;
-    --terminal-cyan: #00f5ff;
-    --terminal-yellow: #ffe600;
-    --terminal-red: #ff2851;
+    --terminal-green: #00ff00;
+    --terminal-cyan: #00ffff;
+    --terminal-yellow: #ffff00;
+    --terminal-red: #ff0040;
     --terminal-magenta: #ff00ff;
-    --terminal-white: #e8ffe8;
-    --terminal-gray: #4a7a4a;
-    --terminal-amber: #ffb000;
-    --phosphor-glow: 0 0 7px currentColor, 0 0 20px currentColor;
+    --terminal-white: #f0f0f0;
+    --terminal-gray: #808080;
 
     --gui-bg: #000000;
     --gui-surface: rgba(8, 8, 8, 0.9);
@@ -45,7 +43,7 @@ html {
 
 body {
     min-height: 100vh;
-    font-family: 'Fira Code', monospace;
+    font-family: "IBM Plex Mono", monospace;
     background: var(--terminal-bg);
     color: var(--terminal-green);
     overflow: hidden;
@@ -126,9 +124,27 @@ body.gui-mode .crt-effect {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000000;
+    background: var(--terminal-bg);
     z-index: 10003;
-    transition: opacity 0.45s ease;
+    transition: opacity 0.4s ease;
+    font-family: 'Fira Code', monospace;
+    overflow: hidden;
+}
+
+/* Scanlines on the boot overlay */
+.loading-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.22) 0px,
+        rgba(0, 0, 0, 0.22) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 1;
 }
 
 .loading-screen.hidden {
@@ -136,21 +152,66 @@ body.gui-mode .crt-effect {
     pointer-events: none;
 }
 
-.loading-text {
+.terminal-boot {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
     color: var(--terminal-green);
-    font-size: 14px;
-    letter-spacing: 0.08em;
+    min-width: 360px;
 }
 
-.loading-dots::after {
-    content: "";
-    animation: loadingDots 1.4s infinite;
+.boot-header {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    color: var(--terminal-green);
+    text-shadow: 0 0 12px var(--terminal-green);
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(0, 255, 0, 0.25);
 }
 
-@keyframes loadingDots {
-    0% { content: "."; }
-    33% { content: ".."; }
-    66% { content: "..."; }
+.boot-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.terminal-boot .boot-line {
+    display: block;
+    opacity: 0;
+    transform: translateX(-6px);
+    animation: bootSlideIn 0.25s ease forwards;
+}
+
+.terminal-boot .boot-line:nth-child(1) { animation-delay: 0.08s; }
+.terminal-boot .boot-line:nth-child(2) { animation-delay: 0.32s; }
+.terminal-boot .boot-line:nth-child(3) { animation-delay: 0.56s; }
+
+@keyframes bootSlideIn {
+    to { opacity: 1; transform: none; }
+}
+
+.boot-ok {
+    color: var(--terminal-cyan);
+    margin-left: 6px;
+}
+
+.boot-cursor {
+    font-size: 18px;
+    color: var(--terminal-green);
+    text-shadow: 0 0 8px var(--terminal-green);
+    animation: termBlink 0.75s step-end infinite;
+    opacity: 0;
+    animation-delay: 0.75s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes termBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
 
 .terminal-container {
@@ -173,31 +234,8 @@ body.gui-mode .quant-container {
 
 .terminal-header-section {
     flex-shrink: 0;
-    padding: 14px 24px 0;
-    background: rgba(0, 3, 0, 0.97);
-    border-bottom: 2px solid rgba(0, 255, 60, 0.25);
-    position: relative;
-}
-
-/* Pixel-art corner brackets on the header */
-.terminal-header-section::before,
-.terminal-header-section::after {
-    content: "";
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    border-color: var(--terminal-green);
-    border-style: solid;
-    opacity: 0.7;
-    bottom: -2px;
-}
-.terminal-header-section::before {
-    left: 10px;
-    border-width: 0 0 2px 2px;
-}
-.terminal-header-section::after {
-    right: 10px;
-    border-width: 0 2px 2px 0;
+    padding: 22px 24px 0;
+    background: var(--terminal-bg);
 }
 
 .terminal-header {
@@ -214,75 +252,7 @@ body.gui-mode .quant-container {
     font-size: 10px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(0, 255, 60, 0.7), 0 0 24px rgba(0, 255, 60, 0.35);
-    line-height: 1.6;
-}
-
-/* ── Retro game HUD ── */
-.retro-hud {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
-    color: var(--terminal-amber);
-    text-shadow: 0 0 8px rgba(255, 176, 0, 0.8), 0 0 20px rgba(255, 176, 0, 0.4);
-    border: 1px solid rgba(255, 176, 0, 0.25);
-    padding: 7px 14px;
-    background: rgba(255, 176, 0, 0.04);
-    letter-spacing: 0.04em;
-    position: relative;
-}
-
-.retro-hud::before,
-.retro-hud::after {
-    content: "";
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-color: var(--terminal-amber);
-    border-style: solid;
-    opacity: 0.6;
-}
-.retro-hud::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
-.retro-hud::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
-
-.hud-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: rgba(255, 176, 0, 0.55);
-}
-
-.hud-val {
-    color: var(--terminal-amber);
-}
-
-.hud-bar {
-    color: var(--terminal-green);
-    text-shadow: 0 0 6px rgba(0, 255, 60, 0.9), 0 0 16px rgba(0, 255, 60, 0.5);
-    letter-spacing: -0.02em;
-}
-
-.hud-sep {
-    color: rgba(255, 176, 0, 0.3);
-    font-size: 6px;
-}
-
-.retro-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 7px;
-    letter-spacing: 0.06em;
-    color: var(--terminal-green);
-    text-shadow: 0 0 8px rgba(0, 255, 60, 0.6);
-}
-
-.retro-clock-item {
-    gap: 6px;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 8px;
-    color: var(--terminal-green);
-    text-shadow: 0 0 8px rgba(0, 255, 60, 0.7);
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.32);
 }
 
 .terminal-status {
@@ -308,7 +278,7 @@ body.gui-mode .quant-container {
 
 .gui-switch-btn {
     border: 1px solid var(--terminal-line);
-    background: rgba(0, 255, 0, 0.08);
+    background: transparent;
     color: var(--terminal-green);
     padding: 8px 12px;
     cursor: pointer;
@@ -317,8 +287,8 @@ body.gui-mode .quant-container {
 
 .gui-switch-btn:hover {
     transform: translateY(-1px);
-    border-color: rgba(0, 255, 0, 0.6);
-    background: rgba(0, 255, 0, 0.15);
+    border-color: rgba(0, 255, 0, 0.52);
+    background: rgba(0, 255, 0, 0.08);
 }
 
 .help-text {
@@ -336,7 +306,7 @@ body.gui-mode .quant-container {
     height: 8px;
     border-radius: 50%;
     background: var(--terminal-green);
-    box-shadow: 0 0 12px rgba(0, 255, 0, 0.7);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.55);
     animation: pulse 1.8s infinite;
 }
 
@@ -362,13 +332,13 @@ body.gui-mode .quant-container {
 .terminal-body::-webkit-scrollbar-track,
 .quick-commands-bar::-webkit-scrollbar-track,
 .hacking-output::-webkit-scrollbar-track {
-    background: rgba(0, 255, 0, 0.05);
+    background: rgba(0, 255, 0, 0.08);
 }
 
 .terminal-body::-webkit-scrollbar-thumb,
 .quick-commands-bar::-webkit-scrollbar-thumb,
 .hacking-output::-webkit-scrollbar-thumb {
-    background: rgba(0, 255, 0, 0.3);
+    background: rgba(0, 255, 0, 0.4);
     border-radius: 999px;
 }
 
@@ -381,7 +351,7 @@ body.gui-mode .quant-container {
 .terminal-input-wrapper {
     flex-shrink: 0;
     padding: 0 24px 24px;
-    background: rgba(0, 0, 0, 0.95);
+    background: var(--terminal-bg);
 }
 
 .terminal-input-section {
@@ -563,24 +533,20 @@ body.gui-mode .quant-container {
 .ascii-art-container {
     display: flex;
     justify-content: center;
+    align-items: center;
     width: 100%;
+    min-height: 26vh;
 }
 
 .ascii-art {
     color: var(--terminal-green);
-    font-size: 10px;
-    line-height: 1.05;
+    font-size: 17px;
+    line-height: 1.15;
     text-align: center;
-    margin: 8px auto;
-    text-shadow: 0 0 12px rgba(0, 255, 60, 0.9), 0 0 28px rgba(0, 255, 60, 0.5), 0 0 60px rgba(0, 255, 60, 0.2);
-}
-
-.ascii-tagline {
-    font-size: 13px;
-    letter-spacing: 0.3em;
-    margin-top: 12px;
-    color: var(--terminal-gray);
-    text-shadow: none;
+    margin: 16px auto 10px;
+    text-shadow: 0 0 16px rgba(0, 255, 0, 0.22);
+    border: 1px solid rgba(0, 255, 0, 0.35);
+    padding: 20px 32px;
 }
 
 .clickable-item {
@@ -642,9 +608,9 @@ body.gui-mode .quant-container {
     padding: 28px 22px 18px;
     display: none;
     overflow-y: auto;
-    border: 1px solid rgba(0, 255, 0, 0.3);
-    background: rgba(0, 0, 0, 0.95);
-    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0, 255, 0, 0.24);
+    background: rgba(0, 0, 0, 0.96);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
     z-index: 1001;
     backdrop-filter: blur(16px);
 }
@@ -661,8 +627,8 @@ body.gui-mode .quant-container {
 
 .quick-cmd-section {
     padding: 18px;
-    border: 1px solid rgba(0, 255, 0, 0.15);
-    background: rgba(0, 10, 0, 0.85);
+    border: 1px solid rgba(0, 255, 0, 0.16);
+    background: rgba(0, 255, 0, 0.02);
 }
 
 .quick-cmd-label {
@@ -682,7 +648,7 @@ body.gui-mode .quant-container {
 
 .quick-cmd-btn {
     padding: 8px 12px;
-    border: 1px solid rgba(0, 255, 0, 0.25);
+    border: 1px solid rgba(0, 255, 0, 0.24);
     background: transparent;
     color: var(--terminal-green);
     cursor: pointer;
@@ -691,8 +657,8 @@ body.gui-mode .quant-container {
 
 .quick-cmd-btn:hover {
     transform: translateY(-1px);
-    background: rgba(0, 255, 0, 0.15);
-    border-color: rgba(0, 255, 0, 0.6);
+    background: rgba(0, 255, 0, 0.1);
+    border-color: rgba(0, 255, 0, 0.5);
 }
 
 .quick-cmd-close {
@@ -812,9 +778,8 @@ body.gui-mode .gui-cursor-glow {
     width: 100%;
     height: 100%;
     z-index: 0;
-    opacity: 0.45;
+    opacity: 0.78;
     mix-blend-mode: screen;
-    filter: saturate(0) contrast(1.1);
 }
 
 .gui-nav {
@@ -1128,47 +1093,21 @@ body.gui-mode .gui-nav {
 }
 
 .gui-hero h1 {
-    max-width: 100%;
-    margin: 14px 0 18px;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    font-size: clamp(3.4rem, 8vw, 6rem);
-    line-height: 1;
-    letter-spacing: 0.02em;
-    color: #ffffff;
-    text-transform: uppercase;
-    position: relative;
-    animation: glitchText 6s ease-in-out infinite;
-}
-
-.gui-hero h1::after {
-    content: "_";
-    animation: cursorBlink 1s step-end infinite;
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: 300;
-}
-
-@keyframes cursorBlink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
-}
-
-@keyframes glitchText {
-    0%, 100% { text-shadow: none; }
-    90% { text-shadow: none; }
-    91% { text-shadow: -2px 0 rgba(255, 255, 255, 0.15), 2px 0 rgba(255, 255, 255, 0.1); transform: translate(0); }
-    92% { text-shadow: 2px 0 rgba(255, 255, 255, 0.15), -1px 0 rgba(255, 255, 255, 0.1); transform: translate(-1px, 0); }
-    93% { text-shadow: none; transform: translate(1px, 0); }
-    94% { text-shadow: -1px 0 rgba(255, 255, 255, 0.12); transform: translate(0); }
-    95% { text-shadow: none; transform: translate(0); }
+    max-width: none;
+    margin: 4px 0 12px;
+    font-family: "Sora", sans-serif;
+    font-size: clamp(2.6rem, 6vw, 4rem);
+    line-height: 0.98;
+    letter-spacing: -0.06em;
+    color: var(--gui-text);
+    text-transform: none;
+    text-shadow: none;
 }
 
 .gui-hero-subtitle {
-    color: var(--gui-text-soft);
-    font-size: 14px;
-    font-family: 'Fira Code', monospace;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    color: var(--gui-text);
+    font-size: 15px;
+    letter-spacing: 0.02em;
 }
 
 .gui-hero-tagline,
@@ -1188,14 +1127,14 @@ body.gui-mode .gui-nav {
 }
 
 .gui-hero-tagline {
-    margin-top: 16px;
-    max-width: 54ch;
-    font-size: 18px;
+    margin-top: 10px;
+    max-width: 52ch;
+    font-size: 15px;
 }
 
 .gui-hero-summary {
-    margin-top: 16px;
-    max-width: 62ch;
+    margin-top: 10px;
+    max-width: 56ch;
 }
 
 .gui-hero-buttons,
@@ -1280,9 +1219,9 @@ body.gui-mode .gui-nav {
 }
 
 .gui-signal-card h2 {
-    margin: 12px 0 16px;
-    font-size: clamp(1.9rem, 4vw, 2.4rem);
-    line-height: 1.1;
+    margin: 10px 0 12px;
+    font-size: 1.35rem;
+    line-height: 1.2;
 }
 
 .signal-list,
@@ -1439,22 +1378,12 @@ body.gui-mode .gui-nav {
 
 .gui-section-title {
     margin-top: 10px;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 600;
-    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-    line-height: 1.1;
-    letter-spacing: 0.03em;
-    color: #ffffff;
-    text-transform: uppercase;
-    animation: subtleGlitch 8s ease-in-out infinite;
-}
-
-@keyframes subtleGlitch {
-    0%, 100% { text-shadow: none; }
-    94% { text-shadow: none; }
-    95% { text-shadow: -1px 0 rgba(255, 255, 255, 0.1), 1px 0 rgba(255, 255, 255, 0.08); }
-    96% { text-shadow: 1px 0 rgba(255, 255, 255, 0.1); }
-    97% { text-shadow: none; }
+    font-family: "Sora", sans-serif;
+    font-size: clamp(1.8rem, 3.4vw, 2.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.05em;
+    color: var(--gui-text);
+    text-transform: none;
 }
 
 .section-intro {
@@ -1688,6 +1617,7 @@ body.gui-mode .gui-nav {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
+    flex-wrap: wrap;
     padding: 16px;
     border-bottom: 1px solid rgba(255, 0, 64, 0.3);
     background: linear-gradient(90deg, rgba(255, 0, 64, 0.1), transparent);
@@ -1697,6 +1627,16 @@ body.gui-mode .gui-nav {
     color: var(--terminal-red);
     font-size: 14px;
     letter-spacing: 0.08em;
+}
+
+.hack-meta {
+    color: var(--terminal-yellow);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    flex: 1;
+    text-align: center;
 }
 
 .hack-header-actions {
@@ -2820,6 +2760,550 @@ body.quant-mode .quant-cursor-glow {
 
 @keyframes drawLine {
     to { stroke-dashoffset: 0; }
+}
+
+/* ════════════════════════════════════════════════════════
+   Instagram-inspired quant layout
+   ════════════════════════════════════════════════════════ */
+
+body.quant-mode {
+    background: #000000;
+}
+
+.ig-layout {
+    max-width: 935px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #f5f5f5;
+}
+
+/* ── Profile ── */
+
+.ig-profile {
+    display: flex;
+    align-items: flex-start;
+    gap: 52px;
+    padding: 36px 0 28px;
+}
+
+.ig-avatar-ring {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+    flex-shrink: 0;
+}
+
+.ig-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #121212;
+    border: 3px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #f5f5f5;
+}
+
+.ig-profile-info {
+    flex: 1;
+    min-width: 0;
+    padding-top: 8px;
+}
+
+.ig-username-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.ig-username {
+    font-size: 1.35rem;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+}
+
+.ig-btn {
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #363636;
+    background: #363636;
+    color: #f5f5f5;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    display: inline-block;
+}
+
+.ig-btn:hover { background: #444; border-color: #555; }
+
+.ig-btn.primary {
+    background: #0095f6;
+    border-color: #0095f6;
+}
+
+.ig-btn.primary:hover { background: #1aa1f7; border-color: #1aa1f7; }
+
+.ig-btn.ghost {
+    background: transparent;
+    border-color: #363636;
+}
+
+.ig-stats {
+    display: flex;
+    gap: 44px;
+    margin-bottom: 20px;
+}
+
+.ig-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ig-stat strong {
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.ig-stat span {
+    color: #a8a8a8;
+    font-size: 14px;
+}
+
+.ig-bio {
+    display: grid;
+    gap: 4px;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.ig-bio strong { font-weight: 600; }
+
+.ig-bio .ig-bio-muted { color: #a8a8a8; }
+
+.ig-bio .ig-link {
+    color: #0095f6;
+    text-decoration: none;
+}
+
+/* ── Divider ── */
+
+.ig-divider {
+    height: 1px;
+    background: #262626;
+}
+
+/* ── Story highlights ── */
+
+.ig-highlights {
+    display: flex;
+    gap: 24px;
+    padding: 22px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.ig-highlights::-webkit-scrollbar { display: none; }
+
+.ig-highlight {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: default;
+    flex-shrink: 0;
+}
+
+.ig-highlight-ring {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    padding: 2.5px;
+    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+    transition: transform 0.2s ease;
+}
+
+.ig-highlight:hover .ig-highlight-ring { transform: scale(1.07); }
+
+.ig-highlight-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: 2.5px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.ig-highlight-label {
+    font-size: 12px;
+    color: #f5f5f5;
+    text-align: center;
+    max-width: 74px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Posts tab bar ── */
+
+.ig-tabs {
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid #262626;
+}
+
+.ig-tab {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 14px 24px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #a8a8a8;
+    border-top: 1px solid transparent;
+    cursor: default;
+}
+
+.ig-tab.active {
+    color: #f5f5f5;
+    border-top-color: #f5f5f5;
+}
+
+/* ── Posts grid ── */
+
+.ig-posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+    margin-top: 3px;
+}
+
+.ig-post {
+    aspect-ratio: 1;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.ig-post-img {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    transition: filter 0.2s ease;
+}
+
+.ig-post:hover .ig-post-img { filter: brightness(0.72); }
+
+.ig-post-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    background: rgba(0, 0, 0, 0.38);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.ig-post:hover .ig-post-overlay { opacity: 1; }
+
+.ig-post-overlay span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.ig-post-status {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    backdrop-filter: blur(4px);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.ig-post-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 28px 10px 10px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* ── Post modal ── */
+
+.ig-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    background: rgba(0, 0, 0, 0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.ig-modal.open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.ig-modal-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 900px;
+    width: 100%;
+    height: min(580px, 90vh);
+    background: #1a1a1a;
+    border: 1px solid #363636;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ig-modal-left .ig-post-img {
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    padding: 24px;
+}
+
+.ig-modal-right {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ig-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #262626;
+    flex-shrink: 0;
+}
+
+.ig-mini-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.ig-modal-username {
+    font-weight: 600;
+    font-size: 14px;
+    color: #f5f5f5;
+}
+
+.ig-modal-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #a8a8a8;
+    font-size: 26px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+.ig-modal-close:hover { color: #f5f5f5; }
+
+.ig-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+}
+
+.ig-modal-caption {
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.ig-modal-caption strong { font-weight: 600; }
+
+.ig-modal-caption p {
+    color: #a8a8a8;
+    margin-top: 6px;
+}
+
+.ig-modal-status {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-left: 8px;
+}
+
+.ig-modal-status.finished    { color: #22c55e; background: rgba(34,197,94,0.12); }
+.ig-modal-status.in-progress { color: #60a5fa; background: rgba(96,165,250,0.12); }
+.ig-modal-status.prototype   { color: #f59e0b; background: rgba(245,158,11,0.12); }
+
+.ig-modal-bullets {
+    list-style: none;
+    display: grid;
+    gap: 7px;
+    padding: 0;
+}
+
+.ig-modal-bullets li {
+    font-size: 13px;
+    color: #a8a8a8;
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.6;
+}
+
+.ig-modal-bullets li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #f5f5f5;
+    font-weight: 600;
+}
+
+.ig-modal-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ig-modal-tech span {
+    padding: 4px 10px;
+    border: 1px solid #363636;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #a8a8a8;
+}
+
+.ig-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #262626;
+    flex-shrink: 0;
+}
+
+.ig-action-btn {
+    background: none;
+    border: none;
+    color: #f5f5f5;
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    padding: 4px;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.ig-action-btn:hover { transform: scale(1.18); }
+
+.ig-action-btn.liked {
+    color: #ed4956;
+    animation: igHeart 0.3s ease;
+}
+
+@keyframes igHeart {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.38); }
+    100% { transform: scale(1); }
+}
+
+.ig-view-btn {
+    margin-left: auto;
+    padding: 8px 18px;
+    background: #0095f6;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ig-view-btn:hover { background: #1aa1f7; }
+
+/* ── Mobile ── */
+
+@media (max-width: 700px) {
+    .ig-profile {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .ig-avatar-ring {
+        width: 90px;
+        height: 90px;
+    }
+
+    .ig-stats { gap: 24px; }
+
+    .ig-modal-inner {
+        grid-template-columns: 1fr;
+        height: auto;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .ig-modal-left {
+        height: 240px;
+    }
 }
 
 /* ── Sparkline live-tick dot ── */

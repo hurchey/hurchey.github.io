@@ -272,7 +272,7 @@ window.PORTFOLIO_CONTENT = {
         "Connected robot events to an inventory dashboard for live updates."
       ],
       link: "https://github.com/hurchey/Warehouse-Robot"
-    },
+    }
   ],
   experience: [
     {
@@ -400,9 +400,9 @@ window.PORTFOLIO_CONTENT = {
     ],
     hero: {
       eyebrow: "SYSTEMATIC RESEARCH PROFILE",
-      headline: "A portfolio reframed like a quant desk.",
+      headline: "ERIC HURCHEY / QUANT LAB",
       summary:
-        "This page treats my work like a research notebook: hypotheses, tooling, discipline, backtesting, and execution quality over empty claims.",
+        "QuantPilot is the center of gravity here: backtesting, strategy design, disciplined iteration, and the engineering habits behind systematic work.",
       tape: ["RESEARCH", "RISK", "EXECUTION", "BACKTESTING", "SIGNALS", "EDGE", "SYSTEMATIC", "ITERATION"],
       metrics: [
         { label: "Current stream", value: "QuantPilot" },
@@ -467,7 +467,7 @@ window.PORTFOLIO_CONTENT = {
         { label: "Food Suggestion App", command: "cat ~/projects/food-suggestion-app-wht-s-ckin.md" },
         { label: "Website Cloning", command: "cat ~/projects/website-cloning.md" },
         { label: "Warehouse Robot", command: "cat ~/projects/warehouse-robot.md" },
-        { label: "Project index", command: "cat ~/projects/README.md" }
+        { label: "All current projects", command: "cat ~/projects/README.md" }
       ]
     },
     {

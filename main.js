@@ -24,11 +24,7 @@ let animationId3d = null;
 
 applyMeta();
 
-setTimeout(() => {
-  const loadingScreen = document.getElementById("loadingScreen");
-  if (loadingScreen) loadingScreen.classList.add("hidden");
-  if (firstVisit) localStorage.setItem("portfolioVisited", "true");
-}, 1100);
+if (firstVisit) localStorage.setItem("portfolioVisited", "true");
 
 function applyMeta() {
   if (META.pageTitle) document.title = META.pageTitle;
@@ -97,7 +93,9 @@ function renderActionButtons(buttons) {
       }
 
       if (button.type === "external") {
-        return `<a class="gui-button ${variantClass}" href="${button.target}" target="_blank" rel="noreferrer">${button.label}</a>`;
+        const isInternalPage = /\.html$/i.test(button.target);
+        const targetAttrs = isInternalPage ? "" : ' target="_blank" rel="noreferrer"';
+        return `<a class="gui-button ${variantClass}" href="${button.target}"${targetAttrs}>${button.label}</a>`;
       }
 
       return "";
@@ -169,26 +167,40 @@ function renderGuiHome() {
     )
     .join("");
 
-  const contactLinks = (CONTACT.methods || [])
+  const currentRole = EXPERIENCE[0];
+  const currentProject = PROJECTS.find((project) => project.title === "QuantPilot") || PROJECTS[0];
+  const compactSignals = [
+    currentRole ? `Current role: ${currentRole.title} at ${currentRole.company}` : "",
+    currentProject ? `Current build: ${currentProject.title}` : "",
+    `Location: ${PROFILE.location}`
+  ].filter(Boolean);
+
+  const signalLinks = (HERO.signal?.links || [])
     .map(
-      (item) => `<a class="gui-button" href="${item.href}" target="${item.href.startsWith("mailto:") ? "_self" : "_blank"}" rel="noreferrer">${item.label}</a>`
+      (link) => `<a class="signal-link" href="${link.url}" target="_blank" rel="noreferrer">${link.label}</a>`
     )
     .join("");
 
   section.innerHTML = `
     <div class="gui-shell gui-home-shell">
       <section class="gui-hero">
-        <div class="gui-hero-copy" style="max-width: 800px;">
-          <p class="section-kicker">${PROFILE.role} // ${PROFILE.location}</p>
-          <h1>${PROFILE.name}</h1>
-          <p class="gui-hero-tagline">${PROFILE.tagline}</p>
-          <div class="gui-stats-row">${stats}</div>
-          <div class="gui-hero-buttons">
-            <a class="gui-button primary" href="${PROFILE.resumeUrl}" target="_blank" rel="noreferrer">Resume</a>
-            <a class="gui-button" href="${PROFILE.github}" target="_blank" rel="noreferrer">GitHub</a>
-            <a class="gui-button" href="${PROFILE.linkedin}" target="_blank" rel="noreferrer">LinkedIn</a>
-            <button class="gui-button" onclick="setMode('terminal')">Terminal Mode</button>
+        <div class="gui-hero-grid">
+          <div class="gui-hero-copy">
+            <h1>${PROFILE.name}</h1>
+            <p class="gui-hero-subtitle">${PROFILE.role}</p>
+            <p class="gui-hero-summary">
+              Currently a Software Engineer Intern at GAIN and actively building QuantPilot around backtesting and strategy research.
+            </p>
+            <div class="gui-hero-buttons">${renderActionButtons(HERO.buttons || [])}</div>
+            <div class="gui-stats-row">${stats}</div>
           </div>
+
+          <aside class="gui-signal-card">
+            <p class="signal-label">CURRENT SIGNAL</p>
+            <h2>In motion now</h2>
+            <ul class="signal-list">${compactSignals.map((point) => `<li>${point}</li>`).join("")}</ul>
+            <div class="signal-links">${signalLinks}</div>
+          </aside>
         </div>
       </section>
     </div>
@@ -231,8 +243,8 @@ function renderGuiNow() {
 
   renderStandardSection(
     "gui-now",
-    "RIGHT NOW",
-    "What is current",
+    "CURRENT",
+    "Current",
     NOW.intro,
     `<div class="gui-grid now-grid">${cards}</div>`
   );
@@ -266,7 +278,7 @@ function renderGuiAbout() {
   renderStandardSection(
     "gui-about",
     "ABOUT",
-    "How I like to build",
+    "About",
     ABOUT.intro,
     `
       <div class="gui-grid">${cards}</div>
@@ -297,9 +309,21 @@ function renderGuiSkills() {
   renderStandardSection(
     "gui-skills",
     "SKILLS",
-    "Technical stack",
-    "The tools I use to build, debug, and iterate.",
-    `<div class="gui-grid">${cards}</div>`
+    "Skills",
+    "I do not try to present everything as a flat wall of buzzwords. These are the areas I actually use to build, debug, and iterate.",
+    `
+      <div class="gui-grid">${cards}</div>
+      <div class="focus-panel compact-panel">
+        <div>
+          <p class="card-kicker">WORKING STYLE</p>
+          <h3>What matters more than the checklist</h3>
+        </div>
+        <p>
+          I care most about shipping focused software, learning domains deeply enough to make good product decisions,
+          and writing code that stays understandable after the first demo.
+        </p>
+      </div>
+    `
   );
 }
 
@@ -328,9 +352,15 @@ function renderGuiProjects() {
   renderStandardSection(
     "gui-projects",
     "PROJECTS",
-    "Things I am building or have finished",
-    "Practical problems, clear user value, and learning by building.",
-    `<div class="gui-grid project-grid">${cards}</div>`
+    "Projects",
+    "These projects are here because they reflect how I think: practical problems, clear user value, and a willingness to learn by building.",
+    `
+      <div class="gui-grid project-grid">${cards}</div>
+      <div class="gui-cta-section">
+        <p>Want the broader repo list as well?</p>
+        <a class="gui-button" href="${PROFILE.github}" target="_blank" rel="noreferrer">Visit My GitHub</a>
+      </div>
+    `
   );
 }
 
@@ -358,9 +388,15 @@ function renderGuiExperience() {
   renderStandardSection(
     "gui-experience",
     "EXPERIENCE",
-    "Recent roles and context",
-    "Practical engineering, communication, and learning by doing.",
-    `<div class="gui-timeline">${timeline}</div>`
+    "Experience",
+    "I want the experience section to show progression rather than a flat list of titles. The through-line is practical engineering, communication, and learning by doing.",
+    `
+      <div class="gui-timeline">${timeline}</div>
+      <div class="gui-experience-cta">
+        <p>Interested in talking through any of this?</p>
+        <button class="gui-button primary" onclick="showGuiSection('contact')">Get In Touch</button>
+      </div>
+    `
   );
 }
 
@@ -379,7 +415,7 @@ function renderGuiContact() {
   renderStandardSection(
     "gui-contact",
     "CONTACT",
-    "Reach out",
+    "Contact",
     CONTACT.intro,
     `
       <div class="gui-grid">${methods}</div>
@@ -447,6 +483,20 @@ function setMode(mode) {
 
   if (history.replaceState) history.replaceState(null, "", window.location.pathname);
   destroy3DBackground();
+
+  // Flash terminal boot screen on every switch to terminal mode
+  const loadingScreen = document.getElementById("loadingScreen");
+  if (loadingScreen) {
+    // Reset boot-line animations by cloning the progress container
+    const progress = loadingScreen.querySelector(".boot-progress");
+    if (progress) {
+      const clone = progress.cloneNode(true);
+      progress.replaceWith(clone);
+    }
+    loadingScreen.classList.remove("hidden");
+    setTimeout(() => loadingScreen.classList.add("hidden"), 950);
+  }
+
   if (terminalSystem) terminalSystem.focusInput();
 }
 window.setMode = setMode;
@@ -465,74 +515,150 @@ function init3DBackground() {
   const canvas = document.getElementById("canvas3d");
   if (!canvas || renderer3d || !window.THREE) return;
 
-  scene3d = new window.THREE.Scene();
-  camera3d = new window.THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-  renderer3d = new window.THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  const THREE = window.THREE;
+
+  scene3d = new THREE.Scene();
+  camera3d = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  renderer3d = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer3d.setSize(window.innerWidth, window.innerHeight);
   renderer3d.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer3d.setClearColor(0x000000, 0);
 
-  const geometries = [
-    new window.THREE.TetrahedronGeometry(1.4),
-    new window.THREE.OctahedronGeometry(1.2),
-    new window.THREE.IcosahedronGeometry(1.1)
-  ];
-
-  const materials = [
-    new window.THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.12 }),
-    new window.THREE.MeshBasicMaterial({ color: 0x888888, wireframe: true, transparent: true, opacity: 0.06 })
-  ];
-
   shapes3d = [];
-  for (let index = 0; index < 6; index += 1) {
-    const geometry = geometries[index % geometries.length];
-    const material = materials[index % materials.length];
-    const mesh = new window.THREE.Mesh(geometry, material);
-    mesh.position.x = (Math.random() - 0.5) * 13;
-    mesh.position.y = (Math.random() - 0.5) * 9;
-    mesh.position.z = (Math.random() - 0.5) * 10;
-    mesh.rotation.x = Math.random() * Math.PI;
-    mesh.rotation.y = Math.random() * Math.PI;
-    shapes3d.push(mesh);
+
+  // === Central icosahedron — dense wireframe globe ===
+  const mainGeo = new THREE.IcosahedronGeometry(2.8, 4);
+  const mainMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff, wireframe: true, transparent: true,
+    opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const mainSphere = new THREE.Mesh(mainGeo, mainMat);
+  scene3d.add(mainSphere);
+  shapes3d.push(mainSphere);
+
+  // === Secondary icosahedron — floating offset ===
+  const secGeo = new THREE.IcosahedronGeometry(1.5, 3);
+  const secMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff, wireframe: true, transparent: true,
+    opacity: 0.11, blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const secSphere = new THREE.Mesh(secGeo, secMat);
+  secSphere.position.set(4.0, 1.8, -2.5);
+  scene3d.add(secSphere);
+  shapes3d.push(secSphere);
+
+  // === Torus ring 1 — close orbit ===
+  const ring1Geo = new THREE.TorusGeometry(3.8, 0.018, 4, 160);
+  const ring1Mat = new THREE.MeshBasicMaterial({
+    color: 0xffffff, transparent: true,
+    opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
+  ring1.rotation.x = Math.PI * 0.35;
+  scene3d.add(ring1);
+  shapes3d.push(ring1);
+
+  // === Torus ring 2 — wide outer orbit ===
+  const ring2Geo = new THREE.TorusGeometry(5.2, 0.012, 4, 200);
+  const ring2Mat = new THREE.MeshBasicMaterial({
+    color: 0xffffff, transparent: true,
+    opacity: 0.13, blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+  ring2.rotation.x = Math.PI * 0.55;
+  ring2.rotation.z = Math.PI * 0.2;
+  scene3d.add(ring2);
+  shapes3d.push(ring2);
+
+  // === Particle cloud — spherical shell of points ===
+  const ptCount = 400;
+  const ptPos = new Float32Array(ptCount * 3);
+  for (let i = 0; i < ptCount; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = 3.4 + Math.random() * 5.5;
+    ptPos[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+    ptPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    ptPos[i * 3 + 2] = r * Math.cos(phi);
+  }
+  const ptGeo = new THREE.BufferGeometry();
+  ptGeo.setAttribute("position", new THREE.BufferAttribute(ptPos, 3));
+  const ptMat = new THREE.PointsMaterial({
+    color: 0xffffff, size: 0.048, transparent: true,
+    opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const pointCloud = new THREE.Points(ptGeo, ptMat);
+  scene3d.add(pointCloud);
+  shapes3d.push(pointCloud); // index 4
+
+  // === Debris — small wireframe shapes scattered around ===
+  const debrisGeos = [
+    new THREE.TetrahedronGeometry(0.16),
+    new THREE.OctahedronGeometry(0.13),
+    new THREE.IcosahedronGeometry(0.11, 1)
+  ];
+  for (let i = 0; i < 16; i++) {
+    const geo = debrisGeos[i % debrisGeos.length];
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0xffffff, wireframe: true, transparent: true,
+      opacity: 0.38, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = 4.0 + Math.random() * 4.5;
+    mesh.position.set(
+      r * Math.sin(phi) * Math.cos(theta),
+      r * Math.sin(phi) * Math.sin(theta),
+      r * Math.cos(phi)
+    );
+    mesh.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, 0);
+    mesh.userData.rx = (Math.random() - 0.5) * 0.014;
+    mesh.userData.ry = (Math.random() - 0.5) * 0.014;
     scene3d.add(mesh);
+    shapes3d.push(mesh);
   }
 
-  camera3d.position.z = 7;
-
-  // Store original positions for mouse reactivity
-  shapes3d.forEach((shape) => {
-    shape.userData.baseX = shape.position.x;
-    shape.userData.baseY = shape.position.y;
-  });
+  camera3d.position.z = 10;
+  camera3d.userData.tx = 0;
+  camera3d.userData.ty = 0;
 
   const animate3D = () => {
     animationId3d = requestAnimationFrame(animate3D);
-
-    // Convert mouse to normalized coordinates (-1 to 1)
+    const t = Date.now() * 0.001;
     const mx = (mouseX / window.innerWidth) * 2 - 1;
     const my = -(mouseY / window.innerHeight) * 2 + 1;
 
-    shapes3d.forEach((shape, index) => {
-      shape.rotation.x += 0.001 * (index + 1);
-      shape.rotation.y += 0.0009 * (index + 1);
+    // Central sphere: slow rotation + mouse tilt
+    mainSphere.rotation.x = t * 0.055 + my * 0.28;
+    mainSphere.rotation.y = t * 0.085 + mx * 0.28;
 
-      // Organic floating motion
-      const floatY = Math.sin(Date.now() * 0.00035 + index) * 0.0012;
-      const floatX = Math.cos(Date.now() * 0.0002 + index) * 0.0007;
-      shape.userData.baseY += floatY;
-      shape.userData.baseX += floatX;
+    // Secondary sphere: counter-spin + vertical float
+    secSphere.rotation.x -= 0.004;
+    secSphere.rotation.y += 0.007;
+    secSphere.position.y = 1.8 + Math.sin(t * 0.45) * 0.35;
 
-      // Mouse attraction — shapes drift toward cursor
-      const targetX = shape.userData.baseX + mx * 1.5 * (index % 2 === 0 ? 1 : -0.6);
-      const targetY = shape.userData.baseY + my * 1.2 * (index % 2 === 0 ? 1 : -0.6);
-      shape.position.x += (targetX - shape.position.x) * 0.02;
-      shape.position.y += (targetY - shape.position.y) * 0.02;
+    // Rings orbit
+    ring1.rotation.y = t * 0.18;
+    ring2.rotation.z = Math.PI * 0.2 + t * 0.1;
+    ring2.rotation.y = t * 0.065;
 
-      // Rotate faster when mouse is active
-      const mouseSpeed = Math.abs(mx) + Math.abs(my);
-      shape.rotation.x += mouseSpeed * 0.001;
-      shape.rotation.y += mouseSpeed * 0.0008;
-    });
+    // Particle cloud slow drift
+    pointCloud.rotation.y = t * 0.022;
+    pointCloud.rotation.x = t * 0.011;
+
+    // Debris: individual spins
+    for (let i = 5; i < shapes3d.length; i++) {
+      shapes3d[i].rotation.x += shapes3d[i].userData.rx;
+      shapes3d[i].rotation.y += shapes3d[i].userData.ry;
+    }
+
+    // Camera parallax with mouse
+    camera3d.userData.tx += (mx * 1.1 - camera3d.userData.tx) * 0.05;
+    camera3d.userData.ty += (my * 0.75 - camera3d.userData.ty) * 0.05;
+    camera3d.position.x = camera3d.userData.tx;
+    camera3d.position.y = camera3d.userData.ty;
+    camera3d.lookAt(0, 0, 0);
 
     renderer3d.render(scene3d, camera3d);
   };
@@ -619,39 +745,47 @@ class HackGame {
     this.exitButton = document.querySelector(".hacking-exit-btn");
     this.closeButton = document.querySelector(".hacking-close-btn");
     this.typingIndicator = document.getElementById("hackTypingIndicator");
+    this.meta = document.getElementById("hackMeta");
     this.level = 1;
+    this.integrity = 100;
+    this.score = 0;
     this.active = false;
     this.isTyping = false;
     this.levels = {
       1: {
-        title: "LEVEL 1: THE WARM-UP",
+        title: "LEVEL 1: ACCESS LOG",
         question: 'What year did Jeremy Lin create "Linsanity" in the NBA?',
         answer: "2012",
-        hint: "It happened in February between 2010 and 2015."
+        hint: "It happened in February between 2010 and 2015.",
+        scan: "SCAN RESULT: Sports memory shard recovered. Event tagged FEB-2012."
       },
       2: {
-        title: "LEVEL 2: SIMPLE MATH",
-        question: "What is 21 + 21?",
-        answer: "42",
-        hint: "The answer to life, the universe, and everything."
+        title: "LEVEL 2: PORT CHECK",
+        question: "Which port does HTTPS use by default?",
+        answer: "443",
+        hint: "It is the secure version of common web traffic.",
+        scan: "SCAN RESULT: Secure transport channel detected on a three-digit port."
       },
       3: {
-        title: "LEVEL 3: TECH TRIVIA",
+        title: "LEVEL 3: STACK VERIFY",
         question: "Complete this: HTML, CSS, and _____?",
         answer: "javascript",
-        hint: "The language that makes the web come alive."
+        hint: "The language that makes the web come alive.",
+        scan: "SCAN RESULT: Frontend runtime signature found."
       },
       4: {
-        title: "LEVEL 4: PATTERN RECOGNITION",
-        question: "What comes next: 2, 4, 6, 8, ___?",
-        answer: "10",
-        hint: "Count by twos."
+        title: "LEVEL 4: PATTERN LOCK",
+        question: "What comes next: 3, 6, 12, 24, ___?",
+        answer: "48",
+        hint: "The sequence doubles each step.",
+        scan: "SCAN RESULT: Multiplicative pattern identified. Ratio remains constant."
       },
       5: {
-        title: "FINAL LEVEL: THE PASSWORD",
+        title: "FINAL LEVEL: COURTESY KEY",
         question: 'Type the magic word: "please"',
         answer: "please",
-        hint: "Manners matter."
+        hint: "Manners matter.",
+        scan: "SCAN RESULT: Human layer bypass requires basic politeness."
       }
     };
   }
@@ -659,11 +793,14 @@ class HackGame {
   open() {
     this.active = true;
     this.level = 1;
+    this.integrity = 100;
+    this.score = 0;
     this.setTyping(false);
     this.output.innerHTML = "";
     this.input.value = "";
     this.container.classList.add("active");
     this.bindEvents();
+    this.updateMeta();
     this.focus();
     this.runIntro();
   }
@@ -712,6 +849,8 @@ class HackGame {
       { text: "", className: "" },
       { text: "Commands:", className: "hack-warning" },
       { text: "  answer <your_answer> - Submit your answer", className: "hack-info" },
+      { text: "  scan - Reveal extra intel for this level", className: "hack-info" },
+      { text: "  status - Show current level, integrity, and score", className: "hack-info" },
       { text: "  hint - Get a hint for the current level", className: "hack-info" },
       { text: "  skip - Skip to next level", className: "hack-info" },
       { text: "  exit - Leave hack mode", className: "hack-info" },
@@ -770,6 +909,11 @@ class HackGame {
     if (this.typingIndicator) this.typingIndicator.style.opacity = active ? "1" : "0";
   }
 
+  updateMeta() {
+    if (!this.meta) return;
+    this.meta.textContent = `LV${this.level} | Integrity ${this.integrity}% | Score ${this.score}`;
+  }
+
   startLevel(level) {
     const data = this.levels[level];
     if (!data) {
@@ -778,13 +922,14 @@ class HackGame {
     }
 
     this.level = level;
+    this.updateMeta();
     this.typeLines([
       { text: "", className: "" },
       { text: "--------------------------------------------------", className: "hack-section" },
       { text: data.title, className: "hack-section" },
       { text: "--------------------------------------------------", className: "hack-section" },
       { text: data.question, className: "hack-warning" },
-      { text: 'Type "answer <your_answer>" to submit', className: "hack-info" }
+      { text: 'Type "scan" for intel or "answer <your_answer>" to submit', className: "hack-info" }
     ]);
   }
 
@@ -803,8 +948,23 @@ class HackGame {
       return;
     }
 
+    if (command === "scan") {
+      const level = this.levels[this.level];
+      if (level) this.typeLine(level.scan, "hack-info");
+      return;
+    }
+
+    if (command === "status") {
+      this.typeLine(`STATUS: Level ${this.level} | Integrity ${this.integrity}% | Score ${this.score}`, "hack-info");
+      return;
+    }
+
     if (command === "skip") {
-      this.typeLines([{ text: "Skipping level...", className: "hack-info" }]).then(() => this.startLevel(this.level + 1));
+      this.integrity = Math.max(0, this.integrity - 10);
+      this.updateMeta();
+      this.typeLines([{ text: "Skipping level. Integrity reduced by 10.", className: "hack-warning" }]).then(() =>
+        this.startLevel(this.level + 1)
+      );
       return;
     }
 
@@ -816,21 +976,32 @@ class HackGame {
 
       const level = this.levels[this.level];
       if (answer.toLowerCase() === level.answer.toLowerCase()) {
+        this.score += 25;
+        this.updateMeta();
         this.typeLines([
           { text: "[SUCCESS] Correct answer!", className: "hack-success" },
+          { text: `Score +25 | Total ${this.score}`, className: "hack-info" },
           { text: "Advancing...", className: "hack-info" }
         ]).then(() => this.startLevel(this.level + 1));
         return;
       }
 
+      this.integrity = Math.max(0, this.integrity - 15);
+      this.updateMeta();
+
+      if (this.integrity === 0) {
+        this.failure();
+        return;
+      }
+
       this.typeLines([
-        { text: "[FAILED] Wrong answer. Try again!", className: "hack-error" },
-        { text: 'Type "hint" if you are stuck.', className: "hack-warning" }
+        { text: "[FAILED] Wrong answer. Integrity reduced by 15.", className: "hack-error" },
+        { text: 'Type "scan", "hint", or "status" if you are stuck.', className: "hack-warning" }
       ]);
       return;
     }
 
-    this.typeLine("Unknown command. Try: answer, hint, skip, exit", "hack-error");
+    this.typeLine("Unknown command. Try: answer, scan, status, hint, skip, exit", "hack-error");
   }
 
   addLine(text, className = "") {
@@ -844,10 +1015,23 @@ class HackGame {
   async victory() {
     await this.typeLines([
       { text: "CONGRATULATIONS! YOU COMPLETED ALL LEVELS!", className: "hack-success" },
+      { text: `Final score: ${this.score} | Integrity remaining: ${this.integrity}%`, className: "hack-info" },
       { text: "Secret message: keep learning, keep growing.", className: "hack-warning" },
       { text: "Closing in 3 seconds...", className: "hack-info" }
     ]);
     setTimeout(() => this.exit(), 3000);
+  }
+
+  async failure() {
+    await this.typeLines([
+      { text: "SYSTEM INTEGRITY CRITICAL.", className: "hack-error" },
+      { text: "Challenge failed. Rebooting level sequence...", className: "hack-warning" }
+    ]);
+    this.level = 1;
+    this.integrity = 100;
+    this.score = 0;
+    this.updateMeta();
+    this.startLevel(1);
   }
 
   exit() {
@@ -856,6 +1040,10 @@ class HackGame {
     this.container.classList.remove("active");
     this.output.innerHTML = "";
     this.input.value = "";
+    this.level = 1;
+    this.integrity = 100;
+    this.score = 0;
+    this.updateMeta();
     if (terminalSystem) {
       terminalSystem.addOutput("Exited hack mode.", "info");
       terminalSystem.scrollToBottom();
@@ -880,6 +1068,7 @@ class TerminalPortfolio {
     this.commandHistory = [];
     this.historyIndex = -1;
     this.matrixUnlocked = false;
+    this.matrixMode = false;
     this.hackGame = new HackGame();
     this.fileSystem = this.buildFileSystem();
     this.commands = this.buildCommands();
@@ -929,8 +1118,8 @@ class TerminalPortfolio {
     projectFiles["README.md"] = {
       type: "file",
       content: [
-        "PROJECT INDEX",
-        "=============",
+        "CURRENT PROJECTS",
+        "================",
         "",
         ...PROJECTS.map(
           (project) => `- ${project.title} [${project.status}] - ${project.summary}\n  Repo: ${project.link}`
@@ -1070,6 +1259,9 @@ class TerminalPortfolio {
       download: (args) => this.downloadFile(args),
       gui: () => this.switchToGui(),
       quant: () => this.openQuantSite(),
+      trace: () => this.traceMatrix(),
+      signal: () => this.matrixSignal(),
+      "exit-matrix": () => this.exitMatrix(),
       find: (args) => this.findFiles(args),
       grep: (args) => this.grepFiles(args),
       history: () => this.showHistory(),
@@ -1457,7 +1649,7 @@ class TerminalPortfolio {
     const welcomeLines = [
       { text: 'Welcome. Type "help" or press Tab for quick commands.', cls: "success" },
       { text: "Current signal: Software Engineer Intern at GAIN.", cls: "info" },
-      { text: 'Try "now", "ls", "gui", or "cat ~/projects/README.md".', cls: "info" }
+      { text: 'Try "now", "ls", "gui", "quant", or "cat ~/projects/README.md".', cls: "info" }
     ];
 
     // Phase 1: ASCII art lines stagger in
@@ -1493,12 +1685,12 @@ class TerminalPortfolio {
       this.output.appendChild(tagContainer);
       this.typeTextInto(tagPre, TAGLINE, 28, () => {
         // Phase 3: Welcome lines stagger in
-        this.addOutputAnimated("", "");
+        this.addOutput("", "");
         welcomeLines.forEach((line, i) => {
           setTimeout(() => {
-            this.addOutputAnimated(line.text, line.cls);
+            this.addOutput(line.text, line.cls);
             if (i === welcomeLines.length - 1) {
-              this.addOutputAnimated("", "");
+              this.addOutput("", "");
               this.scrollToBottom();
             }
           }, i * 220);
@@ -1522,14 +1714,6 @@ class TerminalPortfolio {
     step();
   }
 
-  addOutputAnimated(text, className = "") {
-    const line = document.createElement("div");
-    line.className = `output-line ${className ? `output-${className}` : ""}`;
-    line.textContent = text;
-    this.output.appendChild(line);
-    this.scrollToBottom();
-  }
-
   showHelp() {
     this.addOutput("", "");
     this.addOutput("AVAILABLE COMMANDS:", "section");
@@ -1546,6 +1730,7 @@ class TerminalPortfolio {
     this.addOutput("  clear              Clear terminal", "info");
     this.addOutput("  hack               Launch hacking mini-game", "success");
     this.addOutput("  matrix             Matrix rain effect", "success");
+    this.addOutput("  trace | signal | exit-matrix", "warning");
     this.addOutput("  red pill | blue pill", "warning");
     this.addOutput("  knicks | violin | linsanity", "warning");
     this.addOutput("", "");
@@ -1556,6 +1741,7 @@ class TerminalPortfolio {
     this.output.innerHTML = "";
     this.currentPath = "~";
     this.matrixUnlocked = false;
+    this.matrixMode = false;
     this.updatePrompt();
     if (this.ghostEl) this.ghostEl.textContent = "";
     this.showWelcomeMessage();
@@ -1605,8 +1791,8 @@ class TerminalPortfolio {
   }
 
   openQuantSite() {
-    this.addOutput("Switching to quant mode...", "info");
-    setTimeout(() => setMode("quant"), 300);
+    this.addOutput("Opening quant subsite...", "info");
+    window.location.href = "quant.html";
   }
 
   findFiles(args) {
@@ -1679,16 +1865,24 @@ class TerminalPortfolio {
   }
 
   matrixEffect() {
+    if (this.matrixMode) {
+      this.addOutput("Matrix mode already active. Try trace, signal, red pill, blue pill, or exit-matrix.", "info");
+      this.scrollToBottom();
+      return;
+    }
+
     this.addOutput("", "");
     this.addOutput("ENTERING THE MATRIX...", "success");
     this.matrixUnlocked = true;
+    this.matrixMode = true;
+    this.updatePrompt();
 
     const matrixChars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿ0123456789";
-    for (let i = 0; i < 2; i += 1) {
+    for (let i = 0; i < 3; i += 1) {
       let rain = "";
-      for (let row = 0; row < 8; row += 1) {
+      for (let row = 0; row < 10; row += 1) {
         let line = "";
-        for (let column = 0; column < 50; column += 1) {
+        for (let column = 0; column < 56; column += 1) {
           line += Math.random() > 0.3 ? matrixChars[Math.floor(Math.random() * matrixChars.length)] : " ";
         }
         rain += `${line}\n`;
@@ -1696,7 +1890,8 @@ class TerminalPortfolio {
       this.addHTML(`<pre class="matrix-block" style="opacity: ${1 - i * 0.3};">${rain}</pre>`);
     }
 
-    this.addOutput('Type "red pill" or "blue pill" to choose your path.', "warning");
+    this.addOutput("Matrix shell active.", "success");
+    this.addOutput('Available commands: trace, signal, red pill, blue pill, exit-matrix.', "warning");
     this.scrollToBottom();
   }
 
@@ -1714,6 +1909,9 @@ class TerminalPortfolio {
     setTimeout(() => {
       this.addOutput("You stay in Wonderland...", "warning");
       this.addOutput("Welcome to the real world, Neo.", "success");
+      if (this.matrixMode) {
+        this.addOutput('Run "trace" to inspect nodes or "signal" to reveal a portfolio clue.', "info");
+      }
       this.scrollToBottom();
     }, 400);
   }
@@ -1731,8 +1929,60 @@ class TerminalPortfolio {
 
     setTimeout(() => {
       this.addOutput("The story ends. You wake in your bed and believe what you want.", "info");
+      if (this.matrixMode) this.exitMatrix();
       this.scrollToBottom();
     }, 400);
+  }
+
+  traceMatrix() {
+    if (!this.matrixMode) {
+      this.addOutput('Trace is only available after entering "matrix".', "warning");
+      this.scrollToBottom();
+      return;
+    }
+
+    const nodes = [
+      "node://gain/current-role",
+      "node://quantpilot/backtesting",
+      "node://projects/court-vision",
+      "node://experience/mygenius",
+      "node://contact/open-channel"
+    ];
+
+    this.addOutput("", "");
+    this.addOutput("TRACE ROUTE:", "section");
+    nodes.forEach((node, index) => {
+      this.addOutput(`  ${index + 1}. ${node}`, index % 2 === 0 ? "info" : "success");
+    });
+    this.scrollToBottom();
+  }
+
+  matrixSignal() {
+    if (!this.matrixMode) {
+      this.addOutput('Signal is only available after entering "matrix".', "warning");
+      this.scrollToBottom();
+      return;
+    }
+
+    this.addOutput("", "");
+    this.addOutput("SIGNAL REVEAL:", "section");
+    this.addOutput("Current role: Software Engineer Intern at GAIN", "info");
+    this.addOutput("Current build: QuantPilot backtesting and strategy research", "info");
+    this.addOutput("Fast path: gui, quant, cat ~/projects/quantpilot.md", "warning");
+    this.scrollToBottom();
+  }
+
+  exitMatrix() {
+    if (!this.matrixMode) {
+      this.addOutput("Matrix mode is not active.", "warning");
+      this.scrollToBottom();
+      return;
+    }
+
+    this.matrixMode = false;
+    this.updatePrompt();
+    this.addOutput("Exiting matrix shell...", "info");
+    this.scrollToBottom();
   }
 
   easterEggKnicks() {
@@ -1786,6 +2036,10 @@ class TerminalPortfolio {
   }
 
   updatePrompt() {
+    if (this.matrixMode) {
+      this.prompt.textContent = "neo@matrix:~$";
+      return;
+    }
     const pathLabel = this.currentPath === "~" ? "home" : this.currentPath.split("/").pop() || "home";
     this.prompt.textContent = `${this.username}@${pathLabel}:~$`;
   }
@@ -1869,11 +2123,85 @@ window.scrollToQuantSection = scrollToQuantSection;
 
 function renderQuantInlineNav() {
   const nav = document.getElementById("quantInlineLinks");
-  if (!nav) return;
-  nav.innerHTML = (QUANT_SITE.navigation || [])
-    .map((item) => `<a href="javascript:void(0)" onclick="scrollToQuantSection('quant-${item.id}')">${item.label}</a>`)
-    .join("");
+  if (nav) nav.innerHTML = ""; // no section links in IG layout
 }
+
+const IG_POST_GRADIENTS = [
+  "linear-gradient(135deg, #f97316 0%, #c2410c 100%)",
+  "linear-gradient(135deg, #22c55e 0%, #15803d 100%)",
+  "linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)",
+  "linear-gradient(135deg, #f59e0b 0%, #b45309 100%)",
+  "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+  "linear-gradient(135deg, #94a3b8 0%, #334155 100%)"
+];
+
+const IG_HIGHLIGHTS = [
+  { label: "GAIN",         icon: "🏢" },
+  { label: "QuantPilot",   icon: "📊" },
+  { label: "Court Vision", icon: "🏀" },
+  { label: "Health AI",    icon: "⚕️" },
+  { label: "Skills",       icon: "⚙️" },
+  { label: "About",        icon: "👤" }
+];
+
+function openIgPost(index) {
+  const project = PROJECTS[index];
+  if (!project) return;
+
+  const modal = document.getElementById("igPostModal");
+  const inner = document.getElementById("igModalInner");
+  if (!modal || !inner) return;
+
+  const gradient = IG_POST_GRADIENTS[index % IG_POST_GRADIENTS.length];
+  const statusClass = project.status.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const bulletsHtml = (project.bullets || []).map((b) => `<li>${b}</li>`).join("");
+  const techHtml = (project.tech || []).map((t) => `<span>${t}</span>`).join("");
+
+  inner.innerHTML = `
+    <div class="ig-modal-left">
+      <div class="ig-post-img" style="background:${gradient}">
+        <div class="ig-post-name" style="position:relative;bottom:auto;left:auto;right:auto;padding:0;background:none;font-size:1.3rem;text-align:center;">${project.title}</div>
+      </div>
+    </div>
+    <div class="ig-modal-right">
+      <div class="ig-modal-header">
+        <div class="ig-mini-avatar">EH</div>
+        <span class="ig-modal-username">eric.hurchey</span>
+        <button class="ig-modal-close" onclick="closeIgPost()">×</button>
+      </div>
+      <div class="ig-modal-body">
+        <div class="ig-modal-caption">
+          <strong>eric.hurchey</strong>
+          <span class="ig-modal-status ${statusClass}">${project.status}</span>
+          <p>${project.description}</p>
+        </div>
+        <ul class="ig-modal-bullets">${bulletsHtml}</ul>
+        <div class="ig-modal-tech">${techHtml}</div>
+      </div>
+      <div class="ig-modal-actions">
+        <button class="ig-action-btn" onclick="this.classList.toggle('liked')" title="Like">♥</button>
+        <button class="ig-action-btn" title="Save">🔖</button>
+        <a class="ig-view-btn" href="${project.link}" target="_blank" rel="noreferrer">View Repository</a>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add("open");
+  document.addEventListener("keydown", igEscapeHandler);
+}
+
+function closeIgPost() {
+  const modal = document.getElementById("igPostModal");
+  if (modal) modal.classList.remove("open");
+  document.removeEventListener("keydown", igEscapeHandler);
+}
+
+function igEscapeHandler(e) {
+  if (e.key === "Escape") closeIgPost();
+}
+
+window.openIgPost = openIgPost;
+window.closeIgPost = closeIgPost;
 
 function renderQuantInline() {
   const app = document.getElementById("quantInlineApp");
@@ -1881,114 +2209,82 @@ function renderQuantInline() {
 
   renderQuantInlineNav();
 
-  const hero = QUANT_SITE.hero || {};
-  const metrics = (hero.metrics || []).map((m) => `<div class="metric-card"><span class="metric-label">${m.label}</span><strong>${m.value}</strong></div>`).join("");
-  const notes = (hero.notes || []).map((n) => `<div class="note-row">${n}</div>`).join("");
-  const TICK_DELTAS = ["+2.4%", "-0.8%", "+1.1%", "+3.7%", "-1.5%", "+0.6%", "+4.2%", "-2.1%"];
-  const tapeItems = [...(hero.tape || []), ...(hero.tape || [])];
-  const tape = tapeItems.map((item, i) => {
-    const delta = TICK_DELTAS[i % TICK_DELTAS.length];
-    const dir = delta.startsWith("+") ? "tick-up" : "tick-down";
-    const arrow = delta.startsWith("+") ? "▲" : "▼";
-    return `<span class="ticker-item ${dir}">${String(i + 1).padStart(2, "0")} ${item} <span style="opacity:0.7">${arrow}${delta}</span></span>`;
-  }).join("");
-
-  const researchCards = (QUANT_SITE.research || []).map((item) => `
-    <article class="quant-panel research-card">
-      <p class="quant-kicker">THESIS</p>
-      <h3>${item.title}</h3>
-      <p>${item.body}</p>
-    </article>
-  `).join("");
-
-  const processItems = (QUANT_SITE.process || []).map((item) => `<li>${item}</li>`).join("");
-  const focusRows = (QUANT_SITE.focusBoard || []).map((item) => `<div class="focus-board-row"><span>${item.label}</span><strong>${item.value}</strong></div>`).join("");
-
-  const projectCards = PROJECTS.map((project, i) => `
-    <article class="quant-panel book-card">
-      <div class="book-card-header">
-        <span class="book-index">${String(i + 1).padStart(2, "0")}</span>
-        <span class="book-status ${project.status.toLowerCase().replace(/[^a-z0-9]+/g, "-")}">${project.status}</span>
+  const highlightsHtml = IG_HIGHLIGHTS.map((h) => `
+    <div class="ig-highlight">
+      <div class="ig-highlight-ring">
+        <div class="ig-highlight-inner">${h.icon}</div>
       </div>
-      <h3>${project.title}</h3>
-      <p class="book-badge">${project.badge}</p>
-      <p class="book-summary">${project.summary}</p>
-      <div class="book-tags">${(project.tech || []).map((t) => `<span>${t}</span>`).join("")}</div>
-      <div class="book-actions">
-        <a class="quant-button primary" href="${project.link}" target="_blank" rel="noreferrer">Repository</a>
-      </div>
-    </article>
-  `).join("");
-
-  const expRows = EXPERIENCE.map((item) => `
-    <div class="ledger-row">
-      <span class="ledger-period">${item.dates}</span>
-      <div><strong>${item.title}</strong><p>${item.company} · ${item.location}</p></div>
-      <div class="ledger-signal"><p>${item.summary}</p><div class="ledger-tags">${(item.tech || []).map((t) => `<span>${t}</span>`).join("")}</div></div>
+      <span class="ig-highlight-label">${h.label}</span>
     </div>
   `).join("");
 
-  const contactCards = (CONTACT.methods || []).map((item) => `
-    <article class="quant-panel contact-card">
-      <p class="quant-kicker">CHANNEL</p>
-      <h3>${item.label}</h3>
-      <a href="${item.href}" ${item.href.startsWith("mailto:") ? "" : 'target="_blank" rel="noreferrer"'}>${item.value}</a>
-    </article>
+  const postsHtml = PROJECTS.map((project, i) => `
+    <div class="ig-post" onclick="openIgPost(${i})">
+      <div class="ig-post-img" style="background:${IG_POST_GRADIENTS[i % IG_POST_GRADIENTS.length]}">
+        <div class="ig-post-overlay">
+          <span>♥ ${18 + i * 9}</span>
+          <span>💬 ${3 + i * 2}</span>
+        </div>
+        <span class="ig-post-status">${project.status}</span>
+        <div class="ig-post-name">${project.title}</div>
+      </div>
+    </div>
   `).join("");
 
   app.innerHTML = `
-    <section class="quant-section quant-hero-section" id="quant-overview">
-      <div class="quant-hero-grid">
-        <div class="quant-hero-copy quant-panel">
-          <p class="quant-kicker">${hero.eyebrow || ""}</p>
-          <h1>${hero.headline || ""}</h1>
-          <p class="quant-summary">${hero.summary || ""}</p>
-          <div class="quant-hero-actions">
-            <a class="quant-button primary" href="${PROFILE.github}" target="_blank" rel="noreferrer">GitHub</a>
-            <a class="quant-button" href="${PROFILE.resumeUrl}" target="_blank" rel="noreferrer">Resume</a>
-            <button class="quant-button" onclick="setMode('terminal')">Terminal</button>
-          </div>
-          <div class="quant-notes">${notes}</div>
+    <div class="ig-layout">
+
+      <div class="ig-profile">
+        <div class="ig-avatar-ring">
+          <div class="ig-avatar">EH</div>
         </div>
-        <aside class="quant-desk quant-panel">
-          <div class="desk-header"><div><p class="quant-kicker">DESK SNAPSHOT</p><h2>Current board</h2></div><span class="desk-status"><span class="live-dot"></span>LIVE RESEARCH</span></div>
-          <div class="metric-grid">${metrics}</div>
-          <div class="curve-card">
-            <div class="curve-header"><span>Research momentum</span><span>12-step view</span></div>
-            ${quantSparkline(QUANT_CURVES.primary, "primary")}
-            ${quantSparkline(QUANT_CURVES.secondary, "secondary")}
+        <div class="ig-profile-info">
+          <div class="ig-username-row">
+            <h2 class="ig-username">eric.hurchey</h2>
+            <a class="ig-btn primary" href="${PROFILE.github}" target="_blank" rel="noreferrer">GitHub</a>
+            <a class="ig-btn" href="${PROFILE.resumeUrl}" target="_blank" rel="noreferrer">Resume</a>
+            <button class="ig-btn ghost" onclick="setMode('gui')">Visual Mode</button>
           </div>
-        </aside>
+          <div class="ig-stats">
+            <div class="ig-stat"><strong>${PROJECTS.length}</strong><span>projects</span></div>
+            <div class="ig-stat"><strong>${EXPERIENCE.length}</strong><span>roles</span></div>
+            <div class="ig-stat"><strong>7+</strong><span>languages</span></div>
+          </div>
+          <div class="ig-bio">
+            <strong>${PROFILE.name}</strong>
+            <span class="ig-bio-muted">${PROFILE.role}</span>
+            <span class="ig-bio-muted">${PROFILE.tagline}</span>
+            <span class="ig-bio-muted">📍 ${PROFILE.location}</span>
+            <a class="ig-link" href="${PROFILE.linkedin}" target="_blank" rel="noreferrer">linkedin.com/in/eric-hurchey</a>
+          </div>
+        </div>
       </div>
-      <div class="ticker-shell"><div class="ticker-track">${tape}</div></div>
-    </section>
 
-    <section class="quant-section" id="quant-research">
-      <div class="section-head"><p class="quant-kicker">RESEARCH STACK</p><h2>How I want the work to look</h2></div>
-      <div class="research-grid">${researchCards}</div>
-      <div class="board-grid">
-        <div class="quant-panel process-panel"><p class="quant-kicker">PROCESS</p><h3>Operating rules</h3><ul class="process-list">${processItems}</ul></div>
-        <div class="quant-panel focus-board"><p class="quant-kicker">FOCUS BOARD</p><h3>What is actually in motion</h3><div class="focus-board-grid">${focusRows}</div></div>
+      <div class="ig-divider"></div>
+
+      <div class="ig-highlights">${highlightsHtml}</div>
+
+      <div class="ig-divider"></div>
+
+      <div class="ig-tabs">
+        <div class="ig-tab active">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor" aria-hidden="true">
+            <rect x="0" y="0" width="5.5" height="5.5"/>
+            <rect x="7.5" y="0" width="5.5" height="5.5"/>
+            <rect x="0" y="7.5" width="5.5" height="5.5"/>
+            <rect x="7.5" y="7.5" width="5.5" height="5.5"/>
+          </svg>
+          Posts
+        </div>
       </div>
-    </section>
 
-    <section class="quant-section" id="quant-projects">
-      <div class="section-head"><p class="quant-kicker">TRADE BOOK</p><h2>Projects under review</h2></div>
-      <div class="book-grid">${projectCards}</div>
-    </section>
+      <div class="ig-posts-grid">${postsHtml}</div>
 
-    <section class="quant-section" id="quant-experience">
-      <div class="section-head"><p class="quant-kicker">TRACK RECORD</p><h2>Experience ledger</h2></div>
-      <div class="ledger-table quant-panel">
-        <div class="ledger-head ledger-row"><span>Period</span><span>Role</span><span>Signal</span></div>
-        ${expRows}
-      </div>
-    </section>
+    </div>
 
-    <section class="quant-section" id="quant-contact">
-      <div class="section-head"><p class="quant-kicker">CONTACT</p><h2>Open channel</h2><p class="section-copy">${QUANT_SITE.contactLine || ""}</p></div>
-      <div class="contact-grid">${contactCards}</div>
-    </section>
+    <div class="ig-modal" id="igPostModal" onclick="if(event.target===this)closeIgPost()">
+      <div class="ig-modal-inner" id="igModalInner"></div>
+    </div>
   `;
 
   // Init interactions after DOM is painted
