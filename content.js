@@ -1,369 +1,354 @@
+/*
+ * Central portfolio content configuration for Eric Hurchey (hurchey.github.io).
+ * Consumed by both the interactive terminal view and the simple HTML view.
+ *
+ * Image Swap Guide:
+ * - Drop screenshots or photos into `images/` (e.g. `images/headshot.jpg` or `images/projects/sidepot.jpg`).
+ * - Set the corresponding `src` field below. Slots with `src: ""` are hidden on the simple view.
+ */
 window.PORTFOLIO_CONTENT = {
   meta: {
-    pageTitle: "Eric Hurchey | Software Engineer",
+    pageTitle: "Eric Hurchey | Founding Software Engineer",
     description:
-      "Terminal-first portfolio for Eric Hurchey, featuring current work at GAIN, active projects, and a dual terminal and GUI experience.",
+      "Portfolio of Eric Hurchey — Founding Software Engineer at Theron and Co-Founder & CMO at Kairo, building robotics autonomy software, grounded AI products, and full-stack systems.",
     terminalTitle: "TERMINAL://ERIC_HURCHEY.SYSTEM"
   },
+
   profile: {
     name: "Eric Hurchey",
-    role: "Software Engineer",
-    subtitle: "Product-minded builder with a terminal-first portfolio",
+    role: "Founding Software Engineer",
+    subtitle: "Founding Software Engineer at Theron · Co-Founder & CMO at Kairo",
     tagline:
-      "I like turning curious ideas into useful software, then refining the experience until it feels intentional.",
-    location: "New York City, NY",
+      "I build robotic autonomy software, grounded AI products, and end-to-end web systems from zero to one.",
+    location: "San Francisco, CA & New York, NY",
+    phone: "(718) 825-5226",
     email: "eric.hurchey@gmail.com",
-    linkedin: "https://linkedin.com/in/eric-hurchey/",
+    linkedin: "https://linkedin.com/in/eric-hurchey",
     github: "https://github.com/hurchey",
-    resumeUrl: "https://drive.google.com/file/d/1ip9DtI4M8OZy_Fi2CZ4v8rOhmdsjaO3W/view?usp=sharing"
+    website: "https://hurchey.github.io",
+    resumeUrl: "Eric_Hurchey_Resume.pdf"
   },
-  navigation: [
-    { id: "home", label: "Home" },
-    { id: "now", label: "Now" },
-    { id: "about", label: "About" },
-    { id: "skills", label: "Skills" },
-    { id: "projects", label: "Projects" },
-    { id: "experience", label: "Experience" },
-    { id: "contact", label: "Contact" }
-  ],
-  hero: {
-    eyebrow: "TERMINAL-NATIVE PORTFOLIO",
-    headline: "Building software that feels sharp, useful, and a little unexpected.",
-    summary:
-      "This site keeps the terminal idea at the center, but the story is about what I am working on now: real-world engineering experience at GAIN and self-directed projects that push me into new domains.",
-    stats: [
-      { value: "Now", label: "GAIN intern" },
-      { value: "6", label: "Projects tracked" },
-      { value: "100+", label: "Students supported" }
-    ],
-    buttons: [
-      { label: "View Projects", type: "section", target: "projects", primary: true },
-      { label: "What Is Current", type: "section", target: "now" },
-      { label: "Switch to Terminal", type: "mode", target: "terminal" },
-      { label: "GitHub", type: "external", target: "https://github.com/hurchey" }
-    ],
-    highlights: [
-      {
-        title: "Current role",
-        text: "I am currently a Software Engineer Intern at GAIN, learning from real product work, team collaboration, and production-minded engineering."
-      },
-      {
-        title: "Current build",
-        text: "QuantPilot is my active quant project, where I am teaching myself backtesting and strategy design by actually building the tooling."
-      },
-      {
-        title: "Finished work",
-        text: "Court Vision and Health AI Chatbot stay in the portfolio because they solve real user confusion in real time."
-      }
-    ],
-    signal: {
-      label: "Live signal",
-      heading: "What is happening right now",
-      body:
-        "Right now I am balancing internship experience, practical side projects, and deeper technical learning rather than chasing filler projects.",
-      points: [
-        "Software Engineer Intern at GAIN",
-        "Iterating on QuantPilot backtesting",
-        "Keeping the portfolio grounded in real, recent work"
-      ],
-      links: [
-        { label: "Visit GAIN", url: "https://thisisgain.com" },
-        { label: "See GitHub", url: "https://github.com/hurchey" }
+
+  education: [
+    {
+      school: "Brandeis University",
+      degree: "Bachelor of Science in Computer Science, Minor in Mathematics",
+      honors: "Dean's List",
+      location: "Waltham, MA",
+      dates: "Sep 2021 – May 2025",
+      bullets: [
+        "Graduated on the Dean's List with a B.S. in Computer Science and a Minor in Mathematics.",
+        "Served as an undergraduate Teaching Assistant guiding 100+ students through Python and discrete mathematics.",
+        "Worked as a Level II ITS Help Desk Technician and campus app engineer, shipping student-facing software and debugging Linux, macOS, and Windows environments."
       ]
     }
-  },
+  ],
+
   now: {
     intro:
-      "This section is the quick answer to what is actually going on in my life right now, instead of the usual generic portfolio summary.",
+      "What I am actively building and shipping right now across defense robotics, applied AI, and live beta software.",
     cards: [
       {
-        eyebrow: "CURRENT ROLE",
-        title: "Software Engineer Intern at GAIN",
+        eyebrow: "FOUNDING TEAM",
+        title: "Founding Software Engineer at Theron",
         body:
-          "I am currently interning at GAIN and using the role to get stronger at real engineering work: shipping, collaborating, debugging, and seeing how product decisions turn into software.",
+          "Part of the founding team at Theron in San Francisco—developing autonomy software that turns lidar and camera perception into precise motor commands for a two-axis robotic tracking system on an NVIDIA Jetson.",
         list: [
-          "Learning from a live engineering environment",
-          "Building stronger delivery habits",
-          "Sharpening communication and iteration speed"
+          "Lidar and camera perception-to-control pipeline on NVIDIA Jetson",
+          "Authored design docs and architecture diagrams to align the engineering team",
+          "Drove full-codebase redesign from initial proposal through rollout"
         ],
-        link: { label: "thisisgain.com", url: "https://thisisgain.com" }
+        link: { label: "therondefense.com", url: "https://therondefense.com/" }
       },
       {
-        eyebrow: "CURRENT BUILD",
-        title: "QuantPilot",
+        eyebrow: "CO-FOUNDING",
+        title: "Co-Founding Kairo (heykairo.app)",
         body:
-          "QuantPilot is my active learning project in the quant realm. I am focused on backtesting right now and trying to come up with my own strategy so I can test ideas before applying them to the real market.",
+          "Co-founded an AI career advisor that plans a user's career arc and generates resumes, cover letters, and outreach emails grounded in their actual history—owning growth and distribution while shipping product fixes.",
         list: [
-          "Backtesting engine work",
-          "Strategy design and evaluation",
-          "Turning theory into implementation"
+          "Tightened the generation pipeline to reduce LLM hallucinations",
+          "Shipped onboarding and UX improvements across the live web app",
+          "Recruited 10+ beta testers and fed user feedback directly into the roadmap"
         ],
-        link: { label: "Open repo", url: "https://github.com/hurchey/QuantPilot" }
+        link: { label: "heykairo.app", url: "https://heykairo.app/" }
       },
       {
-        eyebrow: "RECENT FINISHES",
-        title: "Projects with real user clarity in mind",
+        eyebrow: "LIVE PRIVATE BETA",
+        title: "SidePot Live Private Beta (playsidepots.com)",
         body:
-          "The portfolio is anchored by projects that explain complex situations clearly: helping basketball newcomers follow a live game and helping patients organize scheduling and location information.",
+          "Operating a live private beta for a social prediction-market platform built end to end with a parimutuel pricing engine and a concurrency-safe append-only settlement ledger.",
         list: [
-          "Court Vision for live basketball context",
-          "Health AI Chatbot for structured scheduling",
-          "A portfolio that reflects current momentum instead of old filler"
+          "Implied odds from live pools with pro-rata largest-remainder point allocation",
+          "Append-only PostgreSQL ledger running at SERIALIZABLE isolation with retry",
+          "Validating pricing behavior and settlement accuracy with an initial user group"
         ],
-        link: { label: "See projects", url: "https://github.com/hurchey?tab=repositories" }
+        link: { label: "playsidepots.com", url: "https://playsidepots.com/" }
       }
     ],
     focus: [
-      "Learning from a real engineering team at GAIN",
-      "Deepening quant intuition through QuantPilot",
-      "Building software that explains complexity instead of adding to it"
+      "Shipping real-time perception and motor-control autonomy on NVIDIA Jetson at Theron",
+      "Growing Kairo (heykairo.app) while keeping AI-generated career artifacts strictly grounded",
+      "Validating parimutuel market pricing and ledger invariants in SidePot's private beta",
+      "Designing clear system architectures before scaling implementation"
     ]
   },
+
   about: {
     intro:
-      "I tend to care about two things at the same time: whether the software works technically, and whether the experience makes sense to the person using it.",
+      "I am a software engineer working across robotics autonomy, applied AI, and full-stack product engineering. Whether I am translating lidar and camera streams into motor commands on an NVIDIA Jetson at Theron, tightening LLM generation pipelines at Kairo, or designing SERIALIZABLE settlement ledgers for SidePot, I care equally about rigorous systems engineering and products that feel effortless to use.",
     cards: [
       {
-        title: "How I build",
+        title: "Edge hardware to full-stack web",
         body:
-          "I like practical software with a strong point of view. I would rather ship something focused and defensible than pile on surface-level features."
+          "I enjoy working across the stack—from sensor perception, motor control, and systems architecture on embedded Linux to React/Next.js interfaces and PostgreSQL backends."
       },
       {
-        title: "What I optimize for",
+        title: "Zero-to-one startup execution",
         body:
-          "Clarity, usability, and momentum. I want someone to understand what a product is doing, why it matters, and how to use it without friction."
+          "I thrive in early-stage teams where speed and reliability both matter: leading architecture migrations, running live hardware-software investor demos, and iterating directly with beta users."
       },
       {
-        title: "Why this portfolio is terminal-first",
+        title: "Verifiable, grounded systems",
         body:
-          "The terminal concept still fits me. It feels more personal than a generic layout, and it lets the portfolio act like a system you can explore rather than a page you just scroll past."
+          "Whether constraining an LLM to a user's real career history or enforcing exact point conservation in a settlement engine with unit tests, I build software whose behavior you can verify."
       }
     ],
     values: [
-      { title: "Curiosity", body: "I like learning by building things that force me to understand the domain." },
-      { title: "Clarity", body: "Good software explains itself through the product experience and the code behind it." },
-      { title: "Polish", body: "Small interaction details matter because they shape how serious the whole product feels." },
-      { title: "Momentum", body: "I value shipping, feedback, and iteration more than sitting on ideas too long." }
+      {
+        title: "Correctness",
+        body:
+          "Good abstractions make invariants explicit—across physical control loops, database transactions, and AI pipelines."
+      },
+      {
+        title: "Clarity",
+        body:
+          "Clear design docs, architecture diagrams, and intuitive interfaces keep both teams and users aligned."
+      },
+      {
+        title: "Ownership",
+        body:
+          "I like taking problems end to end: scoping the design, shipping the code, talking to users, and owning outcomes."
+      },
+      {
+        title: "Momentum",
+        body:
+          "Shipping working software early creates honest feedback loops that beat speculation every time."
+      }
     ],
     interests: [
-      "Basketball and the culture around the game",
-      "Violin and the discipline that comes from long-term practice",
-      "Side projects that teach me a new technical lens",
-      "Interfaces that make advanced ideas feel approachable"
+      "Basketball — New York Knicks & Golden State Warriors fan (Linsanity forever)",
+      "Classical violin — 14+ years of training, ensemble performance, and disciplined practice",
+      "Robotics & systems — software that senses and acts in the physical world",
+      "Building zero-to-one products and testing ideas with real users"
     ]
   },
+
   skills: [
     {
       title: "Languages",
-      items: ["JavaScript", "TypeScript", "Python", "Java", "Go", "HTML/CSS", "C"]
+      items: ["TypeScript", "JavaScript", "Python", "Java", "Go", "C", "SQL", "HTML/CSS"]
     },
     {
-      title: "Frontend",
-      items: ["React", "Next.js", "React Native", "Three.js", "Accessible UI", "Interaction design"]
+      title: "Frameworks",
+      items: ["React", "Next.js", "Node.js/Express", "Vue", "FastAPI", "Flask", "NumPy", "Pandas"]
     },
     {
-      title: "Backend and data",
-      items: ["Node.js", "Express", "FastAPI", "Flask", "PostgreSQL", "MySQL", "MongoDB"]
+      title: "Data & Infrastructure",
+      items: [
+        "PostgreSQL",
+        "MySQL",
+        "MongoDB",
+        "AWS S3",
+        "Docker",
+        "GitHub Actions",
+        "CI/CD",
+        "Linux/Unix",
+        "OAuth/JWT"
+      ]
     },
     {
-      title: "Systems and tooling",
-      items: ["Git", "GitHub", "Docker", "Linux", "CI/CD", "Bash/Zsh", "Jira", "Notion"]
+      title: "Tools",
+      items: ["Git/GitHub", "Jira", "Notion", "VS Code", "Bash/Zsh"]
     }
   ],
+
   projects: [
     {
-      title: "Court Vision",
+      title: "SidePot",
       featured: true,
+      status: "Private Beta",
+      badge: "Social Prediction Markets",
+      summary:
+        "An end-to-end social prediction-market platform where users forecast outcomes backed by a parimutuel pricing engine and a concurrency-safe point ledger. Live in private beta with an initial user group.",
+      description:
+        "Built from the ground up across product UI, pricing math, database isolation, and deployment. Implied odds update dynamically from pool composition, largest-remainder allocation guarantees exact point conservation at settlement, and every balance change executes against an append-only PostgreSQL ledger at SERIALIZABLE isolation with automatic retry.",
+      tech: ["Next.js", "TypeScript", "PostgreSQL"],
+      bullets: [
+        "Built a social prediction-market platform end to end: product, pricing engine, settlement ledger, and deployment; live in private beta with an initial user group validating pricing behavior and settlement accuracy.",
+        "Designed the parimutuel pricing and settlement engine: derives implied odds from live pool composition and pays winners pro-rata via largest-remainder allocation so every settlement conserves points exactly; enforced by unit tests.",
+        "Built the point economy as an append-only ledger: balances derived at read time; every balance-changing transaction runs at SERIALIZABLE isolation with automatic retry, keeping the books consistent under concurrent writes."
+      ],
+      link: "https://playsidepots.com/",
+      linkLabel: "Visit playsidepots.com",
+      image: {
+        // Set `src: "images/projects/sidepot.jpg"` once screenshot is added
+        src: "",
+        alt: "SidePot social prediction market interface and live implied odds view",
+        placeholderTitle: "SidePot — Live Pool & Settlement Engine",
+        caption:
+          "Parimutuel prediction markets & SERIALIZABLE ledger — swap screenshot at images/projects/sidepot.jpg",
+        suggestedPath: "images/projects/sidepot.jpg"
+      }
+    },
+    {
+      title: "AI Health ChatBot",
+      featured: true,
+      status: "Finished",
+      badge: "Conversational AI & Intake",
+      summary:
+        "A conversational patient-intake system that converts unstructured natural-language responses into validated, structured patient records ready for scheduling.",
+      description:
+        "Combines an OpenAI-driven dialogue state pipeline with Google address validation to resolve ambiguous inputs, enforce required record formatting, and verify locations prior to appointment booking—benchmarked across an automated 50-case synthetic test suite.",
+      tech: ["Python", "OpenAI API", "Google API"],
+      bullets: [
+        "Built a conversational intake system that converts unstructured responses into structured patient records; 95%+ required-field completion across a 50-case synthetic suite run by an automated end-to-end harness.",
+        "Engineered the LLM interaction pipeline (OpenAI API) to control question flow, resolve ambiguous inputs, and enforce required-field formatting, cutting manual data-cleaning from 4 steps to 1.",
+        "Integrated Google address validation to verify location inputs before scheduling, reducing downstream booking errors."
+      ],
+      link: "https://github.com/hurchey/Health-AI-Chatbot",
+      linkLabel: "View on GitHub",
+      image: {
+        // Set `src: "images/projects/ai-health-chatbot.jpg"` once screenshot is added
+        src: "",
+        alt: "AI Health ChatBot conversational patient intake and structured output",
+        placeholderTitle: "AI Health ChatBot — Structured Patient Intake",
+        caption:
+          "95%+ field completion across 50-case E2E suite — swap screenshot at images/projects/ai-health-chatbot.jpg",
+        suggestedPath: "images/projects/ai-health-chatbot.jpg"
+      }
+    },
+    {
+      title: "AI Website Cloner",
+      featured: true,
+      status: "Finished",
+      badge: "Full-Stack LLM Pipeline",
+      summary:
+        "A full-stack replication pipeline that extracts DOM hierarchy, CSS, and assets from live URLs and reconstructs them into clean, reusable frontend code.",
+      description:
+        "Pairs browser extraction via Hyperbrowser with a multi-step Gemini API synthesis pipeline to preserve semantic HTML structure even on noisy source pages, backed by a Node.js/Express and GitHub Actions CI validation layer to catch structural and cross-browser regressions.",
+      tech: ["Next.js", "TypeScript", "Python", "FastAPI", "Gemini API", "Hyperbrowser", "GitHub Actions"],
+      bullets: [
+        "Built a full-stack pipeline that converts live websites into reusable frontend code by extracting DOM hierarchy, CSS, and assets; validated across 15+ real pages with side-by-side visual review.",
+        "Engineered a multi-step replication workflow (Hyperbrowser and Gemini APIs) that preserves semantic structure and handles noisy or inconsistent source HTML.",
+        "Wired GitHub Actions CI with a Node.js/Express validation layer to run structural regression checks and catch cross-browser rendering divergences on every build."
+      ],
+      link: "https://github.com/hurchey/Website-Cloner",
+      linkLabel: "View on GitHub",
+      image: {
+        // Set `src: "images/projects/ai-website-cloner.jpg"` once screenshot is added
+        src: "",
+        alt: "AI Website Cloner side-by-side comparison of live webpage and generated frontend code",
+        placeholderTitle: "AI Website Cloner — DOM-to-Code Pipeline",
+        caption:
+          "Validated across 15+ live pages with CI regression checks — swap screenshot at images/projects/ai-website-cloner.jpg",
+        suggestedPath: "images/projects/ai-website-cloner.jpg"
+      }
+    },
+    {
+      title: "Court Vision",
+      featured: false,
       status: "Finished",
       badge: "Chrome Extension",
       summary:
-        "A Chrome Extension for people who are new to basketball. It explains what is happening in the game and lets users ask questions while the game is still going on.",
+        "A Chrome Extension for basketball newcomers that explains live game action in real time and answers questions while the broadcast is playing.",
       description:
-        "The goal was to reduce the confusion barrier for new fans and make live games easier to follow instead of expecting users to already know the language of basketball.",
-      tech: ["JavaScript", "Chrome Extension", "Real-time UX", "Sports education"],
+        "Built to lower the learning curve for new basketball fans by translating live plays, terminology, and strategy into plain-English context right alongside a live game.",
+      tech: ["JavaScript", "Chrome Extension", "Real-Time UX", "HTML/CSS"],
       bullets: [
-        "Built for users who want basketball context while the game is still live.",
-        "Focused on answering what is happening and why it matters in the moment.",
-        "Turned a sports knowledge gap into a product and UX problem."
+        "Built for viewers who want real-time basketball context without leaving a live broadcast.",
+        "Focused on explaining plays, rules, and why moments matter as they happen.",
+        "Turned a sports onboarding gap into a clean browser-extension experience."
       ],
-      link: "https://github.com/hurchey/Court-Vision"
-    },
-    {
-      title: "QuantPilot",
-      featured: true,
-      status: "In Progress",
-      badge: "Quant Learning Build",
-      summary:
-        "A current project where I am teaching myself quant ideas by building a project around them instead of only reading about them.",
-      description:
-        "Right now the focus is backtesting and trying to come up with my own strategy so I can measure ideas honestly before thinking about real market application.",
-      tech: ["Python", "Backtesting", "Strategy research", "Market modeling"],
-      bullets: [
-        "Using the project as a structured way to learn quant concepts by implementation.",
-        "Working through backtesting infrastructure before trusting any strategy idea.",
-        "Treating the repo as both an engineering project and a learning environment."
-      ],
-      link: "https://github.com/hurchey/QuantPilot"
-    },
-    {
-      title: "Health AI Chatbot",
-      featured: true,
-      status: "Finished",
-      badge: "Terminal AI Workflow",
-      summary:
-        "A terminal-based project where a user talks to an AI agent that helps schedule a doctor appointment, stores the necessary information, and confirms address details with the Google Maps API.",
-      description:
-        "It combines conversational flow, structured data capture, and practical validation so the interaction feels helpful instead of just chat-based for its own sake.",
-      tech: ["Python", "Terminal UX", "AI agent", "Google Maps API"],
-      bullets: [
-        "Guides users through doctor scheduling based on available times.",
-        "Stores information collected during the interaction.",
-        "Uses Google Maps API to confirm location details before submission."
-      ],
-      link: "https://github.com/hurchey/Health-AI-Chatbot"
-    },
-    {
-      title: "Food Suggestion App (Wht's Ckin?)",
-      featured: false,
-      status: "In Progress",
-      badge: "AI + Mobile",
-      summary:
-        "A cross-platform food suggestion app that identifies food from user photos and suggests recipes around calorie goals or budget constraints.",
-      description:
-        "This project leans into computer vision, recommendation logic, and mobile product thinking. The goal is to make meal planning feel more dynamic and useful from a single photo.",
-      tech: ["Python", "JavaScript", "TypeScript", "React Native", "React.js", "Hugging Face", "MySQL"],
-      bullets: [
-        "Built a React Native experience for recognizing food and suggesting recipes.",
-        "Integrated Hugging Face datasets for ingredient recognition from images.",
-        "Created recommendation logic around user goals like calories and budget."
-      ],
-      link: "https://github.com/hurchey/Food-Snap-App"
-    },
-    {
-      title: "Website Cloning",
-      featured: false,
-      status: "Prototype",
-      badge: "LLM + Web",
-      summary:
-        "An AI-driven website cloner that turns a public URL into a cleaner, component-oriented HTML and CSS codebase.",
-      description:
-        "This project pushed me deeper into scraping, DOM analysis, and using an LLM to translate messy source structure into something more reusable.",
-      tech: ["Python", "TypeScript", "Next.js", "FastAPI", "Gemini LLM", "Hyperbrowser"],
-      bullets: [
-        "Built an AI website cloner aimed at reducing rebuild time from hours to minutes.",
-        "Captured DOM, CSS, and assets before translating them into cleaner output.",
-        "Used the project to learn more about generative AI and prompt design in practice."
-      ],
-      link: "https://github.com/hurchey/Website-Cloner"
-    },
-    {
-      title: "Warehouse Robot",
-      featured: false,
-      status: "Finished",
-      badge: "Robotics and Automation",
-      summary:
-        "A simulation and control stack for warehouse robot navigation, perception, picking, and real-time inventory updates.",
-      description:
-        "The project was built to mirror practical warehouse automation flows, combining robotics logic with operational visibility in a dashboard.",
-      tech: ["Python", "ROS", "OpenCV", "MQTT", "React"],
-      bullets: [
-        "Built path planning, obstacle avoidance, and task queue logic.",
-        "Used OpenCV-based perception for shelf and slot awareness.",
-        "Connected robot events to an inventory dashboard for live updates."
-      ],
-      link: "https://github.com/hurchey/Warehouse-Robot"
+      link: "https://github.com/hurchey/Court-Vision",
+      linkLabel: "View on GitHub",
+      image: {
+        // Set `src: "images/projects/court-vision.jpg"` once screenshot is added
+        src: "",
+        alt: "Court Vision Chrome Extension explaining a live basketball broadcast",
+        placeholderTitle: "Court Vision — Live Basketball Companion",
+        caption:
+          "Real-time basketball Q&A Chrome Extension — swap screenshot at images/projects/court-vision.jpg",
+        suggestedPath: "images/projects/court-vision.jpg"
+      }
     }
   ],
+
   experience: [
+    {
+      title: "Founding Software Engineer",
+      company: "Theron",
+      companyUrl: "https://therondefense.com/",
+      location: "San Francisco, CA",
+      dates: "Oct 2026 – Present",
+      summary:
+        "Member of the founding team at an early-stage defense robotics startup developing edge perception-to-control autonomy software and leading full-codebase architecture redesigns.",
+      bullets: [
+        "Developed autonomy software for a two-axis robotic tracking system, turning lidar and camera perception into precise motor commands on an NVIDIA Jetson.",
+        "Drove the redesign from proposal to rollout on the founding engineering team, authoring design docs and architecture diagrams to align the team before migrating the full codebase."
+      ],
+      tech: ["Robotics Autonomy", "NVIDIA Jetson", "Lidar & Camera Perception", "Motor Control", "Systems Architecture"]
+    },
+    {
+      title: "Co-Founder & CMO",
+      company: "Kairo",
+      companyUrl: "https://heykairo.app/",
+      location: "New York, NY",
+      dates: "Sep 2026 – Present",
+      summary:
+        "Co-founded an AI career advisor (heykairo.app) that plans career arcs and generates grounded application artifacts, owning growth and distribution while shipping product engineering fixes.",
+      bullets: [
+        "Co-founded an AI career advisor that plans a user's career arc and generates resumes, cover letters, and outreach emails to match; own growth and distribution while shipping product fixes.",
+        "Reduced hallucinations in the site's AI by tightening the generation pipeline so career plans and written artifacts stay grounded in the user's actual history.",
+        "Fixed user-experience and quality-of-life bugs across the web app to smooth onboarding and day-to-day use for beta users.",
+        "Recruited 10+ beta testers through direct outreach and early distribution channels; feeding their feedback back into the product roadmap."
+      ],
+      tech: ["LLM Pipelines", "Prompt Grounding", "Full-Stack Web", "Growth & Distribution", "Product Engineering"]
+    },
     {
       title: "Software Engineer Intern",
       company: "GAIN",
       companyUrl: "https://thisisgain.com",
-      location: "Remote",
-      dates: "Current",
+      location: "Hybrid, NY",
+      dates: "Mar 2026 – Apr 2026",
       summary:
-        "Currently contributing as a software engineer intern while learning how product teams review, ship, and iterate on real software.",
+        "Built React/TypeScript marketing analytics dashboards, ad-platform connection flows, and rapid investor-demo prototypes unifying Google, Meta, and TikTok campaign data.",
       bullets: [
-        "Using the internship to sharpen engineering judgment in a live team environment.",
-        "Building stronger habits around implementation quality, communication, and iteration.",
-        "Treating the role as a practical step from projects into production-minded engineering."
+        "Built the frontend and landing pages (React/TypeScript) for a performance-marketing analytics product that unifies Google, Meta, and TikTok ad data into a single view of campaign performance.",
+        "Shipped 3 investor-demo prototypes in two months; 2 advanced to the product roadmap and cut the feature review cycle by one sprint.",
+        "Built the analytics dashboard: performance charts, side-by-side campaign comparisons, and account-connection flows for all 3 ad platforms."
       ],
-      tech: ["Product engineering", "Collaboration", "Iteration", "Software delivery"]
+      tech: ["React", "TypeScript", "Analytics Dashboards", "Ad Platform APIs", "Rapid Prototyping"]
     },
     {
-      title: "Software Engineer Intern",
-      company: "myGenius",
-      location: "Remote",
-      dates: "Jan 2025 - May 2025",
+      title: "Forward Deployed Software Engineer Intern",
+      company: "GenPulse",
+      companyUrl: "",
+      location: "New York, NY",
+      dates: "Aug 2025 – Oct 2025",
       summary:
-        "Worked on an AI-powered testing platform that turned academic PDFs into adaptive sample tests with NLP and machine learning.",
+        "Built and ran live software-and-hardware product demos (Vue frontend, backend API integrations, and scalp-scanning device) for investor pitches and stakeholder meetings at a Series C startup.",
       bullets: [
-        "Engineered product features around PDF-to-test workflows and adaptive learning flows.",
-        "Partnered with backend work that improved data integrity and real-time updates.",
-        "Built parsing and preview improvements that made test creation more usable for students and instructors."
+        "Built the product demo (Vue UI and backend API integrations) used in 10+ investor pitches at a Series C startup; shipped fixes between meetings to keep it demo-ready at all times.",
+        "Ran 20+ live demos of a scalp-scanning hardware device and companion app for investors and stakeholders.",
+        "Selected for a VC cohort winter sprint during which the firm secured multiple five-figure contracts and follow-on funding."
       ],
-      tech: ["React", "TypeScript", "NLP", "Machine Learning"]
-    },
-    {
-      title: "Level II ITS Technician",
-      company: "Brandeis ITS Help Desk",
-      location: "Waltham, MA",
-      dates: "Aug 2023 - May 2025",
-      summary:
-        "Handled technical issues across Linux, macOS, and Windows while improving intake, triage, and handoff quality for a high-volume support environment.",
-      bullets: [
-        "Improved first response on 250+ tickets by tightening intake and routing.",
-        "Documented clearer triage workflows and mentored other technicians.",
-        "Built stronger debugging instincts by working across a wide range of environments."
-      ],
-      tech: ["Linux", "macOS", "Windows", "Troubleshooting"]
-    },
-    {
-      title: "Teaching Assistant",
-      company: "Brandeis University",
-      location: "Waltham, MA",
-      dates: "Mar 2023 - Jan 2024",
-      summary:
-        "Supported students in Python and discrete math while learning how to explain technical ideas with patience and precision.",
-      bullets: [
-        "Guided 100+ students through core CS concepts.",
-        "Led recitations and reinforced problem-solving habits.",
-        "Turned teaching into a communication skill that carries directly into engineering work."
-      ],
-      tech: ["Python", "Mentorship", "Technical communication"]
-    },
-    {
-      title: "Software Engineer Intern",
-      company: "Peachy",
-      location: "Remote, NY",
-      dates: "May 2023 - Sep 2023",
-      summary:
-        "Worked on product-facing features and automation that improved merchant workflows and shopper experience.",
-      bullets: [
-        "Built dynamic filtering and interactive user feedback features.",
-        "Automated migration workflows for Shopify merchants and reduced timelines.",
-        "Learned how product details and developer efficiency connect in e-commerce systems."
-      ],
-      tech: ["React", "Shopify", "Node.js", "APIs"]
-    },
-    {
-      title: "Software Engineer",
-      company: "Branda",
-      location: "Waltham, MA",
-      dates: "Sep 2022 - May 2023",
-      summary:
-        "Maintained and improved a student-run mobile product, working on both the React Native front end and supporting backend services.",
-      bullets: [
-        "Refactored mobile UI and navigation for better usability.",
-        "Built backend APIs and data models with validation and indexed queries.",
-        "Worked in a setting where engineering decisions had visible campus-facing impact."
-      ],
-      tech: ["React Native", "Node.js", "MongoDB", "Express"]
+      tech: ["Vue", "Backend APIs", "Hardware Demos", "Forward-Deployed Engineering"]
     }
   ],
+
   contact: {
     intro:
-      "If you want to talk about internships, projects, product ideas, or anything adjacent to software and learning, reach out.",
+      "Reach out anytime to talk about robotics and autonomy, applied AI, full-stack engineering, or early-stage product building.",
     methods: [
       {
         label: "Email",
@@ -371,9 +356,14 @@ window.PORTFOLIO_CONTENT = {
         href: "mailto:eric.hurchey@gmail.com"
       },
       {
+        label: "Phone",
+        value: "(718) 825-5226",
+        href: "tel:+17188255226"
+      },
+      {
         label: "LinkedIn",
-        value: "linkedin.com/in/eric-hurchey/",
-        href: "https://linkedin.com/in/eric-hurchey/"
+        value: "linkedin.com/in/eric-hurchey",
+        href: "https://linkedin.com/in/eric-hurchey"
       },
       {
         label: "GitHub",
@@ -381,73 +371,71 @@ window.PORTFOLIO_CONTENT = {
         href: "https://github.com/hurchey"
       },
       {
-        label: "Current company",
-        value: "thisisgain.com",
-        href: "https://thisisgain.com"
+        label: "Theron",
+        value: "therondefense.com",
+        href: "https://therondefense.com/"
+      },
+      {
+        label: "Kairo",
+        value: "heykairo.app",
+        href: "https://heykairo.app/"
       }
     ]
   },
-  quantSite: {
-    title: "Quant Lab | Eric Hurchey",
-    description:
-      "Quant-themed portfolio subsite for Eric Hurchey, centered on systematic thinking, backtesting, and research-driven engineering.",
-    navigation: [
-      { id: "overview", label: "Overview" },
-      { id: "research", label: "Research" },
-      { id: "projects", label: "Trade Book" },
-      { id: "experience", label: "Track Record" },
-      { id: "contact", label: "Contact" }
-    ],
-    hero: {
-      eyebrow: "SYSTEMATIC RESEARCH PROFILE",
-      headline: "ERIC HURCHEY / QUANT LAB",
-      summary:
-        "QuantPilot is the center of gravity here: backtesting, strategy design, disciplined iteration, and the engineering habits behind systematic work.",
-      tape: ["RESEARCH", "RISK", "EXECUTION", "BACKTESTING", "SIGNALS", "EDGE", "SYSTEMATIC", "ITERATION"],
-      metrics: [
-        { label: "Current stream", value: "QuantPilot" },
-        { label: "Desk status", value: "Research mode" },
-        { label: "Current role", value: "GAIN" },
-        { label: "Bias", value: "Systematic" }
-      ],
-      notes: [
-        "No fake PnL. I care more about process quality than invented performance numbers.",
-        "QuantPilot is my current vehicle for learning backtesting and strategy design by implementation.",
-        "The rest of the portfolio matters here too because pattern recognition and clear systems thinking carry over."
-      ]
+
+  /*
+   * Classic / 2014-style HTML view photo & banner slots.
+   * Slots with `src: ""` are hidden until a real image file is placed under `images/`.
+   */
+  simpleSite: {
+    banner: {
+      src: "images/header-banner.jpg",
+      alt: "Manhattan skyline with the Empire State Building",
+      placeholderTitle: "New York City",
+      caption: "The Manhattan skyline, New York City.",
+      suggestedPath: "images/header-banner.jpg"
     },
-    research: [
+    avatar: {
+      src: "images/headshot.jpg",
+      alt: "Eric Hurchey headshot",
+      placeholderTitle: "Headshot",
+      suggestedPath: "images/headshot.jpg"
+    },
+    introPhoto: {
+      // Drop a workspace or hardware bench photo at `images/workspace.jpg` and set `src: "images/workspace.jpg"`
+      src: "",
+      alt: "Eric Hurchey working snapshot",
+      placeholderTitle: "Featured Snapshot Photo",
+      caption: "Hardware bench / workspace snapshot.",
+      suggestedPath: "images/workspace.jpg"
+    },
+    photos: [
       {
-        title: "Research posture",
-        body:
-          "I like learning through systems that force accountability. If an idea cannot survive implementation and testing, I do not treat it as understanding."
+        src: "images/robotics-bench.jpg",
+        alt: "Hardware bench with an NVIDIA Jetson board, a monitor showing the NVIDIA logo, and a laptop",
+        placeholderTitle: "Robotics & Hardware Testing",
+        caption: "Bringing up an NVIDIA Jetson on the hardware bench.",
+        suggestedPath: "images/robotics-bench.jpg"
       },
       {
-        title: "Risk lens",
-        body:
-          "I am more interested in reducing false confidence than pretending to have an edge early. That means slower iteration, cleaner instrumentation, and honest review."
+        src: "images/san-francisco.jpg",
+        alt: "Downtown San Francisco at dusk with Market Street lit up and the Bay Bridge behind",
+        placeholderTitle: "San Francisco",
+        caption: "Downtown San Francisco and the Bay Bridge at dusk.",
+        suggestedPath: "images/san-francisco.jpg"
       },
       {
-        title: "Current objective",
-        body:
-          "Build stronger intuition for quant thinking through QuantPilot while keeping product and engineering execution sharp through real-world work at GAIN."
+        src: "images/basketball.jpg",
+        alt: "Eric in mid-air taking a jump shot in a gym, with the basketball in flight",
+        placeholderTitle: "Basketball",
+        caption: "Getting shots up in the gym.",
+        suggestedPath: "images/basketball.jpg",
+        // Optional frame shape for the simple view: "photo" (4:3, default) or "square"
+        shape: "square"
       }
-    ],
-    process: [
-      "Hypothesis before implementation",
-      "Backtesting before confidence",
-      "Measurement before storytelling",
-      "Iteration before ego"
-    ],
-    focusBoard: [
-      { label: "Primary build", value: "QuantPilot backtesting engine" },
-      { label: "Secondary edge", value: "Product-minded engineering" },
-      { label: "Learning mode", value: "Theory into implementation" },
-      { label: "Constraint", value: "Honest process over fake returns" }
-    ],
-    contactLine:
-      "If you want to talk about quant learning, systematic research habits, product-minded engineering, or internships, reach out."
+    ]
   },
+
   quickCommands: [
     {
       label: "About + Now",
@@ -461,29 +449,27 @@ window.PORTFOLIO_CONTENT = {
     {
       label: "Projects",
       items: [
+        { label: "SidePot", command: "cat ~/projects/sidepot.md" },
+        { label: "AI Health ChatBot", command: "cat ~/projects/ai-health-chatbot.md" },
+        { label: "AI Website Cloner", command: "cat ~/projects/ai-website-cloner.md" },
         { label: "Court Vision", command: "cat ~/projects/court-vision.md" },
-        { label: "QuantPilot", command: "cat ~/projects/quantpilot.md" },
-        { label: "Health AI Chatbot", command: "cat ~/projects/health-ai-chatbot.md" },
-        { label: "Food Suggestion App", command: "cat ~/projects/food-suggestion-app-wht-s-ckin.md" },
-        { label: "Website Cloning", command: "cat ~/projects/website-cloning.md" },
-        { label: "Warehouse Robot", command: "cat ~/projects/warehouse-robot.md" },
         { label: "All current projects", command: "cat ~/projects/README.md" }
       ]
     },
     {
       label: "Skills + Experience",
       items: [
-        { label: "Tech stack", command: "cat ~/skills/summary.txt" },
         { label: "Experience", command: "cat ~/experience/current.txt" },
+        { label: "Education", command: "cat ~/education/summary.txt" },
+        { label: "Tech stack", command: "cat ~/skills/summary.txt" },
         { label: "Contact", command: "cat ~/contact.txt" },
         { label: "Download resume", command: "download resume" }
       ]
     },
     {
-      label: "Modes + Extras",
+      label: "Extras",
       items: [
-        { label: "Visual mode", command: "gui" },
-        { label: "Quant Lab", command: "quant" },
+        { label: "Simple HTML site", command: "gui" },
         { label: "Hack mode", command: "hack" },
         { label: "Matrix", command: "matrix" },
         { label: "Linsanity", command: "linsanity" },
@@ -491,9 +477,11 @@ window.PORTFOLIO_CONTENT = {
       ]
     }
   ],
+
   terminal: {
     username: "visitor",
     promptHint: "Press Tab for quick commands or type ? for help",
-    homeDirectory: "/home/eric"
+    homeDirectory: "/home/eric",
+    welcomeSignal: "Current signal: Founding Software Engineer at Theron · Co-Founder at Kairo."
   }
 };

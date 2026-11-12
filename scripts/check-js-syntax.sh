@@ -32,5 +32,5 @@ NODE_BIN=$(find_node) || {
 echo "Using Node: $NODE_BIN"
 "$NODE_BIN" --check "$ROOT_DIR/content.js"
 "$NODE_BIN" --check "$ROOT_DIR/main.js"
-"$NODE_BIN" --check "$ROOT_DIR/quant.js"
+"$NODE_BIN" --check "$ROOT_DIR/simple.js"
 echo "JavaScript syntax checks passed."

@@ -7,17 +7,17 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
     <meta
         name="description"
-        content="Terminal-first portfolio for Eric Hurchey, featuring current work at GAIN, active projects, and a dual terminal and GUI experience."
+        content="Terminal-first portfolio for Eric Hurchey, featuring current work at GAIN, and active projects, presented as an interactive terminal."
     >
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 </head>
-<body class="gui-mode">
+<body>
     <div class="crt-effect"></div>
 
-    <div class="loading-screen hidden" id="loadingScreen">
+    <div class="loading-screen" id="loadingScreen">
         <div class="terminal-boot">
             <div class="boot-header">TERMINAL://ERIC_HURCHEY.SYSTEM</div>
             <div class="boot-progress">
@@ -67,8 +67,7 @@
                     <span class="hud-item">CMD<span class="hud-val" id="hudCmdCount">000</span></span>
                 </div>
                 <div class="terminal-status">
-                    <button class="gui-switch-btn" onclick="setMode('gui')" title="Switch to visual mode">Visual Mode</button>
-                    <button class="gui-switch-btn" onclick="setMode('quant')" title="Switch to quant mode">Quant Mode</button>
+                    <a class="simple-site-btn" href="simple.html" title="Open the plain, easy-to-read HTML version of this portfolio">Simple HTML Site &rarr;</a>
                     <span class="help-text" id="terminalHelpHint">Press Tab for quick commands or type ? for help</span>
                     <div class="status-item">
                         <div class="status-dot"></div>
@@ -96,57 +95,6 @@
         </div>
     </div>
 
-    <div class="gui-container" id="guiContainer">
-        <div class="gui-noise"></div>
-        <div class="gui-scan-line"></div>
-        <div class="gui-cursor-glow" id="guiCursorGlow"></div>
-        <canvas id="particleCanvas"></canvas>
-        <canvas id="canvas3d"></canvas>
-
-        <nav class="gui-nav">
-            <div class="gui-nav-content">
-                <button class="gui-nav-logo" onclick="showGuiSection('home')">Eric Hurchey</button>
-                <ul class="gui-nav-menu" id="guiNavMenu"></ul>
-                <div class="gui-nav-actions">
-                    <button class="gui-mode-toggle" id="quantModeBtn" onclick="setMode('quant')">Quant Mode</button>
-                    <button class="gui-back-btn" onclick="setMode('terminal')">Terminal</button>
-                </div>
-            </div>
-        </nav>
-
-        <div class="gui-content">
-            <section class="gui-section active" id="gui-home"></section>
-            <section class="gui-section" id="gui-now"></section>
-            <section class="gui-section" id="gui-about"></section>
-            <section class="gui-section" id="gui-skills"></section>
-            <section class="gui-section" id="gui-projects"></section>
-            <section class="gui-section" id="gui-experience"></section>
-            <section class="gui-section" id="gui-contact"></section>
-        </div>
-    </div>
-
-    <div class="quant-container" id="quantContainer">
-        <canvas id="quantCanvas"></canvas>
-        <div class="quant-cursor-glow" id="quantCursorGlow"></div>
-        <nav class="quant-inline-nav">
-            <div class="quant-inline-nav-content">
-                <span class="quant-inline-brand">ERIC HURCHEY // QUANT LAB</span>
-                <nav class="quant-inline-links" id="quantInlineLinks"></nav>
-                <div class="quant-inline-actions">
-                    <span class="quant-inline-clock" id="quantInlineClock">00:00:00</span>
-                    <button class="gui-mode-toggle" onclick="setMode('gui')">Portfolio Mode</button>
-                    <button class="gui-back-btn" onclick="setMode('terminal')">Terminal</button>
-                </div>
-            </div>
-        </nav>
-        <main class="quant-inline-main" id="quantInlineApp"></main>
-    </div>
-
-    <div class="cursor-dot" id="cursorDot"></div>
-    <div class="cursor-ring" id="cursorRing"></div>
-    <canvas id="staticOverlay"></canvas>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="content.js"></script>
     <script src="main.js"></script>
 </body>
