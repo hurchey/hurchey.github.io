@@ -793,7 +793,7 @@ body::after {
 
 .robotics-console {
     max-width: 1120px;
-    margin: 28px auto 36px;
+    margin: 16px 0 20px;
     padding: 22px;
     border: 1px solid rgba(0, 255, 0, 0.32);
     background: linear-gradient(145deg, rgba(0, 20, 8, 0.94), rgba(0, 0, 0, 0.96));
@@ -824,7 +824,21 @@ body::after {
     font-size: clamp(10px, 1.5vw, 14px);
     line-height: 1.7;
 }
+.robotics-header-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .robotics-live { color: var(--terminal-green); font-size: 10px; white-space: nowrap; }
+.robotics-close {
+    padding: 5px 8px;
+    border: 1px solid rgba(255, 0, 64, 0.5);
+    background: transparent;
+    color: var(--terminal-red);
+    font: inherit;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.robotics-close:hover,
+.robotics-close:focus-visible { background: var(--terminal-red); color: #000; outline: none; }
 .robotics-live span {
     display: inline-block;
     width: 7px;
@@ -920,14 +934,11 @@ body::after {
         padding: 24px 14px 16px;
     }
 
-    .robotics-console { margin: 20px 0; padding: 14px; }
+    .robotics-console { margin: 14px 0; padding: 14px; }
     .robotics-console-header { align-items: flex-start; flex-direction: column; }
+    .robotics-header-actions { width: 100%; justify-content: space-between; }
     #roboticsCanvas { height: 220px; }
     .robotics-pipeline { align-items: flex-start; flex-wrap: wrap; }
     .robotics-pipeline span { flex: 1 1 38%; }
     .robotics-pipeline > i { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .robotics-live span, .terminal-container { animation: none; }
 }

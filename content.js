@@ -471,6 +471,7 @@ window.PORTFOLIO_CONTENT = {
       items: [
         { label: "Simple HTML site", command: "gui" },
         { label: "Hack mode", command: "hack" },
+        { label: "Autonomy lab", command: "robotics" },
         { label: "Matrix", command: "matrix" },
         { label: "Linsanity", command: "linsanity" },
         { label: "Clear", command: "clear" }

@@ -82,15 +82,33 @@
 
         <div class="terminal-body">
             <div class="terminal-output" id="terminalOutput"></div>
+        </div>
+
+        <div class="terminal-input-wrapper">
+            <div class="terminal-input-section">
+                <span class="terminal-prompt" id="prompt">visitor@home:~$</span>
+                <div class="terminal-input-container">
+                    <input type="text" class="terminal-input" id="terminalInput" autofocus>
+                    <span class="terminal-cursor" id="cursor"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Autonomy lab demo. Hidden until the `robotics` command mounts it into the terminal output. -->
+    <template id="roboticsTemplate">
             <section class="robotics-console" id="roboticsConsole" aria-labelledby="roboticsTitle">
                 <div class="robotics-console-header">
                     <div>
                         <p class="robotics-eyebrow">THERON // AUTONOMY LAB</p>
                         <h2 id="roboticsTitle">PERCEPTION → MOTOR CONTROL</h2>
                     </div>
-                    <span class="robotics-live"><span></span> SIMULATION ONLINE</span>
+                    <div class="robotics-header-actions">
+                        <span class="robotics-live"><span></span> SIMULATION ONLINE</span>
+                        <button type="button" class="robotics-close" id="robotClose" aria-label="Close autonomy lab">CLOSE [X]</button>
+                    </div>
                 </div>
-                <p class="robotics-intro">Tune the sensor target and tracking gain. The controller turns noisy camera + lidar observations into two-axis motor commands.</p>
+                <p class="robotics-intro">Tune the tracking gain and sensor noise, or click anywhere in the viewport to drop a manual target. The controller turns noisy camera + lidar observations into two-axis motor commands.</p>
                 <div class="robotics-dashboard">
                     <div class="robotics-viewport">
                         <div class="robotics-viewport-label">TRACKING VIEW // X-Y PLANE</div>
@@ -119,18 +137,7 @@
                     <span>04 <b>MOTOR OUTPUT</b><small>pan + tilt correction</small></span>
                 </div>
             </section>
-        </div>
-
-        <div class="terminal-input-wrapper">
-            <div class="terminal-input-section">
-                <span class="terminal-prompt" id="prompt">visitor@home:~$</span>
-                <div class="terminal-input-container">
-                    <input type="text" class="terminal-input" id="terminalInput" autofocus>
-                    <span class="terminal-cursor" id="cursor"></span>
-                </div>
-            </div>
-        </div>
-    </div>
+    </template>
 
     <script src="content.js"></script>
     <script src="main.js"></script>

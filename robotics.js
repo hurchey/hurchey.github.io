@@ -1,19 +1,21 @@
+// Autonomy lab demo: a simulated two-axis tracker following a target through
+// noisy sensor observations. Mounted into the terminal output by the
+// `robotics` command (see main.js) rather than rendered on page load.
 (() => {
-  const canvas = document.getElementById("roboticsCanvas");
-  if (!canvas) return;
+  const template = document.getElementById("roboticsTemplate");
+  if (!template) return;
 
-  const context = canvas.getContext("2d");
-  const gainInput = document.getElementById("robotGain");
-  const noiseInput = document.getElementById("robotNoise");
-  const pauseButton = document.getElementById("robotPause");
-  const resetButton = document.getElementById("robotReset");
-  const confidenceReadout = document.getElementById("robotConfidence");
-  const azimuthReadout = document.getElementById("robotAzimuth");
-  const elevationReadout = document.getElementById("robotElevation");
-  const gainValue = document.getElementById("robotGainValue");
-  const noiseValue = document.getElementById("robotNoiseValue");
-  const status = document.getElementById("robotStatus");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  // Orbit the target follows when no manual target is active.
+  const ORBIT = { x: 0.5, y: 0.5, rx: 0.31, ry: 0.29, wx: 0.62, wy: 0.91, phase: 1.2 };
+  const MANUAL_HOLD_SECONDS = 4;
+  const PATH_LENGTH = 90;
+
+  let root = null;
+  let ui = null;
+  let onClose = null;
+  let rafId = 0;
 
   const state = {
     width: 0,
@@ -21,36 +23,80 @@
     target: { x: 0.72, y: 0.34 },
     tracker: { x: 0.5, y: 0.5 },
     observed: { x: 0.72, y: 0.34 },
+    manual: null,
+    manualAge: 0,
     path: [],
-    gain: Number(gainInput.value),
-    noise: Number(noiseInput.value),
+    gain: 0.12,
+    noise: 2,
     paused: false,
     lastTime: 0,
     elapsed: 0,
     frame: 0
   };
 
+  function orbitPoint(t) {
+    return {
+      x: ORBIT.x + Math.sin(t * ORBIT.wx) * ORBIT.rx,
+      y: ORBIT.y + Math.sin(t * ORBIT.wy + ORBIT.phase) * ORBIT.ry
+    };
+  }
+
+  function build() {
+    const fragment = template.content.cloneNode(true);
+    root = fragment.querySelector(".robotics-console");
+    ui = {
+      canvas: root.querySelector("#roboticsCanvas"),
+      gain: root.querySelector("#robotGain"),
+      noise: root.querySelector("#robotNoise"),
+      pause: root.querySelector("#robotPause"),
+      reset: root.querySelector("#robotReset"),
+      close: root.querySelector("#robotClose"),
+      confidence: root.querySelector("#robotConfidence"),
+      azimuth: root.querySelector("#robotAzimuth"),
+      elevation: root.querySelector("#robotElevation"),
+      gainValue: root.querySelector("#robotGainValue"),
+      noiseValue: root.querySelector("#robotNoiseValue"),
+      status: root.querySelector("#robotStatus")
+    };
+    ui.context = ui.canvas.getContext("2d");
+    state.gain = Number(ui.gain.value);
+    state.noise = Number(ui.noise.value);
+    bindEvents();
+  }
+
   function resize() {
-    const bounds = canvas.getBoundingClientRect();
+    if (!root || !root.isConnected) return;
+    const bounds = ui.canvas.getBoundingClientRect();
+    if (!bounds.width || !bounds.height) return;
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    state.width = Math.max(1, bounds.width);
-    state.height = Math.max(1, bounds.height);
-    canvas.width = Math.round(state.width * ratio);
-    canvas.height = Math.round(state.height * ratio);
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    state.width = bounds.width;
+    state.height = bounds.height;
+    ui.canvas.width = Math.round(state.width * ratio);
+    ui.canvas.height = Math.round(state.height * ratio);
+    ui.context.setTransform(ratio, 0, 0, ratio, 0, 0);
     draw();
   }
 
+  function setStatus(text) {
+    ui.status.textContent = text;
+  }
+
+  function setPaused(paused) {
+    state.paused = paused;
+    ui.pause.textContent = paused ? "RESUME TRACKING" : "PAUSE TRACKING";
+    ui.pause.setAttribute("aria-pressed", String(paused));
+  }
+
   function reset() {
-    state.target = { x: 0.72, y: 0.34 };
+    state.elapsed = 0;
+    state.target = orbitPoint(0);
     state.tracker = { x: 0.5, y: 0.5 };
     state.observed = { ...state.target };
+    state.manual = null;
+    state.manualAge = 0;
     state.path = [];
-    state.elapsed = 0;
-    state.paused = false;
-    pauseButton.textContent = "PAUSE TRACKING";
-    pauseButton.setAttribute("aria-pressed", "false");
-    status.textContent = "TARGET ACQUIRED · TRACKING ACTIVE";
+    setPaused(false);
+    setStatus("TARGET ACQUIRED · TRACKING ACTIVE");
     updateReadouts();
     draw();
   }
@@ -62,16 +108,16 @@
     const elevation = Math.atan(-dy) * 180 / Math.PI;
     const error = Math.hypot(dx, dy);
     const confidence = Math.max(55, Math.round(99 - state.noise * 2.2 - error * 5));
-    confidenceReadout.textContent = `${confidence}%`;
-    azimuthReadout.textContent = `${azimuth >= 0 ? "+" : ""}${azimuth.toFixed(1)}°`;
-    elevationReadout.textContent = `${elevation >= 0 ? "+" : ""}${elevation.toFixed(1)}°`;
-    gainValue.textContent = state.gain.toFixed(2);
-    noiseValue.textContent = state.noise < 4 ? "LOW" : state.noise < 8 ? "MED" : "HIGH";
+    ui.confidence.textContent = `${confidence}%`;
+    ui.azimuth.textContent = `${azimuth >= 0 ? "+" : ""}${azimuth.toFixed(1)}°`;
+    ui.elevation.textContent = `${elevation >= 0 ? "+" : ""}${elevation.toFixed(1)}°`;
+    ui.gainValue.textContent = state.gain.toFixed(2);
+    ui.noiseValue.textContent = state.noise < 4 ? "LOW" : state.noise < 8 ? "MED" : "HIGH";
   }
 
   function draw() {
-    const width = state.width;
-    const height = state.height;
+    const { width, height } = state;
+    const context = ui.context;
     if (!width || !height) return;
     context.clearRect(0, 0, width, height);
 
@@ -100,12 +146,15 @@
       context.stroke();
     }
 
+    // Tracker -> observed (what the controller is actually steering toward).
     context.setLineDash([5, 5]);
     context.strokeStyle = "rgba(0,255,0,0.35)";
     context.beginPath(); context.moveTo(tracker.x, tracker.y); context.lineTo(observed.x, observed.y); context.stroke();
     context.setLineDash([]);
 
-    context.strokeStyle = "rgba(255,255,0,0.35)";
+    // True target.
+    context.strokeStyle = state.manual ? "rgba(255,255,0,0.7)" : "rgba(255,255,0,0.35)";
+    context.lineWidth = 1;
     context.beginPath(); context.arc(target.x, target.y, 18, 0, Math.PI * 2); context.stroke();
     context.strokeStyle = "#ffff00";
     context.lineWidth = 2;
@@ -115,77 +164,151 @@
     context.stroke();
     context.fillStyle = "#ffff00";
     context.font = "11px 'Fira Code', monospace";
-    context.fillText("TARGET", Math.min(target.x + 12, width - 58), Math.max(14, target.y - 12));
+    context.fillText(state.manual ? "MANUAL" : "TARGET", Math.min(target.x + 12, width - 58), Math.max(14, target.y - 12));
 
+    // Noisy observation of the target.
     context.fillStyle = "rgba(0,255,255,0.18)";
     context.beginPath(); context.arc(observed.x, observed.y, 7, 0, Math.PI * 2); context.fill();
+
+    // Tracker.
     context.strokeStyle = "#00ffff";
     context.lineWidth = 2;
     context.beginPath(); context.arc(tracker.x, tracker.y, 11, 0, Math.PI * 2); context.stroke();
     context.fillStyle = "#00ffff";
     context.beginPath(); context.arc(tracker.x, tracker.y, 3, 0, Math.PI * 2); context.fill();
-    context.fillStyle = "#00ffff";
     context.fillText("TRACKER", Math.min(tracker.x + 14, width - 68), Math.min(height - 8, tracker.y + 22));
   }
 
+  function step(delta) {
+    state.elapsed += delta;
+
+    // Decide where the true target wants to be: a manual click holds for a few
+    // seconds, then the target eases back onto its orbit.
+    let desired;
+    if (state.manual) {
+      state.manualAge += delta;
+      if (state.manualAge >= MANUAL_HOLD_SECONDS) {
+        state.manual = null;
+        setStatus("ORBIT RESUMED · TRACKING ACTIVE");
+        desired = orbitPoint(state.elapsed);
+      } else {
+        desired = state.manual;
+      }
+    } else {
+      desired = orbitPoint(state.elapsed);
+    }
+    const ease = Math.min(1, delta * 5);
+    state.target.x += (desired.x - state.target.x) * ease;
+    state.target.y += (desired.y - state.target.y) * ease;
+
+    // Sensor noise: slider 0-12 maps to up to ±6% of the viewport.
+    const noiseScale = state.noise / 100;
+    state.observed.x = state.target.x + (Math.random() - 0.5) * noiseScale;
+    state.observed.y = state.target.y + (Math.random() - 0.5) * noiseScale;
+
+    // Proportional controller, framerate-independent.
+    const response = 1 - Math.pow(1 - state.gain, delta * 60);
+    state.tracker.x += (state.observed.x - state.tracker.x) * response;
+    state.tracker.y += (state.observed.y - state.tracker.y) * response;
+    state.path.push({ ...state.tracker });
+    if (state.path.length > PATH_LENGTH) state.path.shift();
+
+    state.frame += 1;
+    if (state.frame % 8 === 0) updateReadouts();
+  }
+
   function animate(time) {
+    rafId = 0;
+    if (!root || !root.isConnected) return;
     if (!state.lastTime) state.lastTime = time;
     const delta = Math.min((time - state.lastTime) / 1000, 0.05);
     state.lastTime = time;
 
     if (!state.paused) {
-      state.elapsed += delta;
-      state.target.x = 0.5 + Math.sin(state.elapsed * 0.62) * 0.31;
-      state.target.y = 0.5 + Math.sin(state.elapsed * 0.91 + 1.2) * 0.29;
-      const noiseScale = state.noise / 1000;
-      state.observed.x = state.target.x + (Math.random() - 0.5) * noiseScale;
-      state.observed.y = state.target.y + (Math.random() - 0.5) * noiseScale;
-      const response = 1 - Math.pow(1 - state.gain, delta * 60);
-      state.tracker.x += (state.observed.x - state.tracker.x) * response;
-      state.tracker.y += (state.observed.y - state.tracker.y) * response;
-      state.path.push({ ...state.tracker });
-      if (state.path.length > 90) state.path.shift();
-      state.frame += 1;
-      if (state.frame % 8 === 0) updateReadouts();
+      step(delta);
       draw();
     }
-
-    if (!reducedMotion.matches) requestAnimationFrame(animate);
+    rafId = requestAnimationFrame(animate);
   }
 
-  gainInput.addEventListener("input", () => {
-    state.gain = Number(gainInput.value);
-    updateReadouts();
-  });
-  noiseInput.addEventListener("input", () => {
-    state.noise = Number(noiseInput.value);
-    updateReadouts();
-  });
-  pauseButton.addEventListener("click", () => {
-    state.paused = !state.paused;
-    pauseButton.textContent = state.paused ? "RESUME TRACKING" : "PAUSE TRACKING";
-    pauseButton.setAttribute("aria-pressed", String(state.paused));
-    status.textContent = state.paused ? "TRACKING PAUSED · MOTORS HOLD POSITION" : "TARGET ACQUIRED · TRACKING ACTIVE";
-    if (state.paused) updateReadouts();
-  });
-  resetButton.addEventListener("click", reset);
-  canvas.addEventListener("pointerdown", (event) => {
-    const bounds = canvas.getBoundingClientRect();
-    state.target.x = Math.max(0.05, Math.min(0.95, (event.clientX - bounds.left) / bounds.width));
-    state.target.y = Math.max(0.05, Math.min(0.95, (event.clientY - bounds.top) / bounds.height));
-    state.elapsed = Math.asin((state.target.x - 0.5) / 0.31) / 0.62;
-    status.textContent = "MANUAL TARGET SET · TRACKER REACQUIRING";
-  });
-  window.addEventListener("resize", resize);
-  if ("ResizeObserver" in window) new ResizeObserver(resize).observe(canvas);
-
-  resize();
-  updateReadouts();
-  if (reducedMotion.matches) {
-    status.textContent = "REDUCED MOTION · USE RESET TO RESTART TRACKING";
-    pauseButton.disabled = true;
-    state.paused = true;
-  } else {
-    requestAnimationFrame(animate);
+  function startLoop() {
+    if (rafId || reducedMotion.matches) return;
+    state.lastTime = 0;
+    rafId = requestAnimationFrame(animate);
   }
+
+  function stopLoop() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+  }
+
+  function bindEvents() {
+    ui.gain.addEventListener("input", () => {
+      state.gain = Number(ui.gain.value);
+      updateReadouts();
+    });
+    ui.noise.addEventListener("input", () => {
+      state.noise = Number(ui.noise.value);
+      updateReadouts();
+    });
+    ui.pause.addEventListener("click", () => {
+      setPaused(!state.paused);
+      setStatus(state.paused ? "TRACKING PAUSED · MOTORS HOLD POSITION" : "TARGET ACQUIRED · TRACKING ACTIVE");
+      if (state.paused) updateReadouts();
+    });
+    ui.reset.addEventListener("click", reset);
+    ui.close.addEventListener("click", close);
+    ui.canvas.addEventListener("pointerdown", (event) => {
+      const bounds = ui.canvas.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
+      state.manual = {
+        x: Math.max(0.05, Math.min(0.95, (event.clientX - bounds.left) / bounds.width)),
+        y: Math.max(0.05, Math.min(0.95, (event.clientY - bounds.top) / bounds.height))
+      };
+      state.manualAge = 0;
+      setStatus("MANUAL TARGET SET · TRACKER REACQUIRING");
+      if (state.paused || reducedMotion.matches) {
+        // No animation loop running: snap so the click is visible.
+        state.target = { ...state.manual };
+        state.observed = { ...state.manual };
+        updateReadouts();
+        draw();
+      }
+    });
+    window.addEventListener("resize", resize);
+    if ("ResizeObserver" in window) new ResizeObserver(resize).observe(ui.canvas);
+  }
+
+  function open(host, options = {}) {
+    if (!host) return null;
+    if (!root) build();
+    onClose = typeof options.onClose === "function" ? options.onClose : null;
+    if (root.parentNode !== host) host.appendChild(root);
+    resize();
+    updateReadouts();
+    if (reducedMotion.matches) {
+      setStatus("REDUCED MOTION · CLICK THE VIEWPORT TO MOVE THE TARGET");
+      ui.pause.disabled = true;
+      state.paused = true;
+      draw();
+    } else {
+      startLoop();
+    }
+    return root;
+  }
+
+  function close() {
+    if (!root || !root.isConnected) return;
+    stopLoop();
+    root.remove();
+    const callback = onClose;
+    onClose = null;
+    if (callback) callback();
+  }
+
+  function isOpen() {
+    return Boolean(root && root.isConnected);
+  }
+
+  window.RoboticsLab = { open, close, isOpen };
 })();

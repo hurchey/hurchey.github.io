@@ -674,6 +674,8 @@ class TerminalPortfolio {
       history: () => this.showHistory(),
       exit: () => this.addOutput("Close the tab to exit.", "warning"),
       hack: () => this.startHackingGame(),
+      robotics: () => this.openRoboticsLab(),
+      lab: () => this.openRoboticsLab(),
       matrix: () => this.matrixEffect(),
       "red pill": () => this.redPill(),
       "blue pill": () => this.bluePill(),
@@ -710,7 +712,7 @@ class TerminalPortfolio {
 
     document.addEventListener("click", (event) => {
       const hackActive = document.getElementById("hackingContainer").classList.contains("active");
-      if (!hackActive && !event.target.closest(".quick-commands-bar")) {
+      if (!hackActive && !event.target.closest(".quick-commands-bar") && !event.target.closest(".robotics-console")) {
         this.focusInput();
       }
     });
@@ -1136,6 +1138,7 @@ class TerminalPortfolio {
     this.addOutput("  grep <pattern>     Search inside files", "info");
     this.addOutput("  clear              Clear terminal", "info");
     this.addOutput("  hack               Launch hacking mini-game", "success");
+    this.addOutput("  robotics           Open the autonomy lab tracking demo", "success");
     this.addOutput("  matrix             Matrix rain effect", "success");
     this.addOutput("  trace | signal | exit-matrix", "warning");
     this.addOutput("  red pill | blue pill", "warning");
@@ -1145,6 +1148,7 @@ class TerminalPortfolio {
   }
 
   clearTerminal() {
+    if (window.RoboticsLab && window.RoboticsLab.isOpen()) window.RoboticsLab.close();
     this.output.innerHTML = "";
     this.currentPath = "~";
     this.matrixUnlocked = false;
@@ -1152,6 +1156,22 @@ class TerminalPortfolio {
     this.updatePrompt();
     if (this.ghostEl) this.ghostEl.textContent = "";
     this.showWelcomeMessage();
+  }
+
+  openRoboticsLab() {
+    const lab = window.RoboticsLab;
+    if (!lab) {
+      this.addOutput("Autonomy lab failed to load.", "error");
+      return;
+    }
+    if (lab.isOpen()) {
+      this.addOutput("Autonomy lab is already open. Use CLOSE [X] or `clear` to dismiss it.", "warning");
+    } else {
+      this.addOutput("Booting autonomy lab: lidar + camera perception → two-axis motor control.", "success");
+      this.addOutput("Tune gain and noise, or click the viewport to drop a manual target.", "info");
+      lab.open(this.output, { onClose: () => this.focusInput() });
+    }
+    this.scrollToBottom();
   }
 
   printWorkingDirectory() {
